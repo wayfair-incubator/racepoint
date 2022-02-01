@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./build"
+  },
+  "references": [
+    {
+      "path": "./packages/proxy"
+    },
+    {
+      "path": "./packages/racer"
+    }
+  ],
+  "include": ["src"],
+  "exclude": ["node_modules", "**/__tests__/*", "**/*.test.ts"]
+}

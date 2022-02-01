@@ -1,0 +1,33 @@
+version: '3.4'
+services:
+  raceproxy:
+    container_name: raceproxy
+    build:
+      context: ./packages/proxy/.
+      dockerfile: Dockerfile
+    # volumes:
+    #   - type: bind
+    #     source: ${RP_HOME}
+    #     target: /var/lib/racepoint
+    ports:
+      - '443:443'
+      - '80:80'
+      # - "443:8443"
+    image: rp-proxy
+
+  racer:
+    container_name: racer
+    network_mode: service:raceproxy
+    build:
+      context: ./packages/racer/.
+      dockerfile: Dockerfile
+    # volumes:
+    #   - type: bind
+    #     source: ${RP_HOME}
+    #     target: /var/lib/racepoint
+    environment:
+      - HTTP_PROXY=raceproxy:80
+      - http_proxy=raceproxy:80
+      - HTTPS_PROXY=raceproxy:443
+      - https_proxy=raceproxy:443
+    image: rp-racer
