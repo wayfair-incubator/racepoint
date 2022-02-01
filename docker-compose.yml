@@ -5,10 +5,6 @@ services:
     build:
       context: ./packages/proxy/.
       dockerfile: Dockerfile
-    # volumes:
-    #   - type: bind
-    #     source: ${RP_HOME}
-    #     target: /var/lib/racepoint
     ports:
       - '443:443'
       - '80:80'
@@ -17,14 +13,13 @@ services:
 
   racer:
     container_name: racer
-    network_mode: service:raceproxy
+    # temporary
+    # network_mode: service:raceproxy
     build:
       context: ./packages/racer/.
       dockerfile: Dockerfile
-    # volumes:
-    #   - type: bind
-    #     source: ${RP_HOME}
-    #     target: /var/lib/racepoint
+    ports:
+      - '3000:3000'
     environment:
       - HTTP_PROXY=raceproxy:80
       - http_proxy=raceproxy:80

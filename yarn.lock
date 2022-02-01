@@ -687,6 +687,13 @@
   resolved "***REMOVED***/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
+"@types/md5@^2.3.1":
+  version "2.3.1"
+  resolved "***REMOVED***/@types/md5/-/md5-2.3.1.tgz#010bcf3bb50a2cff3a574cb1c0b4051a9c67d6bc"
+  integrity sha1-AQvPO7UKLP86V0yxwLQFGpxn1rw=
+  dependencies:
+    "@types/node" "*"
+
 "@types/node-fetch@^2":
   version "2.5.12"
   resolved "***REMOVED***/@types/node-fetch/-/node-fetch-2.5.12.tgz#8a6f779b1d4e60b7a57fb6fd48d84fb545b9cc66"
