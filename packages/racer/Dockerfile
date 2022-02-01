@@ -9,7 +9,7 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/rep
     echo "https://dl-cdn.alpinelinux.org/alpine/v3.14/main/" >> /etc/apk/repositories
 
 RUN apk upgrade && \
-    apk add chromium
+    apk add --no-cache chromium bash
 
 COPY . /rp/
 WORKDIR /rp/
@@ -17,4 +17,6 @@ WORKDIR /rp/
 RUN npm install
 RUN npm install -g lighthouse
 
-CMD tail -f /dev/null
+EXPOSE 3000/tcp
+
+CMD node build/index.js
