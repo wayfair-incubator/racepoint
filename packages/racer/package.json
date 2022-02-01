@@ -4,17 +4,17 @@
   "description": "The profiling aspect of racepoint",
   "author": "spember@wayfair.com",
   "license": "ISC",
-  "dependencies": {
-    "chrome-launcher": "^0.14.2",
-    "figlet": "^1.5.2",
-    "lighthouse": "^9.2.0",
-    "node-fetch": "^2"
-  },
   "scripts": {
     "setup": "yarn install && yarn install -g"
   },
   "bin": {
     "race": "./race.js"
+  },
+  "dependencies": {
+    "chrome-launcher": "^0.14.2",
+    "figlet": "^1.5.2",
+    "lighthouse": "^9.2.0",
+    "node-fetch": "^2"
   },
   "devDependencies": {
     "@types/node-fetch": "^2"
