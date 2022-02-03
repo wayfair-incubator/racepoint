@@ -13,16 +13,9 @@ services:
 
   racer:
     container_name: racer
-    # temporary
-    # network_mode: service:raceproxy
     build:
       context: ./packages/racer/.
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
-    environment:
-      - HTTP_PROXY=raceproxy:80
-      - http_proxy=raceproxy:80
-      - HTTPS_PROXY=raceproxy:443
-      - https_proxy=raceproxy:443
     image: rp-racer
