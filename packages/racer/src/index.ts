@@ -1,7 +1,8 @@
+import url from 'url';
 import http from 'http';
 import {IncomingMessage, ServerResponse} from 'http';
 import {fetchUrlFromProxy} from './scenarios/fetch';
-import url from 'url';
+import {fetchFingerprint} from './fingerprint';
 
 // two modes: one, starts the racer server. This is the chief mode of
 // operation and is what will be hit by external services
@@ -16,9 +17,10 @@ const runProxy = async () => {
       if (req.url && req.url.startsWith('/fetch')) {
         console.log('fetching! ', req.headers['host']);
         const queryObject = url.parse(req.url, true).query;
-        console.log(queryObject['url']);
         fetchUrlFromProxy(queryObject['url']!!.toString());
         res.statusCode = 200;
+      } else if (req.url && req.url.startsWith('/fingerprint')) {
+        console.log(fetchFingerprint());
       } else {
         res.statusCode = 404;
       }
