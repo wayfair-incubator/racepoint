@@ -19,9 +19,9 @@ const fetchFingerprint = async (): Promise<object> => {
     agent: RaceProxyHttpsAgent,
   });
   const data = await response.json();
-  const spkiFingerprint = data?.spkiFingerprint;
-  console.log(`Received fingerprint: ${spkiFingerprint}`);
-  return {fingerprint: spkiFingerprint};
+  const fingerprint = data?.spkiFingerprint;
+  console.log(`Received fingerprint: ${fingerprint}`);
+  return {fingerprint};
 };
 
 export const FingerprintEndpoint: RegisteredEndpoint = {
