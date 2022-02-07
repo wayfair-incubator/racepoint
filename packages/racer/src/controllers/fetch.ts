@@ -4,17 +4,21 @@
  * to control just how much text comes back
  */
 import fetch from 'node-fetch';
-import {RegisteredEndpoint, RaceProxyHttpsAgent} from './common';
+import {
+  RegisteredEndpoint,
+  RaceProxyHttpsAgent,
+  selectAgentForProtocol,
+} from './common';
 
 const fetchUrlFromProxy = async (
   url: string,
   requestedLength: number = 100
 ) => {
   const response = await fetch(url, {
-    agent: RaceProxyHttpsAgent,
+    agent: selectAgentForProtocol(url),
   });
   const body = await response.text();
-  console.log('Here is the response:', body.slice(0, requestedLength));
+  // potential metric location: successful response
   return body.slice(0, requestedLength);
 };
 
