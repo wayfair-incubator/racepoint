@@ -1,15 +1,43 @@
 import url from 'url';
 import https from 'https';
-import http, {Agent} from 'http';
+import http from 'http';
 import {IncomingMessage, ServerResponse} from 'http';
 
-export interface RegisteredEndpoint {
+export interface RegisteredEndpoint<T> {
   path: string;
+  method: string;
   handler: (
     request: IncomingMessage,
     response: ServerResponse,
     url: url.UrlWithParsedQuery
-  ) => Promise<any>;
+  ) => Promise<EndpointResponse<T>>;
+}
+
+export class EndpointResponse<T> {
+  private statusCode = 200;
+  private body: T;
+
+  constructor(body: T) {
+    this.body = body;
+  }
+
+  public withBody(body: T): EndpointResponse<T> {
+    this.body = body;
+    return this;
+  }
+
+  public withStatusCode(updatedCode: number): EndpointResponse<T> {
+    this.statusCode = updatedCode;
+    return this;
+  }
+
+  public getStatusCode() {
+    return this.statusCode;
+  }
+
+  public getBody() {
+    return this.body;
+  }
 }
 
 export const RaceProxyHttpsAgent = new https.Agent({
@@ -32,3 +60,16 @@ export const selectAgentForProtocol = (
     return RaceProxyHttpAgent;
   }
 };
+
+export const extractBodyFromRequest = (
+  request: IncomingMessage
+): Promise<object> =>
+  new Promise((resolve, reject) => {
+    let payload = '';
+    request.on('data', (chunk) => {
+      payload += chunk;
+    });
+    request.on('end', () => {
+      resolve(JSON.parse(payload));
+    });
+  });
