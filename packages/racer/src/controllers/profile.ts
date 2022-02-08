@@ -8,6 +8,7 @@ import {
   extractBodyFromRequest,
 } from './common';
 import {UsageLock} from '../usageLock';
+import {submitLighthouseRun} from '../profiling/index';
 
 /**
  * Defines the configuration and properties we expect for a given Lighthouse run
@@ -42,7 +43,9 @@ const maybeRunLighthouse = async (
           .withBody({error: 'Racer is currently in use'});
       } else {
         // kick start Lighthouse
-        response.withBody({job: 123});
+        const jobId = submitLighthouseRun(context.targetUrl);
+        console.log('Job Id ', jobId);
+        response.withBody({jobId});
       }
       return Promise.resolve(response);
     });
