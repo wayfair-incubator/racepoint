@@ -5,7 +5,8 @@
   "author": "spember@wayfair.com",
   "license": "ISC",
   "scripts": {
-    "setup": "yarn install && yarn install -g"
+    "setup": "yarn install && yarn install -g",
+    "test": "mocha -r ts-node/register 'tests/*.ts'"
   },
   "bin": {
     "race": "./race.js"

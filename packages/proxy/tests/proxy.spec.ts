@@ -103,7 +103,6 @@ describe('HTTPS Server', () => {
       resolveWithFullResponse: true,
     })
       .then((response) => {
-        console.log('DID WE GET HERE');
         const parsedBody = JSON.parse(response.body);
         fingerprint = parsedBody.spkiFingerprint;
         expect(response.statusCode).to.equal(200);
