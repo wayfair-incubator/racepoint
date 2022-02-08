@@ -6,9 +6,12 @@
 import fetch from 'node-fetch';
 import {
   RegisteredEndpoint,
-  RaceProxyHttpsAgent,
+  EndpointResponse,
   selectAgentForProtocol,
 } from './common';
+
+const URL = 'url';
+const SIZE = 'size';
 
 const fetchUrlFromProxy = async (
   url: string,
@@ -22,20 +25,26 @@ const fetchUrlFromProxy = async (
   return body.slice(0, requestedLength);
 };
 
-export const FetchEndpoint: RegisteredEndpoint = {
+export const FetchEndpoint: RegisteredEndpoint<object> = {
   path: '/fetch',
+  method: 'GET',
   handler: async (req, res, parsedUrl) => {
-    const target = parsedUrl.query['url'];
+    const response = new EndpointResponse({});
+    const target = parsedUrl.query[URL];
+
     if (target === undefined) {
-      throw new Error('This endpoint requires a url');
+      // throw new Error(`This endpoint requires a value for ${URL}`);
+      return response
+        .withBody({error: `This endpoint requires a value for ${URL}`})
+        .withStatusCode(400);
     }
 
     const html = await fetchUrlFromProxy(
       target.toString(),
-      parsedUrl.query['size']
-        ? parseInt(parsedUrl.query['size'].toString())
+      parsedUrl.query[SIZE]
+        ? parseInt(parsedUrl.query[SIZE]!!.toString())
         : undefined
     );
-    return {html};
+    return response.withBody({html});
   },
 };
