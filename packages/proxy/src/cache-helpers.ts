@@ -72,7 +72,10 @@ export const cacheExtractedProxyResponse = async (
       console.log('Writing to cache...');
 
       cacheInstance.write(key, {
-        headers: proxyResponse.headers,
+        headers: {
+          ...proxyResponse.headers,
+          [CACHE_KEY_HEADER]: key,
+        },
         status: proxyResponse.statusCode
           ? proxyResponse.statusCode
           : StatusCodes.OK,
