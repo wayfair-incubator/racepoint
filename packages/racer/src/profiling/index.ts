@@ -94,10 +94,11 @@ const doLighthouse = (assignedJobId: number, targetUrl: string) => {
           onlyCategories: ['performance'],
         },
       }).then((results: LighthouseWrapper) => {
-        // release lock, persist results by id
-        LighthouseResultsRepository.write(assignedJobId, results).then(() =>
-          UsageLock.getInstance().release()
-        );
+        //cleanup and save results
+        chrome
+          .kill()
+          .then(() => LighthouseResultsRepository.write(assignedJobId, results))
+          .then(() => UsageLock.getInstance().release());
       });
     });
   });
