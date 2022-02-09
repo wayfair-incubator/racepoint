@@ -2,6 +2,7 @@ import lighthouse from 'lighthouse';
 import {launch, Options} from 'chrome-launcher';
 import {EventEmitter} from 'stream';
 import {LighthouseWrapper} from './results';
+import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
 
 export {LighthouseResults} from './results';
@@ -11,15 +12,16 @@ export {LighthouseResults} from './results';
  *
  * @param targetUrl string of the url to profile
  */
-export const submitLighthouseRun = (targetUrl: string) => {
+export const submitLighthouseRun = (targetUrl: string): Promise<number> => {
   // what should the id be? a uuid? something based on url hash? incrementing based on the runs already found?
   // for now, we'll just return a 1 for testing ;)
-
-  doLighthouse(targetUrl);
-  return 1;
+  return LighthouseResultsRepository.getNextId().then((jobId) => {
+    doLighthouse(jobId, targetUrl);
+    return jobId;
+  });
 };
 
-const doLighthouse = (targetUrl: string) => {
+const doLighthouse = (assignedJobId: number, targetUrl: string) => {
   const chromeOptions: Options = {
     // startingUrl: context.getStartingUrl(),
     logLevel: 'error',
@@ -95,9 +97,11 @@ const doLighthouse = (targetUrl: string) => {
         settings: {
           onlyCategories: ['performance'],
         },
-      }).then((results: any) => {
-        console.log('Ahh done!', results);
-        UsageLock.getInstance().release();
+      }).then((results: LighthouseWrapper) => {
+        // release lock, persist results by id
+        LighthouseResultsRepository.write(assignedJobId, results).then(() =>
+          UsageLock.getInstance().release()
+        );
       });
     });
   });
