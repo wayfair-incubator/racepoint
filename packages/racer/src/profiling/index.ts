@@ -13,8 +13,6 @@ export {LighthouseResults} from './results';
  * @param targetUrl string of the url to profile
  */
 export const submitLighthouseRun = (targetUrl: string): Promise<number> => {
-  // what should the id be? a uuid? something based on url hash? incrementing based on the runs already found?
-  // for now, we'll just return a 1 for testing ;)
   return LighthouseResultsRepository.getNextId().then((jobId) => {
     doLighthouse(jobId, targetUrl);
     return jobId;
@@ -35,7 +33,6 @@ const doLighthouse = (assignedJobId: number, targetUrl: string) => {
     // screenEmulation: userConfig.screenEmulation,
   };
   launch(chromeOptions).then((chrome) => {
-    // this.emit(ProfilerEvents.ChromeStarted);
     const lhFlags = {
       //   chromeOptions.chromeFlags,
       port: chrome.port,
@@ -43,7 +40,6 @@ const doLighthouse = (assignedJobId: number, targetUrl: string) => {
       // maxWaitForLoad: 12500
     };
     return new Promise((resolve, reject) => {
-      //   this.emit(ProfilerEvents.LighthouseStarted);
       const lighthouseStart = Date.now();
       lighthouse(targetUrl, lhFlags, {
         output: 'html',
