@@ -12,16 +12,25 @@ import {fetchFingerprint} from './fingerprint';
 const runProxy = async () => {
   const server = await http.createServer(
     async (req: IncomingMessage, res: ServerResponse) => {
-      console.log('received a hit to ', req.url);
+      console.log('Received a hit to this place', req.url);
+
+      console.log(req.url, req.url && req.url.startsWith('/fetch'));
 
       if (req.url && req.url.startsWith('/fetch')) {
         console.log('fetching! ', req.headers['host']);
-        const queryObject = url.parse(req.url, true).query;
-        fetchUrlFromProxy(queryObject['url']!!.toString());
+
+        const queryObject = url.parse(req.url, true);
+
+        console.log(queryObject);
+
+        // queryObject.query;
+
+        // fetchUrlFromProxy(queryObject['url']!!.toString());
         res.statusCode = 200;
       } else if (req.url && req.url.startsWith('/fingerprint')) {
         console.log(fetchFingerprint());
       } else {
+        console.log('We are intending to do this');
         res.statusCode = 404;
       }
 
