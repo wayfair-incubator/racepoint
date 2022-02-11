@@ -6,7 +6,7 @@ import {
   RegisteredEndpoint,
   EndpointResponse,
   extractBodyFromRequest,
-} from './common';
+} from '../server/utils';
 import {UsageLock} from '../usageLock';
 import {submitLighthouseRun} from '../profiling/index';
 

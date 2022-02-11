@@ -1,6 +1,5 @@
 import lighthouse from 'lighthouse';
 import {launch, Options} from 'chrome-launcher';
-import {EventEmitter} from 'stream';
 import {LighthouseWrapper} from './results';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
@@ -36,11 +35,11 @@ const doLighthouse = (assignedJobId: number, targetUrl: string) => {
     const lhFlags = {
       //   chromeOptions.chromeFlags,
       port: chrome.port,
+      output: 'html',
       // unfortunately, setting a max wait causes the lighthouse run to break. can investigate in the future
       // maxWaitForLoad: 12500
     };
     return new Promise((resolve, reject) => {
-      const lighthouseStart = Date.now();
       lighthouse(targetUrl, lhFlags, {
         output: 'html',
         extends: 'lighthouse:default',

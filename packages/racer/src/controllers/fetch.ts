@@ -4,11 +4,8 @@
  * to control just how much text comes back
  */
 import fetch from 'node-fetch';
-import {
-  RegisteredEndpoint,
-  EndpointResponse,
-  selectAgentForProtocol,
-} from './common';
+import {selectAgentForProtocol} from './common';
+import {RegisteredEndpoint, EndpointResponse} from '../server/utils';
 
 const URL = 'url';
 const SIZE = 'size';
@@ -33,7 +30,6 @@ export const FetchEndpoint: RegisteredEndpoint<object> = {
     const target = parsedUrl.query[URL];
 
     if (target === undefined) {
-      // throw new Error(`This endpoint requires a value for ${URL}`);
       return response
         .withBody({error: `This endpoint requires a value for ${URL}`})
         .withStatusCode(400);
