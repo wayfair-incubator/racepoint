@@ -7,11 +7,8 @@
  * (retrieving the fingerprint on startup can result in a race condition of the proxy hasn't started yet)
  */
 import fetch from 'node-fetch';
-import {
-  RegisteredEndpoint,
-  EndpointResponse,
-  RaceProxyHttpsAgent,
-} from './common';
+import {RegisteredEndpoint, EndpointResponse} from '../server/utils';
+import {selectAgentForProtocol} from './common';
 
 // this should be configurable and / or an env var (e.g. locally we'd want this to be localhost)
 const FINGERPRINT_ENDPOINT = 'https://raceproxy.com/fingerprint';
@@ -20,7 +17,7 @@ const fetchFingerprint = async (): Promise<object> => {
   console.log('Retrieving fingerprint from proxy...');
 
   const response = await fetch(FINGERPRINT_ENDPOINT, {
-    agent: RaceProxyHttpsAgent,
+    agent: selectAgentForProtocol(FINGERPRINT_ENDPOINT),
   });
   const data = await response.json();
   const fingerprint = data?.spkiFingerprint;

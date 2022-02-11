@@ -5,7 +5,7 @@
 
 import {LighthouseResultsWrapper} from './results';
 
-interface RepositoryRecord {
+export interface RepositoryRecord {
   jobId: number;
   timestamp: Date;
   results: LighthouseResultsWrapper;
@@ -38,7 +38,6 @@ export class LighthouseResultsRepository {
       timestamp: new Date(),
       results: data,
     });
-    console.log('repository size is now ', this._store.length);
     return Promise.resolve(jobId);
   }
 
