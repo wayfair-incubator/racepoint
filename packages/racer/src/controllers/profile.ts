@@ -27,22 +27,16 @@ const maybeRunLighthouse = async (
   context: RaceContext
 ): Promise<EndpointResponse<object>> => {
   // try to get a lock; if LH is currently in use, send back a 503!
-  return UsageLock.getInstance()
-    .tryAcquire()
-    .then((obtained) => {
-      // return a promise, either resolving the locked response or the initating of lighthouse
-      if (obtained === false) {
-        return new EndpointResponse({
-          error: 'Racer is currently in use',
-        }).withStatusCode(503);
-      } else {
-        return submitLighthouseRun(context.targetUrl).then(
-          (jobId) => new EndpointResponse({jobId})
-        );
-      }
+  if (await UsageLock.getInstance().tryAcquire()) {
+    return new EndpointResponse({
+      // submit lighthouse run; it will return nearly immediately but then run an additional async process
+      jobId: await submitLighthouseRun(context.targetUrl),
     });
-
-  // get lock, then, if locked return failure, otherwise execute lighthouse
+  } else {
+    return new EndpointResponse({
+      error: 'Racer is currently in use',
+    }).withStatusCode(503);
+  }
 };
 
 export const ProfileEndpoint: RegisteredEndpoint<object> = {

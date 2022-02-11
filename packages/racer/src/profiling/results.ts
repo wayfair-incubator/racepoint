@@ -44,7 +44,7 @@ interface LighthouseTiming {
   total: number;
 }
 
-export interface LighthouseWrapper {
+export interface LighthouseResultsWrapper {
   lhr: LighthouseResults;
   report: string; // the raw text of the html
 }
