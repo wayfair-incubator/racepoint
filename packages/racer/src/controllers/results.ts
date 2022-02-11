@@ -12,7 +12,7 @@ import {IncomingMessage} from 'http';
 
 const RESULT_ID = 'resultId';
 
-export const ResultsEndpoint: RegisteredEndpoint<object> = {
+export const ResultsGet: RegisteredEndpoint<object> = {
   path: `/results/{${RESULT_ID}}`,
   method: 'GET',
   handler: async (req, res, parsedUrl, args) => {
