@@ -10,21 +10,38 @@ import {
 } from '../profiling/repository';
 import {IncomingMessage} from 'http';
 
+const RESULT_ID = 'resultId';
+
 export const ResultsEndpoint: RegisteredEndpoint<object> = {
-  path: '/results/{resultId}',
+  path: `/results/{${RESULT_ID}}`,
   method: 'GET',
   handler: async (req, res, parsedUrl, args) => {
-    return LighthouseResultsRepository.read(
-      parseInt(args!!['resultId']!!)
-    ).then((record) => {
-      let response = new EndpointResponse({});
-      if (record) {
-        response = selectResponseTypeByHeader(req, record);
-      } else {
-        response.withStatusCode(404);
-      }
-      return Promise.resolve(response);
-    });
+    const record = await LighthouseResultsRepository.read(
+      parseInt(args!![RESULT_ID]!!)
+    );
+    let response = new EndpointResponse({});
+    if (record) {
+      response = selectResponseTypeByHeader(req, record);
+    } else {
+      response.withStatusCode(404);
+    }
+    return response;
+  },
+};
+
+export const ResultsDelete: RegisteredEndpoint<any> = {
+  path: `/results/{${RESULT_ID}}`,
+  method: 'DELETE',
+  handler: async (req, res, parsedUrl, args) => {
+    const response = new EndpointResponse({});
+    if (args && args[RESULT_ID]) {
+      await LighthouseResultsRepository.delete(parseInt(args[RESULT_ID]));
+      console.log(`Result for job '${args[RESULT_ID]}' deleted`);
+      response.withStatusCode(204);
+    } else {
+      response.withStatusCode(404);
+    }
+    return response;
   },
 };
 
