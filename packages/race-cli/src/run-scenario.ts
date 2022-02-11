@@ -1,7 +1,7 @@
 import {ScenarioContext, Scenario} from './types';
 import path from 'path';
 import compose from 'docker-compose';
-import axios from 'axios';
+import axios, {AxiosError, AxiosResponse} from 'axios';
 
 const MAX_RETRIES = 5;
 const RETRY_INTERVAL_MS = 50;
@@ -53,13 +53,13 @@ export class RunScenario extends Scenario<RunContext> {
                   insecureHTTPParser: true,
                   data: context,
                 })
-                .then(function (response: any) {
+                .then(function (response: AxiosResponse) {
                   // handle success
                   console.log(response.statusText);
 
                   compose.down();
                 })
-                .catch(function (error: any) {
+                .catch(function (error: AxiosError) {
                   // handle error
                   if (error.code === 'ECONNRESET' && retry <= MAX_RETRIES) {
                     console.log(`Racer was not ready yet! (${retry} retries)`);
