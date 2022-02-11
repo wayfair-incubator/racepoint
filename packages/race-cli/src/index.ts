@@ -1,7 +1,6 @@
 #! /usr/bin/env node
-const commander = require('commander');
-const {argumentHelper, descriptionHelper, raceLogo} = require('./cli-helpers');
-import {scenarios} from './scenarios';
+import commander from 'commander';
+import {argumentHelper, descriptionHelper, raceLogo} from './cli-helpers';
 import {RunScenario} from './run-scenario';
 
 const program = new commander.Command();
@@ -15,13 +14,13 @@ function parseIntArg(value: any) {
   return parsedValue;
 }
 
-function myParseURL(value: any) {
-  if (typeof value === 'string' && value?.startsWith('http')) {
-    return value;
-  } else {
-    throw new commander.InvalidArgumentError('Not a valid URL.');
-  }
-}
+// function myParseURL(value: any) {
+//   if (typeof value === 'string' && value?.startsWith('http')) {
+//     return value;
+//   } else {
+//     throw new commander.InvalidArgumentError('Not a valid URL.');
+//   }
+// }
 
 program
   .name('race')
@@ -80,12 +79,12 @@ program
   .option(
     '--raceproxy-port <number>',
     descriptionHelper('Port to start the raceproxy container'),
-    443
+    '443'
   )
   .option(
     '--racer-port <number>',
     descriptionHelper('Port to start the racer container'),
-    3000
+    '3000'
   )
   .usage('http://neopets.com')
   .action((url: string, options: any) => {
@@ -95,23 +94,23 @@ program
     });
   });
 
-program
-  .command('start')
-  .description(
-    descriptionHelper('Initialize a Race-point reverse proxy server')
-  )
-  .option('-p, --port <number>', 'Port to start on', 80)
-  // .argument('<url>', 'URL to race')
-  .action((str: any, options: any) => {
-    console.log(str, options);
-  });
+// program
+//   .command('start')
+//   .description(
+//     descriptionHelper('Initialize a Race-point reverse proxy server')
+//   )
+//   .option('-p, --port <number>', 'Port to start on', 80)
+//   // .argument('<url>', 'URL to race')
+//   .action((str: any, options: any) => {
+//     console.log(str, options);
+//   });
 
-program
-  .command('get')
-  .description(descriptionHelper('Get info about a URL'))
-  .argument('<url>', 'URL to race')
-  .action((str: any, options: any) => {
-    console.log(str, options);
-  });
+// program
+//   .command('get')
+//   .description(descriptionHelper('Retrieve a result from the data store'))
+//   .argument('<jobId>', 'Job ID')
+//   .action((str: any, options: any) => {
+//     console.log(str, options);
+//   });
 
 program.parse();
