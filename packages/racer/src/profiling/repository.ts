@@ -3,12 +3,12 @@
  *
  */
 
-import {LighthouseWrapper} from './results';
+import {LighthouseResultsWrapper} from './results';
 
 interface RepositoryRecord {
   jobId: number;
   timestamp: Date;
-  results: LighthouseWrapper;
+  results: LighthouseResultsWrapper;
 }
 
 // at first this will be an in-memory queue, but eventually should make use of writing files to tmp or even better, a datastore
@@ -29,7 +29,10 @@ export class LighthouseResultsRepository {
     );
   }
 
-  public static write(jobId: number, data: LighthouseWrapper): Promise<number> {
+  public static write(
+    jobId: number,
+    data: LighthouseResultsWrapper
+  ): Promise<number> {
     this._store.push({
       jobId,
       timestamp: new Date(),
