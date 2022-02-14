@@ -1,4 +1,4 @@
 import {Scenario} from './types';
-import {RunScenario} from './run-scenario';
+import {ProfileScenario} from './profile';
 
-export const scenarios: Scenario<any>[] = [new RunScenario()];
+export const scenarios: Scenario<any>[] = [new ProfileScenario()];

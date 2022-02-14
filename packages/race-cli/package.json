@@ -9,6 +9,7 @@
     "race": "./build/index.js"
   },
   "dependencies": {
+    "async-await-retry": "^1.2.4",
     "axios": "^0.25.0",
     "chalk": "^4",
     "commander": "^9.0.0",

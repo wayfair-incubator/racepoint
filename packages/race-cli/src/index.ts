@@ -1,26 +1,14 @@
 #! /usr/bin/env node
 import commander from 'commander';
-import {argumentHelper, descriptionHelper, raceLogo} from './cli-helpers';
-import {RunScenario} from './run-scenario';
+import {
+  argumentHelper,
+  descriptionHelper,
+  raceLogo,
+  parseIntArg,
+} from './helpers';
+import {ProfileScenario, PROFILE_COMMAND} from './profile';
 
 const program = new commander.Command();
-
-function parseIntArg(value: any) {
-  // parseInt takes a string and a radix
-  const parsedValue = parseInt(value, 10);
-  if (isNaN(parsedValue)) {
-    throw new commander.InvalidArgumentError('Not a number.');
-  }
-  return parsedValue;
-}
-
-// function myParseURL(value: any) {
-//   if (typeof value === 'string' && value?.startsWith('http')) {
-//     return value;
-//   } else {
-//     throw new commander.InvalidArgumentError('Not a valid URL.');
-//   }
-// }
 
 program
   .name('race')
@@ -35,7 +23,7 @@ program
   .usage('[command]');
 
 program
-  .command('run')
+  .command(PROFILE_COMMAND)
   .description(
     descriptionHelper('Perform a number of Lighthouse runs against a target')
   )
@@ -88,29 +76,10 @@ program
   )
   .usage('http://neopets.com')
   .action((url: string, options: any) => {
-    new RunScenario().enter({
+    new ProfileScenario().enter({
       url,
       ...options,
     });
   });
-
-// program
-//   .command('start')
-//   .description(
-//     descriptionHelper('Initialize a Race-point reverse proxy server')
-//   )
-//   .option('-p, --port <number>', 'Port to start on', 80)
-//   // .argument('<url>', 'URL to race')
-//   .action((str: any, options: any) => {
-//     console.log(str, options);
-//   });
-
-// program
-//   .command('get')
-//   .description(descriptionHelper('Retrieve a result from the data store'))
-//   .argument('<jobId>', 'Job ID')
-//   .action((str: any, options: any) => {
-//     console.log(str, options);
-//   });
 
 program.parse();
