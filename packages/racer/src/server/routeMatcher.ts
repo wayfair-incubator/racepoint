@@ -24,19 +24,19 @@ export class RouteMatcher {
   }
 
   public match(targetUrl: string, method: string): undefined | MatchedEndpoint {
-    const match = this._routes.find(
-      (ctx) =>
-        targetUrl.match(ctx.routeReg) !== null &&
-        ctx.endpoint.method.toUpperCase() === method.toUpperCase()
+    const matchedContext = this._routes.find(
+      (context) =>
+        targetUrl.match(context.routeReg) !== null &&
+        context.endpoint.method.toUpperCase() === method.toUpperCase()
     );
     let response: MatchedEndpoint | undefined = undefined;
-    if (match) {
-      const breakdown = targetUrl.match(match.routeReg);
+    if (matchedContext) {
+      const breakdown = targetUrl.match(matchedContext.routeReg);
       response = {
-        endpoint: match.endpoint,
+        endpoint: matchedContext.endpoint,
         args: {},
       };
-      match.symbols.forEach((key, index) => {
+      matchedContext.symbols.forEach((key, index) => {
         response!!.args[key] = breakdown!![index + 1];
       });
     }
