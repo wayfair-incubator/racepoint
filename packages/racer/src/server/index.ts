@@ -26,8 +26,8 @@ export const initialize = (
       .handler(req, res, parsedUrl, context.args)
       .then((value) => {
         res.writeHead(value.getStatusCode(), value.getHeaders());
-        if (typeof value.getBody() == 'string') {
-          // no op
+        if (typeof value.getBody() == 'undefined') {
+          // no op, there's no body (e.g. a 204)
         } else if (typeof value.getBody() == 'string') {
           res.write(value.getBody());
         } else if (typeof value.getBody() == 'object') {
