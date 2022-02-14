@@ -46,7 +46,7 @@ describe('Route Parsing', () => {
     expect(result!!.args['fooId']).to.be.equal('123');
   });
 
-  it('should not urls with the wrong method', () => {
+  it('should not match urls with the wrong method', () => {
     expect(router.match('/foo', 'POST')).to.be.undefined;
     expect(router.match('/bar/123', 'GET')).to.be.undefined;
   });
