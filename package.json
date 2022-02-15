@@ -4,7 +4,8 @@
   "description": "Utility for benchmarking Frontend performance against some URL",
   "workspaces": [
     "packages/proxy",
-    "packages/racer"
+    "packages/racer",
+    "packages/shared"
   ],
   "scripts": {
     "build": "tsc --build --force",

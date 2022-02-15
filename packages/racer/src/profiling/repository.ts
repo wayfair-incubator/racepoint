@@ -3,7 +3,7 @@
  *
  */
 
-import {LighthouseResultsWrapper} from './results';
+import {LighthouseResultsWrapper} from '@racepoint/shared';
 
 export interface RepositoryRecord {
   jobId: number;
