@@ -72,39 +72,46 @@ export class ProfileScenario extends Scenario<ProfileContext> {
               .then(async (response: AxiosResponse) => {
                 const jobId = response.data?.jobId;
                 if (jobId) {
-                  console.log(`Successfully queued ${jobId}`);
-
-                  await retry(() => fetchResults(jobId), [], {
+                  retry(() => fetchResults(jobId), [], {
                     retriesMax: 10,
                     interval: 5000,
                   }).catch((err) => {
                     console.log(`Results failed after ${MAX_RETRIES} retries!`);
                   });
+
+                  return jobId;
                 }
               })
               .catch((error: AxiosError) => {
                 // handle error
                 if (error.code === 'ECONNRESET') {
-                  throw new Error(`Racer was not ready yet!)`);
+                  throw new Error('Racer server was not ready yet!)');
+                } else if (error.response && error.response.status === 503) {
+                  console.log('Racer is currently running a lighthouse report');
+                  throw new Error();
                 } else {
-                  console.log('Other error');
+                  console.log('Some other error');
                   throw new Error();
                 }
               });
 
           for (let i = 0; i < context.numberRuns; i++) {
             await retry(fetchUrl, [], {
-              retriesMax: MAX_RETRIES,
-              interval: RETRY_INTERVAL_MS,
-            }).catch((err) => {
-              console.log(`Fetch failed after ${MAX_RETRIES} retries!`);
-            });
+              retriesMax: 20,
+              interval: 3000,
+            })
+              .catch((err) => {
+                console.log(`Fetch failed after ${20} retries!`);
+              })
+              .then((jobId) => {
+                console.log(`Successfully queued ${jobId}`);
+              });
           }
 
           console.log(resultsArray);
 
           // Shut down container if success or failure
-          compose.down({log: true});
+          // compose.down({log: true});
         },
         (err) => {
           console.log('Something went wrong:', err.message);
