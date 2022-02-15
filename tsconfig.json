@@ -10,6 +10,9 @@
     },
     {
       "path": "./packages/racer"
+    },
+    {
+      "path": "./packages/shared"
     }
   ],
   "include": ["src"],
