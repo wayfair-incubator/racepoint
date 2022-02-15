@@ -35,3 +35,16 @@ export const selectAgentForProtocol = (
     throw new Error(`Unknown protocol for url ${targetUrl}`);
   }
 };
+
+export const extractBodyFromRequest = (
+  request: http.IncomingMessage
+): Promise<object> =>
+  new Promise((resolve, reject) => {
+    let payload = '';
+    request.on('data', (chunk) => {
+      payload += chunk;
+    });
+    request.on('end', () => {
+      resolve(JSON.parse(payload));
+    });
+  });
