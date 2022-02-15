@@ -16,6 +16,8 @@ export const ResultsGet: RegisteredEndpoint<object> = {
   path: `/results/{${RESULT_ID}}`,
   method: 'GET',
   handler: async (req, res, parsedUrl, args) => {
+    console.log('RESULT_ID', parseInt(args!![RESULT_ID]!!));
+
     const record = await LighthouseResultsRepository.read(
       parseInt(args!![RESULT_ID]!!)
     );
@@ -23,6 +25,7 @@ export const ResultsGet: RegisteredEndpoint<object> = {
     if (record) {
       response = selectResponseTypeByHeader(req, record);
     } else {
+      console.log('Nothing found');
       response.withStatusCode(404);
     }
     return response;
