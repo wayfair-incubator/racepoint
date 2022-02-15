@@ -1,10 +1,9 @@
 import lighthouse from 'lighthouse';
 import {launch, Options} from 'chrome-launcher';
-import {LighthouseResultsWrapper} from './results';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
 
-export {LighthouseResults} from './results';
+import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
 
 /**
  * Starts a lighthouse run asynchronously, returning a job id immediately.
