@@ -1,6 +1,5 @@
 import lighthouse from 'lighthouse';
 import {launch, Options} from 'chrome-launcher';
-import {EventEmitter} from 'stream';
 import {LighthouseResultsWrapper} from './results';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
@@ -41,6 +40,7 @@ const doLighthouse = async (assignedJobId: number, targetUrl: string) => {
   // setup the Lighthouse flags. This differs from the third argument, which is test or 'pass' information
   const lhFlags = {
     //   chromeOptions.chromeFlags,
+    output: 'html',
     port: chrome.port,
     // unfortunately, setting a max wait causes the lighthouse run to break. can investigate in the future
     // maxWaitForLoad: 12500
@@ -68,7 +68,6 @@ const launchLighthouse = async (
 
   return new Promise((resolve, _) => {
     lighthouse(targetUrl, lighthouseFlags, {
-      output: 'html',
       extends: 'lighthouse:default',
       passes: [
         {
@@ -79,6 +78,7 @@ const launchLighthouse = async (
           pauseAfterLoadMs: 1000,
           networkQuietThresholdMs: 5000,
           cpuQuietThresholdMs: 5000,
+          // todo: bring these blocked URL patterns in via some config
           blockedUrlPatterns: ['*log*'],
           gatherers: [
             'trace',
