@@ -46,7 +46,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         async () => {
           const racerUrl = `http://localhost:${context.racerPort}/fetch?url=${context.url}`;
 
-          const fetchUrl = async () =>
+          const fetchUrl = () =>
             axios
               .get(racerUrl, {
                 responseType: 'json',
@@ -66,20 +66,18 @@ export class ProfileScenario extends Scenario<ProfileContext> {
                 }
               });
 
-          try {
-            await retry(fetchUrl, [], {
-              retriesMax: MAX_RETRIES,
-              interval: RETRY_INTERVAL_MS,
-            });
-          } catch (err) {
+          await retry(fetchUrl, [], {
+            retriesMax: MAX_RETRIES,
+            interval: RETRY_INTERVAL_MS,
+          }).catch((err) => {
             console.log(`Fetch failed after ${MAX_RETRIES} retries!`);
-          }
+          });
 
           // Shut down container if success or failure
           compose.down();
         },
         (err) => {
-          console.log('something went wrong:', err.message);
+          console.log('Something went wrong:', err.message);
         }
       )
     );
