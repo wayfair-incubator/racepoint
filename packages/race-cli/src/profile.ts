@@ -4,13 +4,13 @@ import compose from 'docker-compose';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import retry from 'async-await-retry';
 
-const MAX_RETRIES = 5;
-const RETRY_INTERVAL_MS = 50;
+const MAX_RETRIES = 3;
+const RETRY_INTERVAL_MS = 500;
 
 export const PROFILE_COMMAND = 'profile';
 
 class ProfileContext implements ScenarioContext {
-  url: string;
+  targetUrl: string;
   deviceType: 'Mobile' | 'Desktop';
   numberRuns: number;
   outputFormat: 'JSON' | 'HTML';
@@ -19,7 +19,7 @@ class ProfileContext implements ScenarioContext {
   racerPort: number;
 
   constructor(userArgs: any) {
-    this.url = userArgs?.url || '';
+    this.targetUrl = userArgs?.targetUrl || '';
     this.deviceType = userArgs?.deviceType;
     this.numberRuns = userArgs?.numberRuns;
     this.outputFormat = userArgs?.outputFormat;
@@ -44,24 +44,25 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     compose.buildAll({cwd: dockerPath}).then(() =>
       compose.upAll({cwd: dockerPath, log: true}).then(
         async () => {
-          const racerUrl = `http://localhost:${context.racerPort}/fetch?url=${context.url}`;
+          const racerUrl = `http://localhost:${context.racerPort}/race`;
 
-          const fetchUrl = () =>
+          console.log(context);
+
+          const fetchUrl = async () =>
             axios
-              .get(racerUrl, {
-                responseType: 'json',
-                insecureHTTPParser: true,
-                data: context,
-              })
+              .post(racerUrl, context)
               .then(function (response: AxiosResponse) {
-                // handle success
-                console.log(response.statusText);
+                const jobId = response.data?.jobId;
+                if (jobId) {
+                  console.log(`Successfully queued ${jobId}`);
+                }
               })
               .catch(function (error: AxiosError) {
                 // handle error
                 if (error.code === 'ECONNRESET') {
                   throw new Error(`Racer was not ready yet!)`);
                 } else {
+                  console.log('Other error');
                   throw new Error();
                 }
               });
@@ -74,7 +75,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           });
 
           // Shut down container if success or failure
-          compose.down();
+          //   compose.down();
         },
         (err) => {
           console.log('Something went wrong:', err.message);

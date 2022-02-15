@@ -5,6 +5,7 @@ import {
   descriptionHelper,
   raceLogo,
   parseIntArg,
+  parseUrlArg,
 } from './helpers';
 import {ProfileScenario, PROFILE_COMMAND} from './profile';
 
@@ -27,7 +28,7 @@ program
   .description(
     descriptionHelper('Perform a number of Lighthouse runs against a target')
   )
-  .argument('<url>', argumentHelper('URL to race'))
+  .argument('<targetUrl>', argumentHelper('URL to race'), parseUrlArg)
   .showHelpAfterError()
   // Keep these alphabetical
   .option(
@@ -75,9 +76,9 @@ program
     '3000'
   )
   .usage('http://neopets.com')
-  .action((url: string, options: any) => {
+  .action((targetUrl: string, options: any) => {
     new ProfileScenario().enter({
-      url,
+      targetUrl,
       ...options,
     });
   });
