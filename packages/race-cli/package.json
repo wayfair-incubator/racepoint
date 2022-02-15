@@ -9,6 +9,8 @@
     "race": "./build/index.js"
   },
   "dependencies": {
+    "@types/async": "^3.2.12",
+    "async": "^3.2.3",
     "async-await-retry": "^1.2.4",
     "axios": "^0.25.0",
     "chalk": "^4",

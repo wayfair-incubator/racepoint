@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@types/async@^3.2.12":
+  version "3.2.12"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/async/-/async-3.2.12.tgz#0ebbfaf3f249ffa0fdc50179b07705f69c90d70c"
+  integrity sha1-Drv68/JJ/6D9xQF5sHcF9pyQ1ww=
+
 "@types/chalk@^2.2.0":
   version "2.2.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/chalk/-/chalk-2.2.0.tgz#b7f6e446f4511029ee8e3f43075fb5b73fbaa0ba"
@@ -27,6 +32,11 @@ async-await-retry@^1.2.4:
   version "1.2.4"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/async-await-retry/-/async-await-retry-1.2.4.tgz#20005cdab8920df9dfddbc00c08ea4b67c69d0a2"
   integrity sha1-IABc2riSDfnf3bwAwI6ktnxp0KI=
+
+async@^3.2.3:
+  version "3.2.3"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/async/-/async-3.2.3.tgz#ac53dafd3f4720ee9e8a160628f18ea91df196c9"
+  integrity sha1-rFPa/T9HIO6eihYGKPGOqR3xlsk=
 
 axios@^0.25.0:
   version "0.25.0"

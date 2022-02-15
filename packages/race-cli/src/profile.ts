@@ -2,6 +2,7 @@ import {ScenarioContext, Scenario} from './types';
 import path from 'path';
 import compose from 'docker-compose';
 import axios, {AxiosError, AxiosResponse} from 'axios';
+import async from 'async';
 import retry from 'async-await-retry';
 
 const MAX_RETRIES = 3;
@@ -40,12 +41,14 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
   async runScenario(context: ProfileContext): Promise<void> {
     let resultsArray: any = [];
+    let numProcessed = 0;
+    let numFailed = 0;
 
     const fetchResults = async (jobId: number) =>
       axios
         .get(`http://localhost:${context.racerPort}/results/${jobId}`)
         .then((response: AxiosResponse) => {
-          console.log('Success!', response.status);
+          console.log(`Success fetching ${jobId}!`);
           // console.log(Object.keys(response.data));
           resultsArray.push({
             lighthouseVersion: response.data.lighthouseVersion,
@@ -53,13 +56,33 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             finalUrl: response.data?.finalUrl,
             fetchTime: response.data?.fetchTime,
           });
+          numProcessed++;
         })
         .catch((error: AxiosError) => {
-          console.log('Still writing results...');
+          console.log('Still awaiting results...');
           throw new Error();
         });
 
+    const deleteResults = async (jobId: number) => {
+      axios
+        .get(`http://localhost:${context.racerPort}/results/${jobId}`)
+        .then((response: AxiosResponse) => {
+          console.log(`Success deleting ${jobId}!`);
+        })
+        .catch((error: AxiosError) => {
+          console.log('Still awaiting results...');
+          throw new Error();
+        });
+    };
+
     const dockerPath = path.join(__dirname, '..', '..');
+
+    const processingQueue = async.queue((task: any, completed: any) => {
+      // console.log("Currently Busy Processing Task " + task);
+      // Number of elements to be processed.
+      const remaining = processingQueue.length();
+      completed(null, {task, remaining});
+    }, 2);
 
     compose.buildAll({cwd: dockerPath}).then(() =>
       compose.upAll({cwd: dockerPath, log: true}).then(
@@ -72,12 +95,24 @@ export class ProfileScenario extends Scenario<ProfileContext> {
               .then(async (response: AxiosResponse) => {
                 const jobId = response.data?.jobId;
                 if (jobId) {
-                  retry(() => fetchResults(jobId), [], {
-                    retriesMax: 10,
-                    interval: 5000,
+                  console.log(`Successfully queued ${jobId}`);
+
+                  const item = retry(() => fetchResults(jobId), [], {
+                    retriesMax: 20,
+                    interval: 3000,
                   }).catch((err) => {
+                    numFailed++;
                     console.log(`Results failed after ${MAX_RETRIES} retries!`);
                   });
+
+                  processingQueue.push(
+                    item,
+                    (error: any, {item, remaining}: any) => {
+                      if (error) {
+                        console.log('Processing queue failure');
+                      }
+                    }
+                  );
 
                   return jobId;
                 }
@@ -99,19 +134,33 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             await retry(fetchUrl, [], {
               retriesMax: 20,
               interval: 3000,
-            })
-              .catch((err) => {
-                console.log(`Fetch failed after ${20} retries!`);
-              })
-              .then((jobId) => {
-                console.log(`Successfully queued ${jobId}`);
-              });
+            }).catch((err) => {
+              console.log(`Fetch failed after ${20} retries!`);
+            });
           }
+
+          const checkQueue = async () => {
+            return new Promise<void>((resolve, reject) => {
+              if (numProcessed + numFailed === context.numberRuns) {
+                resolve();
+              } else {
+                reject('Queue is not done');
+              }
+            });
+          };
+
+          // Wait until all the results have been processed
+          await retry(checkQueue, [], {
+            retriesMax: 100,
+            interval: 3000,
+          }).catch((e) => {
+            console.log('Results fetcher', e);
+          });
 
           console.log(resultsArray);
 
           // Shut down container if success or failure
-          // compose.down({log: true});
+          compose.down({log: true});
         },
         (err) => {
           console.log('Something went wrong:', err.message);
