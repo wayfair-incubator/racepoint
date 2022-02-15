@@ -44,12 +44,11 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let numProcessed = 0;
     let numFailed = 0;
 
-    const fetchResults = async (jobId: number) =>
+    const fetchResults = async (jobId: number): Promise<void> =>
       axios
         .get(`http://localhost:${context.racerPort}/results/${jobId}`)
         .then((response: AxiosResponse) => {
           console.log(`Success fetching ${jobId}!`);
-          // console.log(Object.keys(response.data));
           resultsArray.push({
             lighthouseVersion: response.data.lighthouseVersion,
             requestedUrl: response.data?.requestedUrl,
@@ -60,20 +59,27 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         })
         .catch((error: AxiosError) => {
           console.log('Still awaiting results...');
+          // results for this ID aren't ready yet, so throw an error and try again
           throw new Error();
         });
 
     const deleteResults = async (jobId: number) => {
       axios
-        .get(`http://localhost:${context.racerPort}/results/${jobId}`)
+        .delete(`http://localhost:${context.racerPort}/results/${jobId}`)
         .then((response: AxiosResponse) => {
-          console.log(`Success deleting ${jobId}!`);
+          if (response.status === 204) {
+            console.log(`Success deleting ${jobId}!`);
+          } else
+            [console.log('Response from DELETE endpoint', response.status)];
         })
         .catch((error: AxiosError) => {
-          console.log('Still awaiting results...');
-          throw new Error();
+          console.log('Something went wrong in deletion');
+          // Do some sort of cleanup here?
         });
     };
+
+    const collectAndPruneResults = async (jobId: number) =>
+      fetchResults(jobId).then(async () => deleteResults(jobId));
 
     const dockerPath = path.join(__dirname, '..', '..');
 
@@ -97,7 +103,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
                 if (jobId) {
                   console.log(`Successfully queued ${jobId}`);
 
-                  const item = retry(() => fetchResults(jobId), [], {
+                  const item = retry(() => collectAndPruneResults(jobId), [], {
                     retriesMax: 20,
                     interval: 3000,
                   }).catch((err) => {
@@ -120,6 +126,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
               .catch((error: AxiosError) => {
                 // handle error
                 if (error.code === 'ECONNRESET') {
+                  // TODO: Add custom retry handler so the interval isn't as long in this situation
                   throw new Error('Racer server was not ready yet!)');
                 } else if (error.response && error.response.status === 503) {
                   console.log('Racer is currently running a lighthouse report');
@@ -154,7 +161,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             retriesMax: 100,
             interval: 3000,
           }).catch((e) => {
-            console.log('Results fetcher', e);
+            // Do nothing atm
           });
 
           console.log(resultsArray);
