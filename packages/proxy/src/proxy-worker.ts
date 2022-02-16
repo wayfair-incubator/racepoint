@@ -6,6 +6,7 @@ import {StatusCodes} from 'http-status-codes';
 import {ProxyCache} from './proxy-cache';
 import {extractBody, cacheExtractedProxyResponse} from './cache-helpers';
 import {IncomingMessage, ServerResponse} from 'http';
+import net from 'net';
 
 const handleProxyResponse = ({
   cacheInstance,
@@ -35,6 +36,27 @@ const handleProxyResponse = ({
     .catch((err) => console.error(err));
 };
 
+const handleErrorResponse = ({
+  error,
+  originalRequest,
+  responseToBrowser,
+}: // target,
+{
+  error: Error;
+  originalRequest: IncomingMessage;
+  responseToBrowser: ServerResponse | net.Socket;
+  //target: string | undefined;
+}) => {
+  console.log('This is not a propah URL mate');
+  if (responseToBrowser instanceof ServerResponse) {
+    responseToBrowser.writeHead(StatusCodes.NOT_FOUND);
+    responseToBrowser.write('Bloop');
+    responseToBrowser.end();
+  } else {
+    console.log('WTF is a socket anyway');
+  }
+};
+
 export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
   const proxy = createProxyServer({
     selfHandleResponse: true,
@@ -49,8 +71,13 @@ export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
     });
   });
 
-  proxy.on('error', (err) => {
-    console.log('Error from the proxy!', err);
+  proxy.on('error', (error, originalRequest, responseToBrowser, target) => {
+    handleErrorResponse({
+      error,
+      originalRequest,
+      responseToBrowser,
+      // target
+    });
   });
 
   return proxy;

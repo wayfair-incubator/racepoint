@@ -21,6 +21,18 @@
   dependencies:
     commander "*"
 
+"@types/http-proxy@^1.17.8":
+  version "1.17.8"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/http-proxy/-/http-proxy-1.17.8.tgz#968c66903e7e42b483608030ee85800f22d03f55"
+  integrity sha1-loxmkD5+QrSDYIAw7oWADyLQP1U=
+  dependencies:
+    "@types/node" "*"
+
+"@types/node@*":
+  version "17.0.18"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/node/-/node-17.0.18.tgz#3b4fed5cfb58010e3a2be4b6e74615e4847f1074"
+  integrity sha1-O0/tXPtYAQ46K+S250YV5IR/EHQ=
+
 ansi-styles@^4.1.0:
   version "4.3.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/ansi-styles/-/ansi-styles-4.3.0.tgz#edd803628ae71c04c85ae7a0906edad34b648937"
@@ -96,6 +108,11 @@ has-flag@^4.0.0:
   version "4.0.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/has-flag/-/has-flag-4.0.0.tgz#944771fd9c81c81265c4d6941860da06bb59479b"
   integrity sha1-lEdx/ZyByBJlxNaUGGDaBrtZR5s=
+
+net@^1.0.2:
+  version "1.0.2"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/net/-/net-1.0.2.tgz#d1757ec9a7fb2371d83cf4755ce3e27e10829388"
+  integrity sha1-0XV+yaf7I3HYPPR1XOPifhCCk4g=
 
 supports-color@^7.1.0:
   version "7.2.0"

@@ -10,13 +10,15 @@
   },
   "dependencies": {
     "@types/async": "^3.2.12",
+    "@types/http-proxy": "^1.17.8",
     "async": "^3.2.3",
     "async-await-retry": "^1.2.4",
     "axios": "^0.25.0",
     "chalk": "^4",
     "commander": "^9.0.0",
     "docker-compose": "^0.23.17",
-    "figlet": "^1.5.2"
+    "figlet": "^1.5.2",
+    "net": "^1.0.2"
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",

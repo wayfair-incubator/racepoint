@@ -13,8 +13,6 @@ export const initialize = (
 
     const context = matcher.match(parsedUrl.path!!, req.method!!);
 
-    console.log(parsedUrl, context, req.method);
-
     if (context === undefined) {
       console.log('No matching endpoint found for ' + parsedUrl.pathname);
       res.statusCode = 404;
