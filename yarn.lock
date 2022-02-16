@@ -85,12 +85,7 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@babel/parser@^7.16.7", "@babel/parser@^7.7.0":
-  version "7.17.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@babel/parser/-/parser-7.17.0.tgz#f0ac33eddbe214e4105363bb17c3341c5ffcc43c"
-  integrity sha1-8Kwz7dviFOQQU2O7F8M0HF/8xDw=
-
-"@babel/parser@^7.17.3":
+"@babel/parser@^7.16.7", "@babel/parser@^7.17.3", "@babel/parser@^7.7.0":
   version "7.17.3"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@babel/parser/-/parser-7.17.3.tgz#b07702b982990bf6fdc1da5049a23fece4c5c3d0"
   integrity sha1-sHcCuYKZC/b9wdpQSaI/7OTFw9A=
@@ -221,6 +216,11 @@
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@tsconfig/node16/-/node16-1.0.2.tgz#423c77877d0569db20e1fc80885ac4118314010e"
   integrity sha1-Qjx3h30Fadsg4fyAiFrEEYMUAQ4=
 
+"@types/async@^3.2.12":
+  version "3.2.12"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/async/-/async-3.2.12.tgz#0ebbfaf3f249ffa0fdc50179b07705f69c90d70c"
+  integrity sha1-Drv68/JJ/6D9xQF5sHcF9pyQ1ww=
+
 "@types/bluebird@*":
   version "3.5.36"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/bluebird/-/bluebird-3.5.36.tgz#00d9301d4dc35c2f6465a8aec634bb533674c652"
@@ -250,6 +250,20 @@
   version "4.3.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/chai/-/chai-4.3.0.tgz#23509ebc1fa32f1b4d50d6a66c4032d5b8eaabdc"
   integrity sha1-I1CevB+jLxtNUNambEAy1bjqq9w=
+
+"@types/chalk@^2.2.0":
+  version "2.2.0"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/chalk/-/chalk-2.2.0.tgz#b7f6e446f4511029ee8e3f43075fb5b73fbaa0ba"
+  integrity sha1-t/bkRvRRECnujj9DB1+1tz+6oLo=
+  dependencies:
+    chalk "*"
+
+"@types/commander@^2.12.2":
+  version "2.12.2"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/commander/-/commander-2.12.2.tgz#183041a23842d4281478fa5d23c5ca78e6fd08ae"
+  integrity sha1-GDBBojhC1CgUePpdI8XKeOb9CK4=
+  dependencies:
+    commander "*"
 
 "@types/connect@*":
   version "3.4.35"
@@ -310,12 +324,12 @@
   integrity sha1-uvF6ssyj/M4tMi68MEVL/0h++tU=
 
 "@types/node-fetch@^2":
-  version "2.6.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/node-fetch/-/node-fetch-2.6.0.tgz#bf854a36a0d0d99436fd199e06612ef4e73591b6"
-  integrity sha1-v4VKNqDQ2ZQ2/RmeBmEu9Oc1kbY=
+  version "2.6.1"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/node-fetch/-/node-fetch-2.6.1.tgz#8f127c50481db65886800ef496f20bbf15518975"
+  integrity sha1-jxJ8UEgdtliGgA70lvILvxVRiXU=
   dependencies:
     "@types/node" "*"
-    form-data "^2.3.3"
+    form-data "^3.0.0"
 
 "@types/node-forge@^0.10.10":
   version "0.10.10"
@@ -632,6 +646,16 @@ astral-regex@^2.0.0:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/astral-regex/-/astral-regex-2.0.0.tgz#483143c567aeed4785759c0865786dc77d7d2e31"
   integrity sha1-SDFDxWeu7UeFdZwIZXhtx319LjE=
 
+async-await-retry@^1.2.4:
+  version "1.2.4"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/async-await-retry/-/async-await-retry-1.2.4.tgz#20005cdab8920df9dfddbc00c08ea4b67c69d0a2"
+  integrity sha1-IABc2riSDfnf3bwAwI6ktnxp0KI=
+
+async@^3.2.3:
+  version "3.2.3"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/async/-/async-3.2.3.tgz#ac53dafd3f4720ee9e8a160628f18ea91df196c9"
+  integrity sha1-rFPa/T9HIO6eihYGKPGOqR3xlsk=
+
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
@@ -651,6 +675,13 @@ axe-core@4.3.5:
   version "4.3.5"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/axe-core/-/axe-core-4.3.5.tgz#78d6911ba317a8262bfee292aeafcc1e04b49cc5"
   integrity sha1-eNaRG6MXqCYr/uKSrq/MHgS0nMU=
+
+axios@^0.25.0:
+  version "0.25.0"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/axios/-/axios-0.25.0.tgz#349cfbb31331a9b4453190791760a8d35b093e0a"
+  integrity sha1-NJz7sxMxqbRFMZB5F2Co01sJPgo=
+  dependencies:
+    follow-redirects "^1.14.7"
 
 babel-eslint@^10.1.0:
   version "10.1.0"
@@ -767,6 +798,11 @@ chai@^4.3.6:
     pathval "^1.1.1"
     type-detect "^4.0.5"
 
+chalk@*:
+  version "5.0.0"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/chalk/-/chalk-5.0.0.tgz#bd96c6bb8e02b96e08c0c3ee2a9d90e050c7b832"
+  integrity sha1-vZbGu44CuW4IwMPuKp2Q4FDHuDI=
+
 chalk@^2.0.0:
   version "2.4.2"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
@@ -776,7 +812,7 @@ chalk@^2.0.0:
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
 
-chalk@^4.0.0, chalk@^4.1.0:
+chalk@^4, chalk@^4.0.0, chalk@^4.1.0:
   version "4.1.2"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
   integrity sha1-qsTit3NKdAhnrrFr8CqtVWoeegE=
@@ -872,12 +908,17 @@ color-name@~1.1.4:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
   integrity sha1-wqCah6y95pVD3m9j+jmVyCbFNqI=
 
-combined-stream@^1.0.6, combined-stream@~1.0.6:
+combined-stream@^1.0.6, combined-stream@^1.0.8, combined-stream@~1.0.6:
   version "1.0.8"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/combined-stream/-/combined-stream-1.0.8.tgz#c3d45a8b34fd730631a110a8a2520682b31d5a7f"
   integrity sha1-w9RaizT9cwYxoRCoolIGgrMdWn8=
   dependencies:
     delayed-stream "~1.0.0"
+
+commander@*, commander@^9.0.0:
+  version "9.0.0"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/commander/-/commander-9.0.0.tgz#86d58f24ee98126568936bd1d3574e0308a99a40"
+  integrity sha1-htWPJO6YEmVok2vR01dOAwipmkA=
 
 component-emitter@^1.2.0:
   version "1.3.0"
@@ -1045,6 +1086,13 @@ dir-glob@^3.0.1:
   integrity sha1-Vtv3PZkqSpO6FYT0U0Bj/S5BcX8=
   dependencies:
     path-type "^4.0.0"
+
+docker-compose@^0.23.17:
+  version "0.23.17"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/docker-compose/-/docker-compose-0.23.17.tgz#8816bef82562d9417dc8c790aa4871350f93a2ba"
+  integrity sha1-iBa++CVi2UF9yMeQqkhxNQ+Toro=
+  dependencies:
+    yaml "^1.10.2"
 
 doctrine@^2.1.0:
   version "2.1.0"
@@ -1410,7 +1458,7 @@ flatted@^3.1.0:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/flatted/-/flatted-3.2.5.tgz#76c8584f4fc843db64702a6bd04ab7a8bd666da3"
   integrity sha1-dshYT0/IQ9tkcCpr0Eq3qL1mbaM=
 
-follow-redirects@^1.0.0:
+follow-redirects@^1.0.0, follow-redirects@^1.14.7:
   version "1.14.8"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/follow-redirects/-/follow-redirects-1.14.8.tgz#016996fb9a11a100566398b1c6839337d7bfa8fc"
   integrity sha1-AWmW+5oRoQBWY5ixxoOTN9e/qPw=
@@ -1420,13 +1468,22 @@ forever-agent@~0.6.1:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/forever-agent/-/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
   integrity sha1-+8cfDEGt6zf5bFd60e1C2P2sypE=
 
-form-data@^2.3.1, form-data@^2.3.3, form-data@^2.5.0:
+form-data@^2.3.1, form-data@^2.5.0:
   version "2.5.1"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/form-data/-/form-data-2.5.1.tgz#f2cbec57b5e59e23716e128fe44d4e5dd23895f4"
   integrity sha1-8svsV7XlniNxbhKP5E1OXdI4lfQ=
   dependencies:
     asynckit "^0.4.0"
     combined-stream "^1.0.6"
+    mime-types "^2.1.12"
+
+form-data@^3.0.0:
+  version "3.0.1"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/form-data/-/form-data-3.0.1.tgz#ebd53791b78356a99af9a300d4282c4d5eb9755f"
+  integrity sha1-69U3kbeDVqma+aMA1CgsTV65dV8=
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
 form-data@~2.3.2:
@@ -1447,6 +1504,11 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
   integrity sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
+
+fs@^0.0.1-security:
+  version "0.0.1-security"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/fs/-/fs-0.0.1-security.tgz#8a7bd37186b6dddf3813f23858b57ecaaf5e41d4"
+  integrity sha1-invTcYa23d84E/I4WLV+yq9eQdQ=
 
 fsevents@~2.3.2:
   version "2.3.2"
@@ -2183,9 +2245,9 @@ minimatch@3.0.4:
     brace-expansion "^1.1.7"
 
 minimatch@^3.0.4:
-  version "3.1.1"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/minimatch/-/minimatch-3.1.1.tgz#879ad447200773912898b46cd516a7abbb5e50b0"
-  integrity sha1-h5rURyAHc5EomLRs1Ranq7teULA=
+  version "3.1.2"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/minimatch/-/minimatch-3.1.2.tgz#19cd194bfd3e428f049a70817c038d89ab4be35b"
+  integrity sha1-Gc0ZS/0+Qo8EmnCBfAONiatL41s=
   dependencies:
     brace-expansion "^1.1.7"
 
@@ -2255,6 +2317,11 @@ natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
+
+net@^1.0.2:
+  version "1.0.2"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/net/-/net-1.0.2.tgz#d1757ec9a7fb2371d83cf4755ce3e27e10829388"
+  integrity sha1-0XV+yaf7I3HYPPR1XOPifhCCk4g=
 
 node-cache@^5.1.2:
   version "5.1.2"
@@ -3167,6 +3234,11 @@ yallist@^4.0.0:
   version "4.0.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/yallist/-/yallist-4.0.0.tgz#9bb92790d9c0effec63be73519e11a35019a3a72"
   integrity sha1-m7knkNnA7/7GO+c1GeEaNQGaOnI=
+
+yaml@^1.10.2:
+  version "1.10.2"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
+  integrity sha1-IwHF/78StGfejaIzOkWeKeeSDks=
 
 yargs-parser@20.2.4:
   version "20.2.4"

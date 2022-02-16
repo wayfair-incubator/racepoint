@@ -5,6 +5,7 @@
   "workspaces": [
     "packages/proxy",
     "packages/racer",
+    "packages/race-cli",
     "packages/shared"
   ],
   "scripts": {

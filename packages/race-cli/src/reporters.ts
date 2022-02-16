@@ -109,7 +109,7 @@ export class RepositoryReporter implements LLReporter {
       );
     }
 
-    this._repositoryLocation = '/'; //`${env.RP_PATH}/${repositoryId}`;
+    this._repositoryLocation = `/var/lib/racepoint/${repositoryId}`; //`${env.RP_PATH}/${repositoryId}`;
   }
 
   initialize = (): Promise<void> =>

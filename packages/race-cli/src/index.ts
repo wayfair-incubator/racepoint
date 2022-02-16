@@ -7,6 +7,7 @@ import {
   parseIntArg,
   parseUrlArg,
 } from './helpers';
+import {DEFAULT_OUTPUT_LOCATION} from './constants';
 import {ProfileScenario, PROFILE_COMMAND} from './profile';
 
 const program = new commander.Command();
@@ -49,8 +50,9 @@ program
     1
   )
   .option(
-    '--output-location <string>',
-    descriptionHelper('Location to save results')
+    '--output-target <string>',
+    descriptionHelper('Location to save results'),
+    DEFAULT_OUTPUT_LOCATION
   )
   .option(
     '--output-format <string>',

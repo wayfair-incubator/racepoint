@@ -4,6 +4,8 @@ import compose from 'docker-compose';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import async from 'async';
 import retry from 'async-await-retry';
+import {LHResultsReporter, ReportingTypes} from './report';
+import {LighthouseResultsWrapper} from '@racepoint/shared';
 
 const MAX_RETRIES = 3;
 const RETRY_INTERVAL_MS = 500;
@@ -15,6 +17,7 @@ class ProfileContext implements ScenarioContext {
   deviceType: 'Mobile' | 'Desktop';
   numberRuns: number;
   outputFormat: 'JSON' | 'HTML';
+  outputTarget: string;
   overrideChromeFlags: boolean;
   raceproxyPort: number;
   racerPort: number;
@@ -24,6 +27,7 @@ class ProfileContext implements ScenarioContext {
     this.deviceType = userArgs?.deviceType;
     this.numberRuns = userArgs?.numberRuns;
     this.outputFormat = userArgs?.outputFormat;
+    this.outputTarget = userArgs?.outputTarget;
     this.overrideChromeFlags = userArgs?.overrideChromeFlags;
     this.raceproxyPort = userArgs?.raceproxyPort;
     this.racerPort = userArgs?.racerPort;
@@ -70,12 +74,13 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           callback();
 
           console.log(`Success fetching ${jobId}!`);
-          resultsArray.push({
-            lighthouseVersion: response.data.lighthouseVersion,
-            requestedUrl: response.data?.requestedUrl,
-            finalUrl: response.data?.finalUrl,
-            fetchTime: response.data?.fetchTime,
-          });
+
+          const result: LighthouseResultsWrapper = {
+            lhr: response.data,
+            report: '',
+          };
+
+          resultsArray.push(result);
           numProcessed++;
         })
         .catch((error: AxiosError) => {
@@ -115,6 +120,21 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     compose.buildAll({cwd: dockerPath}).then(() =>
       compose.upAll({cwd: dockerPath, log: true}).then(
         async () => {
+          // Configure how we want the results reported
+          const resultsReporter = new LHResultsReporter({
+            outputs: [
+              ReportingTypes.Console,
+              // ReportingTypes.ConsoleRunCounter,
+              // ReportingTypes.Repository,
+            ],
+            repositoryId: context.outputTarget,
+            targetUrl: context.targetUrl,
+            requestedRuns: context.numberRuns,
+            outputTarget: context.outputTarget,
+          });
+
+          await resultsReporter.prepare();
+
           const racerUrl = `http://localhost:${context.racerPort}/race`;
 
           const fetchUrl = async () =>
@@ -178,10 +198,17 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             // Do nothing atm
           });
 
-          console.log(resultsArray);
+          // console.log(resultsArray);
+          compose.down({
+            //log: true
+          });
+
+          // Time to process the results
+          resultsArray.forEach((result: LighthouseResultsWrapper) => {
+            resultsReporter.process(result);
+          });
 
           // Shut down container if success or failure
-          // compose.down({log: true});
         },
         (err) => {
           console.log('Something went wrong:', err.message);

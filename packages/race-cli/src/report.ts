@@ -36,6 +36,8 @@ export class LHResultsReporter {
     // initialize reporters based on options, as we add more reporting types, add them here
     this._reporters = options.outputs.map((type: ReportingTypes) => {
       if (type === ReportingTypes.Console) {
+        console.log('Starting up a console reporter!');
+
         return new ConsoleReporter();
       } else if (type === ReportingTypes.LighthouseHtml) {
         // for now, hardcode the result. We could make it a setting in ReporterSettings but as it stands, it feels weird to add

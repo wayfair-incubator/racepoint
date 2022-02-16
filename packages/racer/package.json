@@ -4,6 +4,7 @@
   "description": "The profiling aspect of racepoint",
   "author": "spember@wayfair.com",
   "license": "ISC",
+  "main": "build/index.js",
   "scripts": {
     "setup": "yarn install && yarn install -g",
     "test": "mocha -r ts-node/register 'tests/*.ts'"
