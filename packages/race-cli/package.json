@@ -18,6 +18,7 @@
     "commander": "^9.0.0",
     "docker-compose": "^0.23.17",
     "figlet": "^1.5.2",
+    "fs": "^0.0.1-security",
     "net": "^1.0.2"
   },
   "devDependencies": {

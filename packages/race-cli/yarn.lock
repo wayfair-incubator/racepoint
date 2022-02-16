@@ -104,6 +104,11 @@ follow-redirects@^1.14.7:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/follow-redirects/-/follow-redirects-1.14.8.tgz#016996fb9a11a100566398b1c6839337d7bfa8fc"
   integrity sha1-AWmW+5oRoQBWY5ixxoOTN9e/qPw=
 
+fs@^0.0.1-security:
+  version "0.0.1-security"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/fs/-/fs-0.0.1-security.tgz#8a7bd37186b6dddf3813f23858b57ecaaf5e41d4"
+  integrity sha1-invTcYa23d84E/I4WLV+yq9eQdQ=
+
 has-flag@^4.0.0:
   version "4.0.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/has-flag/-/has-flag-4.0.0.tgz#944771fd9c81c81265c4d6941860da06bb59479b"
