@@ -85,10 +85,15 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@babel/parser@^7.16.7", "@babel/parser@^7.17.3", "@babel/parser@^7.7.0":
+"@babel/parser@^7.16.7", "@babel/parser@^7.7.0":
   version "7.17.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@babel/parser/-/parser-7.17.0.tgz#f0ac33eddbe214e4105363bb17c3341c5ffcc43c"
   integrity sha1-8Kwz7dviFOQQU2O7F8M0HF/8xDw=
+
+"@babel/parser@^7.17.3":
+  version "7.17.3"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@babel/parser/-/parser-7.17.3.tgz#b07702b982990bf6fdc1da5049a23fece4c5c3d0"
+  integrity sha1-sHcCuYKZC/b9wdpQSaI/7OTFw9A=
 
 "@babel/template@^7.16.7":
   version "7.16.7"
@@ -265,14 +270,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/http-proxy@^1.17.8":
-  version "1.17.8"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/http-proxy/-/http-proxy-1.17.8.tgz#968c66903e7e42b483608030ee85800f22d03f55"
-  integrity sha1-loxmkD5+QrSDYIAw7oWADyLQP1U=
-  dependencies:
-    "@types/node" "*"
-
-"@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0", "@types/istanbul-lib-coverage@^2.0.1":
+"@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.4"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.4.tgz#8467d4b3c087805d63580480890791277ce35c44"
   integrity sha1-hGfUs8CHgF1jWASAiQeRJ3zjXEQ=

@@ -1,4 +1,4 @@
-import {LighthouseWrapper} from '../profiler/results';
+import {LighthouseResultsWrapper} from '@racepoint/shared';
 import {
   ConsoleReporter,
   RunCountConsole,
@@ -61,6 +61,6 @@ export class LHResultsReporter {
   // do not hold on to reports more than necessary
   //
 
-  process = (report: LighthouseWrapper): Promise<any> =>
+  process = (report: LighthouseResultsWrapper): Promise<any> =>
     Promise.all(this._reporters.map((reporter) => reporter?.process(report)));
 }

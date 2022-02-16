@@ -2,7 +2,6 @@ import lighthouse from 'lighthouse';
 import {launch, Options} from 'chrome-launcher';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
-
 import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
 
 /**

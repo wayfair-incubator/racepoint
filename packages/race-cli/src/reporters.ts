@@ -1,6 +1,9 @@
 import fs from 'fs/promises';
-import {LighthouseResults} from '../profiler';
-import {LighthouseWrapper, LightHouseAuditKeys} from '../profiler/results';
+import {
+  LighthouseResultsWrapper,
+  LighthouseResults,
+  LightHouseAuditKeys,
+} from '@racepoint/shared';
 import {
   connectRepository,
   ReportingRepository,
@@ -10,7 +13,7 @@ import {
 
 export interface LLReporter {
   initialize: () => Promise<void>;
-  process: (results: LighthouseWrapper) => Promise<void>;
+  process: (results: LighthouseResultsWrapper) => Promise<void>;
 }
 
 interface MetricHeader {
@@ -37,7 +40,7 @@ export class ConsoleReporter implements LLReporter {
 
   initialize = (): Promise<void> => Promise.resolve();
 
-  process = (results: LighthouseWrapper): Promise<void> =>
+  process = (results: LighthouseResultsWrapper): Promise<void> =>
     new Promise((resolve) => {
       if (this._hasBegun === false) {
         this._hasBegun = true;
@@ -76,7 +79,7 @@ export class RunCountConsole implements LLReporter {
 
   initialize = (): Promise<void> => Promise.resolve();
 
-  process = (results: LighthouseWrapper): Promise<void> =>
+  process = (results: LighthouseResultsWrapper): Promise<void> =>
     new Promise((resolve) => {
       this._completedRuns++;
       console.log(this.buildMessage());
@@ -110,11 +113,14 @@ export class RepositoryReporter implements LLReporter {
   }
 
   initialize = (): Promise<void> =>
-    connectRepository(this._repositoryLocation).then((receivedRepository) => {
-      this._repository = receivedRepository;
-    });
+    // TODO add correct type
+    connectRepository(this._repositoryLocation).then(
+      (receivedRepository: any) => {
+        this._repository = receivedRepository;
+      }
+    );
 
-  process = (results: LighthouseWrapper): Promise<void> =>
+  process = (results: LighthouseResultsWrapper): Promise<void> =>
     this._repository!!.write(this.mapResultsToRow(results.lhr));
 
   private mapResultsToRow = (results: LighthouseResults): ReportingRow => {
@@ -145,7 +151,7 @@ export class HtmlReporter implements LLReporter {
   // for now, just resolve. We can get fancy and not overwrite by checking fs.access and selecting a new reportPath name
   initialize = (): Promise<void> => Promise.resolve();
 
-  process = (results: LighthouseWrapper): Promise<void> =>
+  process = (results: LighthouseResultsWrapper): Promise<void> =>
     fs
       .writeFile(this._reportPath, results.report, {flag: 'w'})
       .then(() => console.log(`Lighthouse HTML results successfully saved`));
