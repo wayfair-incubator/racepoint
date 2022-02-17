@@ -6,14 +6,14 @@ export const handleRacerError = (error: AxiosError) => {
   // handle error
   if (error.code === 'ECONNRESET') {
     // TODO: Add custom retry handler so the interval isn't as long in this situation
-    throw new Error('Racer server was not ready yet!)');
+    throw new Error('Racer server was not ready yet');
   } else if (error.code === 'ECONNREFUSED') {
-    throw new Error('Racer server is not responsive!');
+    throw new Error('Racer server is not responsives');
   } else if (error.response && error.response.status === 503) {
     // console.log('Racer is currently running a lighthouse report');
-    throw new Error('Racer is currently running a lighthouse report!');
+    throw new Error('Racer is currently running a lighthouse report');
   } else {
-    console.log('Some other error!', error?.code);
+    console.log('Unknown Racer error', error?.code);
     throw new Error();
   }
 };

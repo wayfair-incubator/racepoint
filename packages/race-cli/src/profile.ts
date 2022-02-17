@@ -11,6 +11,10 @@ import logger from './logger';
 
 const MAX_RETRIES = 3;
 const RETRY_INTERVAL_MS = 500;
+const FORMAT_CSV = 'csv';
+const FORMAT_HTML = 'html';
+
+const isDebug = process.env.LOG_LEVEL === 'debug';
 
 export const PROFILE_COMMAND = 'profile';
 
@@ -18,11 +22,12 @@ class ProfileContext implements ScenarioContext {
   targetUrl: string;
   deviceType: 'Mobile' | 'Desktop';
   numberRuns: number;
-  outputFormat: 'JSON' | 'HTML';
+  outputFormat: string[];
   outputTarget: string;
   overrideChromeFlags: boolean;
   raceproxyPort: number;
   racerPort: number;
+  repositoryId: string;
 
   constructor(userArgs: any) {
     this.targetUrl = userArgs?.targetUrl || '';
@@ -33,6 +38,7 @@ class ProfileContext implements ScenarioContext {
     this.overrideChromeFlags = userArgs?.overrideChromeFlags;
     this.raceproxyPort = userArgs?.raceproxyPort;
     this.racerPort = userArgs?.racerPort;
+    this.repositoryId = userArgs?.repositoryId;
   }
 }
 
@@ -70,16 +76,20 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     };
 
     compose.buildAll({cwd: dockerPath}).then(() =>
-      compose.upAll({cwd: dockerPath, log: true}).then(
+      compose.upAll({cwd: dockerPath, log: isDebug}).then(
         async () => {
           // Configure how we want the results reported
           const resultsReporter = new LHResultsReporter({
             outputs: [
-              //ReportingTypes.Console,
-              // ReportingTypes.ConsoleRunCounter,
-              ReportingTypes.Repository,
+              ReportingTypes.Console,
+              ...(context.outputFormat.includes(FORMAT_HTML)
+                ? [ReportingTypes.LighthouseHtml]
+                : []),
+              ...(context.outputFormat.includes(FORMAT_CSV)
+                ? [ReportingTypes.Repository]
+                : []),
             ],
-            // repositoryId: context.outputTarget,
+            repositoryId: context.repositoryId,
             targetUrl: context.targetUrl,
             requestedRuns: context.numberRuns,
             outputTarget: context.outputTarget,
@@ -97,7 +107,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
                 if (jobId) {
                   logger.debug(`Success queuing ${jobId}`);
 
-                  const item = retry(
+                  const tryGetResults = retry(
                     () =>
                       collectAndPruneResults(
                         jobId,
@@ -118,8 +128,8 @@ export class ProfileScenario extends Scenario<ProfileContext> {
                   });
 
                   processingQueue.push(
-                    item,
-                    (error: any, {item, remaining}: any) => {
+                    tryGetResults,
+                    (error: any, {remaining}: any) => {
                       if (error) {
                         logger.debug('Processing queue failure');
                       } else if (remaining === 0) {
@@ -154,7 +164,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
           // Shut down container if success or failure
           compose.down({
-            //log: true
+            log: isDebug,
           });
 
           // Time to process the results

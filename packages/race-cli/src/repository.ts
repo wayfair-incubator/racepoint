@@ -3,6 +3,7 @@
  */
 
 import fs from 'fs/promises';
+import logger from './logger';
 
 export interface ReportingRepository {
   write: (row: ReportingRow) => Promise<void>;
@@ -23,7 +24,6 @@ export const connectRepository = async (
   // while currently the underlying storage is a CSV, eventually it could be a database of some kind
   // todo: for now we rely on purging the underlying csv file to clear out results, but in the future we may want the ability to search by date or some similar
   const filePath = repositoryId + '.csv';
-  console.log(filePath);
   return fs
     .access(filePath)
     .catch(() => {
@@ -54,8 +54,10 @@ class CSVReportingRepository implements ReportingRepository {
     this._filePath = repositoryId;
   }
 
-  write = (row: ReportingRow): Promise<void> =>
-    fs.writeFile(this._filePath, this.convertToCSVRow(row), {flag: 'a'});
+  write = (row: ReportingRow): Promise<void> => {
+    logger.debug(`Writing row to ${this._filePath}`);
+    return fs.writeFile(this._filePath, this.convertToCSVRow(row), {flag: 'a'});
+  };
 
   private convertToCSVRow = (reportingRow: ReportingRow): string =>
     KnownColumns.map((column) => column.from(reportingRow)).join(
