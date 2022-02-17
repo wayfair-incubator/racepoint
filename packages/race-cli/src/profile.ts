@@ -5,7 +5,7 @@ import axios, {AxiosError, AxiosResponse} from 'axios';
 import async from 'async';
 import retry from 'async-await-retry';
 import {LHResultsReporter, ReportingTypes} from './report';
-import {deleteResult, handleRacerError} from './handlers';
+import {collectAndPruneResults, handleRacerError} from './handlers';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from './logger';
 
@@ -50,44 +50,24 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let numProcessed = 0;
     let numFailed = 0;
 
-    const fetchResults = async (
-      jobId: number,
-      callback: Function = () => {}
-    ): Promise<void> =>
-      axios
-        .get(`http://localhost:${context.racerPort}/results/${jobId}`)
-        .then((response: AxiosResponse) => {
-          callback();
-
-          logger.debug(`Success fetching ${jobId}`);
-
-          const result: LighthouseResultsWrapper = {
-            lhr: response.data,
-            report: '',
-          };
-
-          resultsArray.push(result);
-          numProcessed++;
-        })
-        .catch((error: AxiosError) => {
-          logger.debug('Still awaiting results...');
-          // results for this ID aren't ready yet, so throw an error and try again
-          throw new Error();
-        });
-
-    const collectAndPruneResults = async (jobId: number) =>
-      fetchResults(jobId).then(async () =>
-        deleteResult(jobId, context.racerPort)
-      );
-
     const dockerPath = path.join(__dirname, '..', '..');
 
     const processingQueue = async.queue((task: any, completed: any) => {
-      // console.log("Currently Busy Processing Task " + task);
+      // logger.info("Currently Busy Processing Task " + task);
       // Number of elements to be processed.
       const remaining = processingQueue.length();
       completed(null, {task, remaining});
     }, 2);
+
+    const checkQueue = async () => {
+      return new Promise<void>((resolve, reject) => {
+        if (numProcessed + numFailed === context.numberRuns) {
+          resolve();
+        } else {
+          reject('Queue is not done processing');
+        }
+      });
+    };
 
     compose.buildAll({cwd: dockerPath}).then(() =>
       compose.upAll({cwd: dockerPath, log: true}).then(
@@ -95,11 +75,11 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           // Configure how we want the results reported
           const resultsReporter = new LHResultsReporter({
             outputs: [
-              ReportingTypes.Console,
+              //ReportingTypes.Console,
               // ReportingTypes.ConsoleRunCounter,
-              // ReportingTypes.Repository,
+              ReportingTypes.Repository,
             ],
-            repositoryId: context.outputTarget,
+            // repositoryId: context.outputTarget,
             targetUrl: context.targetUrl,
             requestedRuns: context.numberRuns,
             outputTarget: context.outputTarget,
@@ -115,23 +95,35 @@ export class ProfileScenario extends Scenario<ProfileContext> {
               .then(async (response: AxiosResponse) => {
                 const jobId = response.data?.jobId;
                 if (jobId) {
-                  logger.info(`Successfully queued ${jobId}`);
+                  logger.debug(`Success queuing ${jobId}`);
 
-                  const item = retry(() => collectAndPruneResults(jobId), [], {
-                    retriesMax: 20,
-                    interval: 3000,
-                  }).catch((err) => {
+                  const item = retry(
+                    () =>
+                      collectAndPruneResults(
+                        jobId,
+                        context.racerPort,
+                        (result: LighthouseResultsWrapper) => {
+                          resultsArray.push(result);
+                          numProcessed++;
+                        }
+                      ),
+                    [],
+                    {
+                      retriesMax: 20,
+                      interval: 3000,
+                    }
+                  ).catch((err) => {
                     numFailed++;
-                    console.log(`Results failed after ${20} retries!`);
+                    logger.debug(`Results failed after ${20} retries!`);
                   });
 
                   processingQueue.push(
                     item,
                     (error: any, {item, remaining}: any) => {
                       if (error) {
-                        console.log('Processing queue failure');
+                        logger.debug('Processing queue failure');
                       } else if (remaining === 0) {
-                        console.log('Queue complete');
+                        logger.debug('Queue complete');
                       }
                     }
                   );
@@ -145,22 +137,12 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             await retry(fetchUrl, [], {
               retriesMax: 20,
               interval: 3000,
-            }).catch((err) => {
-              console.log(`Fetch failed after ${20} retries!`);
+            }).catch((error: AxiosError) => {
+              logger.info(`Fetch failed after ${20} retries!`);
             });
           }
 
-          console.log('Now checking for results');
-
-          const checkQueue = async () => {
-            return new Promise<void>((resolve, reject) => {
-              if (numProcessed + numFailed === context.numberRuns) {
-                resolve();
-              } else {
-                reject('Queue is not done');
-              }
-            });
-          };
+          logger.debug('Now checking for results');
 
           // Wait until all the results have been processed
           await retry(checkQueue, [], {
@@ -170,7 +152,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             // Do nothing atm
           });
 
-          // console.log(resultsArray);
+          // Shut down container if success or failure
           compose.down({
             //log: true
           });
@@ -179,11 +161,9 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           resultsArray.forEach((result: LighthouseResultsWrapper) => {
             resultsReporter.process(result);
           });
-
-          // Shut down container if success or failure
         },
         (err) => {
-          console.log('Something went wrong:', err.message);
+          logger.info('Something went wrong:', err.message);
         }
       )
     );

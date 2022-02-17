@@ -5,21 +5,21 @@ const customFormat = format.combine(
   format.colorize({all: true})
 );
 
-const logger = createLogger({
-  transports: [
-    new transports.Console({
-      level: 'info',
-      format: customFormat,
-    }),
-  ],
-});
+const logger = createLogger();
 
-// Enable debug logs
+// Enable debug logs or info only
 if (process.env.LOG_LEVEL === 'debug') {
   logger.add(
     new transports.Console({
       level: 'debug',
-      format: format.printf((log) => log.message),
+      format: customFormat,
+    })
+  );
+} else {
+  logger.add(
+    new transports.Console({
+      level: 'info',
+      format: customFormat,
     })
   );
 }

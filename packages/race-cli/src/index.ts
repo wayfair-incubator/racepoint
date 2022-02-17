@@ -51,8 +51,7 @@ program
   )
   .option(
     '--output-target <string>',
-    descriptionHelper('Location to save results'),
-    DEFAULT_OUTPUT_LOCATION
+    descriptionHelper('Location to save results')
   )
   .option(
     '--output-format <string>',

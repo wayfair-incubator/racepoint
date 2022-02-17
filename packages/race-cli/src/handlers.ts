@@ -1,5 +1,6 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import logger from './logger';
+import {LighthouseResultsWrapper} from '@racepoint/shared';
 
 export const handleRacerError = (error: AxiosError) => {
   // handle error
@@ -17,7 +18,30 @@ export const handleRacerError = (error: AxiosError) => {
   }
 };
 
-export const deleteResult = async (jobId: number, port: number) => {
+const fetchResult = async (
+  jobId: number,
+  port: number,
+  callback: Function = () => {}
+): Promise<void> =>
+  axios
+    .get(`http://localhost:${port}/results/${jobId}`)
+    .then((response: AxiosResponse) => {
+      logger.debug(`Success fetching ${jobId}`);
+
+      const result: LighthouseResultsWrapper = {
+        lhr: response.data,
+        report: '',
+      };
+
+      callback(result);
+    })
+    .catch((error: AxiosError) => {
+      logger.debug('Still awaiting results...');
+      // results for this ID aren't ready yet, so throw an error and try again
+      throw new Error();
+    });
+
+const deleteResult = async (jobId: number, port: number) => {
   axios
     .delete(`http://localhost:${port}/results/${jobId}`)
     .then((response: AxiosResponse) => {
@@ -28,39 +52,16 @@ export const deleteResult = async (jobId: number, port: number) => {
       }
     })
     .catch((error: AxiosError) => {
-      logger.debug('Something went wrong in deletion');
+      logger.debug(`Failed to delete ${jobId}`, error.code);
       // Do some sort of cleanup here?
     });
 };
 
-// export const fetchResults = async (jobId: number, port, callback): Promise<void> =>
-//   axios
-//     .get(`http://localhost:${port}/results/${jobId}`)
-//     .then((response: AxiosResponse) => {
-//       console.log(`Success fetching ${jobId}!`);
-//       callback();
-//       // resultsArray.push({
-//       //   lighthouseVersion: response.data.lighthouseVersion,
-//       //   requestedUrl: response.data?.requestedUrl,
-//       //   finalUrl: response.data?.finalUrl,
-//       //   fetchTime: response.data?.fetchTime,
-//       // });
-//       // numProcessed++;
-//     })
-//     .catch((error: AxiosError) => {
-//       console.log('Still awaiting results...');
-//       // results for this ID aren't ready yet, so throw an error and try again
-//       throw new Error();
-//     });
-
-// export const deleteResults = async (jobId: number, port: number) => {
-//   axios
-//     .delete(`http://localhost:${port}/results/${jobId}`)
-//     .then((response: AxiosResponse) => {
-//       console.log(`Success deleting ${jobId}!`);
-//     })
-//     .catch((error: AxiosError) => {
-//       console.log('Something went wrong in deletion');
-//       // Do some sort of cleanup here?
-//     });
-// };
+export const collectAndPruneResults = async (
+  jobId: number,
+  port: number,
+  callback: Function
+) =>
+  fetchResult(jobId, port, callback).then(async () =>
+    deleteResult(jobId, port)
+  );

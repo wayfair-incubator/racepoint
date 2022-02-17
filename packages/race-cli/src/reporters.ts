@@ -9,11 +9,11 @@ import {
   ReportingRepository,
   ReportingRow,
 } from './repository';
-// import env from '../common/env';
+import logger from './logger';
 
 export interface LLReporter {
   initialize: () => Promise<void>;
-  process: (results: LighthouseResultsWrapper) => Promise<void>;
+  process: (results: LighthouseResultsWrapper) => Promise<void> | undefined;
 }
 
 interface MetricHeader {
@@ -64,33 +64,6 @@ export class ConsoleReporter implements LLReporter {
 }
 
 /**
- * Rather than Print Row by Row, this reporter will keep a tally of accumulated runs vs the expected number of them
- */
-export class RunCountConsole implements LLReporter {
-  private _maxRuns: number;
-  private _completedRuns: number = 0;
-
-  constructor(requestedRuns: number | undefined) {
-    if (!requestedRuns) {
-      throw new Error('Number of requested runs must be provided');
-    }
-    this._maxRuns = requestedRuns;
-  }
-
-  initialize = (): Promise<void> => Promise.resolve();
-
-  process = (results: LighthouseResultsWrapper): Promise<void> =>
-    new Promise((resolve) => {
-      this._completedRuns++;
-      console.log(this.buildMessage());
-      resolve();
-    });
-
-  private buildMessage = (): string =>
-    `Completed ${this._completedRuns} / ${this._maxRuns}`;
-}
-
-/**
  * Report Lighthouse results to some ReportingRepository.
  *
  * If repository id does not exist, will attempt to create one
@@ -101,27 +74,32 @@ export class RepositoryReporter implements LLReporter {
   private _targetUrl: string;
   private _repository: ReportingRepository | undefined; // lateinit
 
-  constructor(targetUrl: string, repositoryId: string | undefined) {
+  constructor(
+    targetUrl: string,
+    repositoryId: string | undefined,
+    outputTarget: string | undefined
+  ) {
     this._targetUrl = targetUrl;
-    if (!repositoryId) {
-      throw new Error(
-        'A repository identifier must be provided in order to use it'
-      );
-    }
-
-    this._repositoryLocation = `/var/lib/racepoint/${repositoryId}`; //`${env.RP_PATH}/${repositoryId}`;
+    this._repositoryLocation = outputTarget
+      ? `${outputTarget}/${repositoryId}`
+      : `${process.cwd()}/${repositoryId}`;
   }
 
   initialize = (): Promise<void> =>
-    // TODO add correct type
-    connectRepository(this._repositoryLocation).then(
-      (receivedRepository: any) => {
+    connectRepository(this._repositoryLocation)
+      .then((receivedRepository: ReportingRepository) => {
         this._repository = receivedRepository;
-      }
-    );
+      })
+      .catch((e) => {
+        logger.error('Failed to connect to repository');
+      });
 
-  process = (results: LighthouseResultsWrapper): Promise<void> =>
-    this._repository!!.write(this.mapResultsToRow(results.lhr));
+  process = (results: LighthouseResultsWrapper): Promise<void> | undefined => {
+    return (
+      this._repository &&
+      this._repository.write(this.mapResultsToRow(results.lhr))
+    );
+  };
 
   private mapResultsToRow = (results: LighthouseResults): ReportingRow => {
     const row = {
@@ -152,7 +130,7 @@ export class HtmlReporter implements LLReporter {
   initialize = (): Promise<void> => Promise.resolve();
 
   process = (results: LighthouseResultsWrapper): Promise<void> =>
-    fs
-      .writeFile(this._reportPath, results.report, {flag: 'w'})
-      .then(() => console.log(`Lighthouse HTML results successfully saved`));
+    fs.writeFile(this._reportPath, results.report, {flag: 'w'}).then(() => {
+      logger.info(`Lighthouse HTML results successfully saved`);
+    });
 }

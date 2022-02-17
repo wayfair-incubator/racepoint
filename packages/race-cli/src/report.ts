@@ -1,7 +1,6 @@
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import {
   ConsoleReporter,
-  RunCountConsole,
   RepositoryReporter,
   LLReporter,
   HtmlReporter,
@@ -44,9 +43,11 @@ export class LHResultsReporter {
         // more file path locations there. hmm
         return new HtmlReporter(options.outputTarget);
       } else if (type === ReportingTypes.Repository) {
-        return new RepositoryReporter(options.targetUrl, options.repositoryId);
-      } else if (type == ReportingTypes.ConsoleRunCounter) {
-        return new RunCountConsole(options.requestedRuns);
+        return new RepositoryReporter(
+          options.targetUrl,
+          '123',
+          options.outputTarget
+        );
       } else {
         console.error('Unknown reporting type of:', type);
       }
