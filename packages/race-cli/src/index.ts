@@ -89,6 +89,7 @@ program
       outputFormat: options.outputFormat.map((format: string) =>
         format.toLowerCase()
       ),
+      outputTarget: options.outputTarget ? options.outputTarget : process.cwd(),
     });
   });
 

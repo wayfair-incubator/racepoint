@@ -152,7 +152,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             });
           }
 
-          logger.debug('Now checking for results');
+          logger.info('Now checking for results');
 
           // Wait until all the results have been processed
           await retry(checkQueue, [], {

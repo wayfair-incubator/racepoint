@@ -80,9 +80,7 @@ export class RepositoryReporter implements LLReporter {
     outputTarget: string | undefined
   ) {
     this._targetUrl = targetUrl;
-    this._repositoryLocation = outputTarget
-      ? `${outputTarget}/${repositoryId}`
-      : `${process.cwd()}/${repositoryId}`;
+    this._repositoryLocation = `${outputTarget}/${repositoryId}`;
   }
 
   initialize = (): Promise<void> =>
@@ -122,15 +120,22 @@ export class RepositoryReporter implements LLReporter {
  */
 export class HtmlReporter implements LLReporter {
   private _reportPath: string;
-  constructor(requestedPath: string) {
-    this._reportPath = requestedPath;
+  constructor(outputTarget: string) {
+    this._reportPath = outputTarget; //`${outputTarget}/results.html`;
   }
 
   // for now, just resolve. We can get fancy and not overwrite by checking fs.access and selecting a new reportPath name
   initialize = (): Promise<void> => Promise.resolve();
 
-  process = (results: LighthouseResultsWrapper): Promise<void> =>
-    fs.writeFile(this._reportPath, results.report, {flag: 'w'}).then(() => {
-      logger.info(`Lighthouse HTML results successfully saved`);
-    });
+  process = (results: LighthouseResultsWrapper): Promise<void> => {
+    const htmlPath = `${this._reportPath}/results_${results.lhr.fetchTime}.html`;
+    return fs
+      .writeFile(htmlPath, results.report, {flag: 'w'})
+      .then(() => {
+        logger.info(`Lighthouse HTML results successfully saved`);
+      })
+      .catch((e) => {
+        console.log('Failed to write results', e);
+      });
+  };
 }
