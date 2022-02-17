@@ -21,7 +21,8 @@
     "docker-compose": "^0.23.17",
     "figlet": "^1.5.2",
     "fs": "^0.0.1-security",
-    "net": "^1.0.2"
+    "net": "^1.0.2",
+    "winston": "^3.6.0"
   },
   "devDependencies": {
     "@types/async": "^3.2.12",
