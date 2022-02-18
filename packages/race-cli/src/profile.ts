@@ -9,8 +9,8 @@ import {collectAndPruneResults, handleRacerError} from './handlers';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from './logger';
 
-const MAX_RETRIES = 3;
-const RETRY_INTERVAL_MS = 500;
+const MAX_RETRIES = 20;
+const RETRY_INTERVAL_MS = 3000;
 const FORMAT_CSV = 'csv';
 const FORMAT_HTML = 'html';
 
@@ -109,34 +109,39 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
                   const tryGetResults = retry(
                     () =>
-                      collectAndPruneResults(
+                      collectAndPruneResults({
                         jobId,
-                        context.racerPort,
-                        (result: LighthouseResultsWrapper) => {
-                          resultsArray.push(result);
-                          numProcessed++;
-                        }
-                      ),
+                        port: context.racerPort,
+                        retrieveHtml:
+                          context.outputFormat.includes(FORMAT_HTML),
+                      }).then((result: LighthouseResultsWrapper) => {
+                        resultsArray.push(result);
+                        numProcessed++;
+                      }),
                     [],
                     {
-                      retriesMax: 20,
-                      interval: 3000,
+                      retriesMax: MAX_RETRIES,
+                      interval: RETRY_INTERVAL_MS,
                     }
                   ).catch((err) => {
                     numFailed++;
-                    logger.debug(`Results failed after ${20} retries!`);
+                    logger.debug(
+                      `Results failed after ${MAX_RETRIES} retries!`
+                    );
                   });
 
-                  processingQueue.push(
-                    tryGetResults,
-                    (error: any, {remaining}: any) => {
-                      if (error) {
-                        logger.debug('Processing queue failure');
-                      } else if (remaining === 0) {
-                        logger.debug('Queue complete');
+                  if (context.outputFormat.includes('html')) {
+                    processingQueue.push(
+                      tryGetResults,
+                      (error: any, {remaining}: any) => {
+                        if (error) {
+                          logger.debug('Processing queue failure');
+                        } else if (remaining === 0) {
+                          logger.debug('Queue complete');
+                        }
                       }
-                    }
-                  );
+                    );
+                  }
 
                   return jobId;
                 }
@@ -145,10 +150,10 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
           for (let i = 0; i < context.numberRuns; i++) {
             await retry(fetchUrl, [], {
-              retriesMax: 20,
-              interval: 3000,
+              retriesMax: MAX_RETRIES,
+              interval: RETRY_INTERVAL_MS,
             }).catch((error: AxiosError) => {
-              logger.info(`Fetch failed after ${20} retries!`);
+              logger.info(`Fetch failed after ${MAX_RETRIES} retries!`);
             });
           }
 
@@ -157,7 +162,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           // Wait until all the results have been processed
           await retry(checkQueue, [], {
             retriesMax: 100,
-            interval: 3000,
+            interval: RETRY_INTERVAL_MS,
           }).catch((e) => {
             // Do nothing atm
           });
