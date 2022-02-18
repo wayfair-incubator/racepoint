@@ -7,7 +7,6 @@ import {
   parseIntArg,
   parseUrlArg,
 } from './helpers';
-import {DEFAULT_OUTPUT_LOCATION} from './constants';
 import {ProfileScenario, PROFILE_COMMAND} from './profile';
 
 const program = new commander.Command();

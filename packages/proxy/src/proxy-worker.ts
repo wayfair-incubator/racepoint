@@ -40,20 +40,17 @@ const handleErrorResponse = ({
   error,
   originalRequest,
   responseToBrowser,
-}: // target,
-{
+}: {
   error: Error;
   originalRequest: IncomingMessage;
   responseToBrowser: ServerResponse | net.Socket;
-  //target: string | undefined;
 }) => {
-  console.log('This is not a propah URL mate');
   if (responseToBrowser instanceof ServerResponse) {
     responseToBrowser.writeHead(StatusCodes.NOT_FOUND);
     responseToBrowser.write('Bloop');
     responseToBrowser.end();
   } else {
-    console.log('WTF is a socket anyway');
+    console.log('What is a socket anyway?');
   }
 };
 
@@ -71,12 +68,11 @@ export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
     });
   });
 
-  proxy.on('error', (error, originalRequest, responseToBrowser, target) => {
+  proxy.on('error', (error, originalRequest, responseToBrowser) => {
     handleErrorResponse({
       error,
       originalRequest,
       responseToBrowser,
-      // target
     });
   });
 
