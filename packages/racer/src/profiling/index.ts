@@ -17,7 +17,7 @@ export const submitLighthouseRun = async ({
 }: {
   targetUrl: string;
   deviceType?: 'Desktop' | 'Mobile';
-  chromeFlags?: string[];
+  chromeFlags: string[];
   overrideChromeFlags?: boolean;
 }): Promise<number> => {
   const jobId = await LighthouseResultsRepository.getNextId();
@@ -35,7 +35,7 @@ export const submitLighthouseRun = async ({
 const doLighthouse = async ({
   assignedJobId,
   targetUrl,
-  chromeFlags,
+  chromeFlags = [],
   overrideChromeFlags,
   // Where does this go ?
   deviceType,
