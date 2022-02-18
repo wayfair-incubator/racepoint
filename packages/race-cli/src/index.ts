@@ -55,8 +55,7 @@ program
   )
   .option(
     '--output-format [string...]',
-    descriptionHelper('Save results as CSV, HTML, or both'),
-    'JSON'
+    descriptionHelper('Save results as CSV, HTML, or both')
   )
   // Does this make sense? Most people don't want to override the basics ie. headless, disable-gpu, etc. but they should have a way to do so
   .option(
@@ -86,9 +85,9 @@ program
     new ProfileScenario().enter({
       ...options,
       targetUrl,
-      outputFormat: options.outputFormat.map((format: string) =>
-        format.toLowerCase()
-      ),
+      outputFormat: options.outputFormat
+        ? options.outputFormat.map((format: string) => format.toLowerCase())
+        : [],
       outputTarget: options.outputTarget ? options.outputTarget : process.cwd(),
     });
   });

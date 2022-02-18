@@ -45,7 +45,7 @@ const fetchResult = async ({
   return axios
     .get(`http://localhost:${port}/results/${jobId}`, options)
     .then((response: AxiosResponse) => {
-      logger.debug(`Success fetching ${jobId} HTML`);
+      logger.debug(`Success fetching ${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
       return response.data;
     })
     .catch((error: AxiosError) => {
