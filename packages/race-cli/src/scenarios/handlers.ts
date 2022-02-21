@@ -1,5 +1,5 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
-import logger from './logger';
+import logger from '../logger';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 
 /*

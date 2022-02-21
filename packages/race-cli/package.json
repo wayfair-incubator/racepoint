@@ -17,6 +17,7 @@
     "async-await-retry": "^1.2.4",
     "axios": "^0.25.0",
     "chalk": "^4",
+    "cli-progress": "^3.10.0",
     "commander": "^9.0.0",
     "docker-compose": "^0.23.17",
     "figlet": "^1.5.2",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@types/async": "^3.2.12",
     "@types/chalk": "^2.2.0",
+    "@types/cli-progress": "^3.9.2",
     "@types/commander": "^2.12.2",
     "@types/http-proxy": "^1.17.8"
   }

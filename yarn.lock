@@ -272,6 +272,13 @@
   dependencies:
     chalk "*"
 
+"@types/cli-progress@^3.9.2":
+  version "3.9.2"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/cli-progress/-/cli-progress-3.9.2.tgz#6ca355f96268af39bee9f9307f0ac96145639c26"
+  integrity sha1-bKNV+WJorzm+6fkwfwrJYUVjnCY=
+  dependencies:
+    "@types/node" "*"
+
 "@types/commander@^2.12.2":
   version "2.12.2"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/commander/-/commander-2.12.2.tgz#183041a23842d4281478fa5d23c5ca78e6fd08ae"
@@ -883,6 +890,13 @@ ci-info@^3.2.0:
   version "3.3.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/ci-info/-/ci-info-3.3.0.tgz#b4ed1fb6818dea4803a55c623041f9165d2066b2"
   integrity sha1-tO0ftoGN6kgDpVxiMEH5Fl0gZrI=
+
+cli-progress@^3.10.0:
+  version "3.10.0"
+  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/cli-progress/-/cli-progress-3.10.0.tgz#63fd9d6343c598c93542fdfa3563a8b59887d78a"
+  integrity sha1-Y/2dY0PFmMk1Qv36NWOotZiH14o=
+  dependencies:
+    string-width "^4.2.0"
 
 cliui@^7.0.2:
   version "7.0.4"

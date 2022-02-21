@@ -1,3 +1,5 @@
+import {LighthouseResultsWrapper} from '@racepoint/shared';
+
 export interface ScenarioContext {}
 
 /**
@@ -31,4 +33,9 @@ export abstract class Scenario<SC extends ScenarioContext> {
   enter(userArgs: any): void {
     this.runScenario(this.buildContext(userArgs));
   }
+}
+
+export interface LLReporter {
+  initialize: () => Promise<void>;
+  process: (results: LighthouseResultsWrapper) => Promise<void> | undefined;
 }

@@ -3,7 +3,7 @@
  */
 
 import fs from 'fs/promises';
-import logger from './logger';
+import logger from '../logger';
 
 export interface ReportingRepository {
   write: (row: ReportingRow) => Promise<void>;

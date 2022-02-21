@@ -1,13 +1,15 @@
-import {ScenarioContext, Scenario} from './types';
+import {ScenarioContext, Scenario} from '../types';
 import path from 'path';
 import compose from 'docker-compose';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import async from 'async';
 import retry from 'async-await-retry';
-import {LHResultsReporter, ReportingTypes} from './report';
+import {LHResultsReporter, ReportingTypes} from '../reporters/index';
 import {collectAndPruneResults, handleRacerError} from './handlers';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
-import logger from './logger';
+import logger from '../logger';
+import cliProgress from 'cli-progress';
+import chalk from 'chalk';
 
 const MAX_RETRIES = 20;
 const RETRY_INTERVAL_MS = 3000;
@@ -65,6 +67,25 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       completed(null, {task, remaining});
     }, 2);
 
+    const multibar = new cliProgress.MultiBar(
+      {
+        // Hide the multibar in debug mode so it doesn't mess up the other logs
+        format: isDebug
+          ? ''
+          : '{step} |' +
+            chalk.green('{bar}') +
+            '| {percentage}% | {value}/{total}',
+      },
+      cliProgress.Presets.rect
+    );
+
+    const runsCounter = multibar.create(context.numberRuns, 0, {
+      step: 'Runs requested',
+    });
+    const resultsCounter = multibar.create(context.numberRuns, 0, {
+      step: 'Results received',
+    });
+
     const checkQueue = async () => {
       return new Promise<void>((resolve, reject) => {
         if (numProcessed + numFailed === context.numberRuns) {
@@ -81,7 +102,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           // Configure how we want the results reported
           const resultsReporter = new LHResultsReporter({
             outputs: [
-              ReportingTypes.Console,
+              ReportingTypes.ConsoleReporter,
               ...(context.outputFormat.includes(FORMAT_HTML)
                 ? [ReportingTypes.LighthouseHtml]
                 : []),
@@ -106,7 +127,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
                 const jobId = response.data?.jobId;
                 if (jobId) {
                   logger.debug(`Success queuing ${jobId}`);
-
                   const tryGetResults = retry(
                     () =>
                       collectAndPruneResults({
@@ -117,6 +137,8 @@ export class ProfileScenario extends Scenario<ProfileContext> {
                       }).then((result: LighthouseResultsWrapper) => {
                         resultsArray.push(result);
                         numProcessed++;
+                        // Update the counter for number of results received
+                        resultsCounter.update(numProcessed);
                       }),
                     [],
                     {
@@ -125,39 +147,38 @@ export class ProfileScenario extends Scenario<ProfileContext> {
                     }
                   ).catch((err) => {
                     numFailed++;
-                    logger.debug(
+                    logger.error(
                       `Results failed after ${MAX_RETRIES} retries!`
                     );
                   });
 
-                  if (context.outputFormat.includes('html')) {
-                    processingQueue.push(
-                      tryGetResults,
-                      (error: any, {remaining}: any) => {
-                        if (error) {
-                          logger.debug('Processing queue failure');
-                        } else if (remaining === 0) {
-                          logger.debug('Queue complete');
-                        }
+                  processingQueue.push(
+                    tryGetResults,
+                    (error: any, {remaining}: any) => {
+                      if (error) {
+                        logger.error('Processing queue failure');
+                      } else if (remaining === 0) {
+                        logger.debug('Queue complete');
                       }
-                    );
-                  }
-
-                  return jobId;
+                    }
+                  );
                 }
               })
               .catch((error: AxiosError) => handleRacerError(error));
 
-          for (let i = 0; i < context.numberRuns; i++) {
+          for (let i = 1; i <= context.numberRuns; i++) {
             await retry(fetchUrl, [], {
               retriesMax: MAX_RETRIES,
               interval: RETRY_INTERVAL_MS,
-            }).catch((error: AxiosError) => {
-              logger.info(`Fetch failed after ${MAX_RETRIES} retries!`);
-            });
+            })
+              .then(() => {
+                // Update the counter for fetches sent
+                runsCounter.update(i);
+              })
+              .catch((error: AxiosError) => {
+                logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
+              });
           }
-
-          logger.info('Now checking for results');
 
           // Wait until all the results have been processed
           await retry(checkQueue, [], {
@@ -166,6 +187,9 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           }).catch((e) => {
             // Do nothing atm
           });
+
+          // Stop the progress bar
+          multibar.stop();
 
           // Shut down container if success or failure
           compose.down({
@@ -178,7 +202,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           });
         },
         (err) => {
-          logger.info('Something went wrong:', err.message);
+          logger.error('Something went wrong:', err.message);
         }
       )
     );

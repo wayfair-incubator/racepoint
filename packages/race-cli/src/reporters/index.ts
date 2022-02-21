@@ -1,10 +1,9 @@
 import {LighthouseResultsWrapper} from '@racepoint/shared';
-import {
-  ConsoleReporter,
-  RepositoryReporter,
-  LLReporter,
-  HtmlReporter,
-} from './reporters';
+import logger from '../logger';
+import {ConsoleReporter} from './console-reporter';
+import {RepositoryReporter} from './repo-reporter';
+import {HtmlReporter} from './html-reporter';
+import {LLReporter} from '../types';
 
 export interface ReporterSettings {
   targetUrl: string;
@@ -15,7 +14,7 @@ export interface ReporterSettings {
 }
 
 export enum ReportingTypes {
-  Console,
+  ConsoleReporter,
   ConsoleRunCounter,
   Repository,
   LighthouseHtml,
@@ -34,7 +33,7 @@ export class LHResultsReporter {
 
     // initialize reporters based on options, as we add more reporting types, add them here
     this._reporters = options.outputs.map((type: ReportingTypes) => {
-      if (type === ReportingTypes.Console) {
+      if (type === ReportingTypes.ConsoleReporter) {
         return new ConsoleReporter();
       } else if (type === ReportingTypes.LighthouseHtml) {
         // for now, hardcode the result. We could make it a setting in ReporterSettings but as it stands, it feels weird to add
@@ -47,7 +46,7 @@ export class LHResultsReporter {
           options.outputTarget
         );
       } else {
-        console.error('Unknown reporting type of:', type);
+        logger.error('Unknown reporting type of:', type);
       }
     });
   }

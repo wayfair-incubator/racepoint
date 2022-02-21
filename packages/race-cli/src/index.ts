@@ -7,7 +7,7 @@ import {
   parseIntArg,
   parseUrlArg,
 } from './helpers';
-import {ProfileScenario, PROFILE_COMMAND} from './profile';
+import {ProfileScenario, PROFILE_COMMAND} from './scenarios/profile';
 
 const program = new commander.Command();
 
