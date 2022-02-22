@@ -1,4 +1,4 @@
-import axios, {AxiosResponse, AxiosError} from 'axios';
+import axios from 'axios';
 import {
   handleStartRacer,
   deleteResult,
@@ -7,6 +7,7 @@ import {
 } from '../src/scenarios/handlers';
 import MockAdapter from 'axios-mock-adapter';
 import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
+import {StatusCodes} from 'http-status-codes';
 
 const validLhrData: LighthouseResults = {
   lighthouseVersion: '9.1.0',
@@ -64,17 +65,21 @@ describe('Race CLI request handlers work as expected', () => {
 
   describe('The fetch endpoint works as expected', () => {
     it('Receives a jobId when submitting a URL', async () => {
-      mock.onPost(`http://localhost:${port}/race`).reply(200, {jobId});
+      mock
+        .onPost(`http://localhost:${port}/race`)
+        .reply(StatusCodes.OK, {jobId});
 
-      const result = await handleStartRacer({port: 3000, data});
+      const result = await handleStartRacer({port, data});
       expect(JSON.stringify(result)).toEqual(JSON.stringify(jobId));
     });
 
     it('Receives a busy error when submitting a URL while running Lighthouse', async () => {
-      mock.onPost(`http://localhost:${port}/race`).reply(503);
+      mock
+        .onPost(`http://localhost:${port}/race`)
+        .reply(StatusCodes.SERVICE_UNAVAILABLE);
 
       try {
-        await await handleStartRacer({port: 3000, data});
+        await await handleStartRacer({port, data});
       } catch (error: any) {
         // expect(error).toHaveProperty('isAxiosError');
         expect(error.message).toEqual(
@@ -88,9 +93,9 @@ describe('Race CLI request handlers work as expected', () => {
     it('Receives a LHR result when requesting a jobId', async () => {
       mock
         .onGet(`http://localhost:${port}/results/${jobId}`)
-        .reply(200, validLhrData);
+        .reply(StatusCodes.OK, validLhrData);
 
-      const result = await fetchResult({jobId, port: 3000});
+      const result = await fetchResult({jobId, port});
       expect(JSON.stringify(result)).toEqual(JSON.stringify(validLhrData));
     });
 
@@ -98,16 +103,16 @@ describe('Race CLI request handlers work as expected', () => {
       mock
         .onGet(`http://localhost:${port}/results/${jobId}`)
         // Technically we should be altering the headers for the HTML request, but the mock client doesn't care
-        .reply(200, validHtmlData);
+        .reply(StatusCodes.OK, validHtmlData);
 
-      const result = await fetchResult({jobId, port: 3000, isHtml: true});
+      const result = await fetchResult({jobId, port, isHtml: true});
       expect(JSON.stringify(result)).toEqual(JSON.stringify(validHtmlData));
     });
 
     it('Throws an error when bad data is returned', async () => {
       mock
         .onGet(`http://localhost:${port}/results/${jobId}`)
-        .reply(200, invalidLhrData);
+        .reply(StatusCodes.OK, invalidLhrData);
 
       try {
         await fetchResult({jobId, port});
@@ -118,7 +123,9 @@ describe('Race CLI request handlers work as expected', () => {
     });
 
     it('Throws an axios error when the result is not ready', async () => {
-      mock.onGet(`http://localhost:${port}/results/${jobId}`).reply(404);
+      mock
+        .onGet(`http://localhost:${port}/results/${jobId}`)
+        .reply(StatusCodes.NOT_FOUND);
 
       try {
         await fetchResult({jobId, port});
@@ -131,7 +138,9 @@ describe('Race CLI request handlers work as expected', () => {
 
   describe('The delete endpoint works as expected', () => {
     it('Receives an OK status when deleting a jobId', async () => {
-      mock.onDelete(`http://localhost:${port}/results/${jobId}`).reply(204);
+      mock
+        .onDelete(`http://localhost:${port}/results/${jobId}`)
+        .reply(StatusCodes.NO_CONTENT);
 
       const request = await deleteResult({jobId, port});
 
@@ -139,7 +148,9 @@ describe('Race CLI request handlers work as expected', () => {
     });
 
     it('Throws an error if deletion failed', async () => {
-      mock.onDelete(`http://localhost:${port}/results/${jobId}`).reply(205);
+      mock
+        .onDelete(`http://localhost:${port}/results/${jobId}`)
+        .reply(StatusCodes.IM_A_TEAPOT);
 
       try {
         await deleteResult({jobId, port});
@@ -154,7 +165,7 @@ describe('Race CLI request handlers work as expected', () => {
     mock
       .onGet(`http://localhost:${port}/results/${jobId}`)
       // Technically we should be altering the headers for the HTML request, but the mock client doesn't care
-      .reply(200, validHtmlData);
+      .reply(StatusCodes.OK, validHtmlData);
 
     const resultsWrapper: LighthouseResultsWrapper = {
       lhr: validLhrData,

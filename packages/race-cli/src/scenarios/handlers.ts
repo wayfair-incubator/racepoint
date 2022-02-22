@@ -12,7 +12,10 @@ const handleRacerError = (error: AxiosError) => {
     throw new Error('Racer server was not ready yet');
   } else if (error.code === 'ECONNREFUSED') {
     throw new Error('Racer server is not responsive');
-  } else if (error.response && error.response.status === 503) {
+  } else if (
+    error.response &&
+    error.response.status === StatusCodes.SERVICE_UNAVAILABLE
+  ) {
     throw new Error('Racer is currently running a lighthouse report');
   } else {
     console.log('Unknown Racer error', error?.code);
@@ -129,7 +132,7 @@ export const deleteResult = async ({
   axios
     .delete(`http://localhost:${port}/results/${jobId}`)
     .then((response: AxiosResponse) => {
-      if (response.status === 204) {
+      if (response.status === StatusCodes.NO_CONTENT) {
         logger.debug(`Success deleting ${jobId}`);
       } else {
         throw 'Bad response';
