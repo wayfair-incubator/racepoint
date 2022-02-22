@@ -4,6 +4,23 @@ import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
 import {StatusCodes} from 'http-status-codes';
 
 /*
+  Handler for the different error responses from the Racer
+*/
+const handleRacerError = (error: AxiosError) => {
+  if (error.code === 'ECONNRESET') {
+    // TODO: Add custom retry handler so the interval isn't as long in this situation
+    throw new Error('Racer server was not ready yet');
+  } else if (error.code === 'ECONNREFUSED') {
+    throw new Error('Racer server is not responsive');
+  } else if (error.response && error.response.status === 503) {
+    throw new Error('Racer is currently running a lighthouse report');
+  } else {
+    console.log('Unknown Racer error', error?.code);
+    throw new Error();
+  }
+};
+
+/*
   Handler to request initializing Lighthouse run
 */
 export const handleStartRacer = ({port, data}: {port: number; data: any}) =>
@@ -22,29 +39,9 @@ export const handleStartRacer = ({port, data}: {port: number; data: any}) =>
     .catch((error: AxiosError) => handleRacerError(error));
 
 /*
-  Handler for the different error responses from the Racer
-*/
-export const handleRacerError = (error: AxiosError) => {
-  if (error.code === 'ECONNRESET') {
-    // TODO: Add custom retry handler so the interval isn't as long in this situation
-    throw new Error('Racer server was not ready yet');
-  } else if (error.code === 'ECONNREFUSED') {
-    throw new Error('Racer server is not responsive');
-  } else if (error.response && error.response.status === 503) {
-    throw new Error('Racer is currently running a lighthouse report');
-  } else {
-    console.log('Unknown Racer error', error?.code);
-    throw new Error();
-  }
-};
-
-const CONTENT_TYPE = 'content-type';
-const MIME_HTML = 'text/html';
-
-/*
   Validate the response is either HTML or a LHR
 */
-export const validateResponseData = (data: LighthouseResults | string) => {
+const validateResponseData = (data: LighthouseResults | string) => {
   if (
     (typeof data !== 'string' && data.lighthouseVersion) ||
     (typeof data === 'string' && data.length > 0)
@@ -54,6 +51,9 @@ export const validateResponseData = (data: LighthouseResults | string) => {
     return false;
   }
 };
+
+const CONTENT_TYPE = 'content-type';
+const MIME_HTML = 'text/html';
 
 /*
   Fetch data from a jobId from the results endpoint
@@ -96,7 +96,7 @@ export const fetchResult = async ({
 /*
   Fetch additional HTML data and append to results
 */
-const fetchAndAppendHtml = async ({
+export const fetchAndAppendHtml = async ({
   jobId,
   port,
   resultsWrapper,

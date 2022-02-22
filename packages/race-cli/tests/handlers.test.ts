@@ -3,9 +3,10 @@ import {
   handleStartRacer,
   deleteResult,
   fetchResult,
+  fetchAndAppendHtml,
 } from '../src/scenarios/handlers';
 import MockAdapter from 'axios-mock-adapter';
-import {LighthouseResults} from '@racepoint/shared';
+import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
 
 const validLhrData: LighthouseResults = {
   lighthouseVersion: '9.1.0',
@@ -50,7 +51,7 @@ const data = {
   targetUrl: 'http://meow.com',
 };
 
-describe('postProcessData', () => {
+describe('Race CLI request handlers work as expected', () => {
   let mock: any;
 
   beforeAll(() => {
@@ -149,7 +150,19 @@ describe('postProcessData', () => {
     });
   });
 
-  // it('Appends HTML data to report', () => {
+  it('Appends HTML data to report', async () => {
+    mock
+      .onGet(`http://localhost:${port}/results/${jobId}`)
+      // Technically we should be altering the headers for the HTML request, but the mock client doesn't care
+      .reply(200, validHtmlData);
 
-  // });
+    const resultsWrapper: LighthouseResultsWrapper = {
+      lhr: validLhrData,
+      report: '',
+    };
+    const request = await fetchAndAppendHtml({jobId, port, resultsWrapper});
+    expect(JSON.stringify(request.report)).toEqual(
+      JSON.stringify(validHtmlData)
+    );
+  });
 });
