@@ -4,6 +4,11 @@ import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
 import {StatusCodes} from 'http-status-codes';
 
 /*
+  Handler to request initializing Lighthouse run
+*/
+export const handleStartRacer = () => {};
+
+/*
   Handler for the different error responses from the Racer
 */
 export const handleRacerError = (error: AxiosError) => {
@@ -23,6 +28,9 @@ export const handleRacerError = (error: AxiosError) => {
 const CONTENT_TYPE = 'content-type';
 const MIME_HTML = 'text/html';
 
+/*
+  Validate the response is either HTML or a LHR
+*/
 export const validateResponseData = (data: LighthouseResults | string) => {
   if (
     (typeof data !== 'string' && data.lighthouseVersion) ||
@@ -104,21 +112,20 @@ export const deleteResult = async ({
 }: {
   jobId: number;
   port: number;
-}) => {
+}) =>
   axios
     .delete(`http://localhost:${port}/results/${jobId}`)
     .then((response: AxiosResponse) => {
       if (response.status === 204) {
         logger.debug(`Success deleting ${jobId}`);
       } else {
-        logger.debug('Response from DELETE endpoint', response.status);
+        throw 'Bad response';
       }
     })
-    .catch((error: AxiosError) => {
-      logger.debug(`Failed to delete ${jobId}`, error.code);
+    .catch((error: Error | AxiosError) => {
+      throw new Error(`Failed to delete ${jobId}`);
       // Do some sort of cleanup here?
     });
-};
 
 /*
   Fetch Lighthouse Results from the endpoint and delete the jobId after

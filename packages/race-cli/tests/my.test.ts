@@ -3,6 +3,46 @@ import {deleteResult, fetchResult} from '../src/scenarios/handlers';
 import MockAdapter from 'axios-mock-adapter';
 import {LighthouseResults} from '@racepoint/shared';
 
+const validLhrData: LighthouseResults = {
+  lighthouseVersion: '9.1.0',
+  requestedUrl: 'http://example.com/',
+  finalUrl: 'http://example.com/',
+  fetchTime: '2022-02-22T15:04:43.185Z',
+  runWarnings: [],
+  userAgent:
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
+  runtimeError: '',
+  audits: {},
+  timing: {
+    entries: [
+      {
+        startTime: 121.2,
+        name: 'lh:init:config',
+        duration: 251.2,
+        entryType: 'measure',
+      },
+    ],
+    total: 5928.1,
+  },
+};
+
+const invalidLhrData = {
+  fakeEntry: true,
+  fakeProperty1: 12345,
+  fakeProperty2: 'banana',
+};
+
+const validHtmlData = `
+    <html>
+      <body>
+        Hello world!
+      </body>
+    </html>
+  `;
+
+const jobId = 1234;
+const port = 3000;
+
 describe('postProcessData', () => {
   let mock: any;
 
@@ -14,84 +54,75 @@ describe('postProcessData', () => {
     mock.reset();
   });
 
-  const deleteResponse: AxiosResponse = {
-    data: null,
-    status: 204,
-    statusText: 'OK',
-    headers: {},
-    config: {},
-  };
+  describe('The fetch endpoint works as expected', () => {});
 
-  const validLhrData: LighthouseResults = {
-    lighthouseVersion: '9.1.0',
-    requestedUrl: 'http://example.com/',
-    finalUrl: 'http://example.com/',
-    fetchTime: '2022-02-22T15:04:43.185Z',
-    runWarnings: [],
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
-    runtimeError: '',
-    audits: {},
-    timing: {
-      entries: [
-        {
-          startTime: 121.2,
-          name: 'lh:init:config',
-          duration: 251.2,
-          entryType: 'measure',
-        },
-      ],
-      total: 5928.1,
-    },
-  };
+  describe('The results endpoint works as expected', () => {
+    it('Recieves a LHR result when requesting a jobId', async () => {
+      mock
+        .onGet(`http://localhost:${port}/results/${jobId}`)
+        .reply(200, validLhrData);
 
-  const invalidLhrData = {
-    fakeEntry: true,
-    fakeProperty1: 12345,
-    fakeProperty2: 'banana',
-  };
+      const result = await fetchResult({jobId, port: 3000});
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(validLhrData));
+    });
 
-  const jobId = 1234;
-  const port = 3000;
+    it('Recieves a HTML result when requesting a jobId', async () => {
+      mock
+        .onGet(`http://localhost:${port}/results/${jobId}`)
+        // Technically we should be altering the headers for the HTML request, but the mock client doesn't care
+        .reply(200, validHtmlData);
 
-  it('Recieves a LHR result when requesting a jobId', async () => {
-    mock
-      .onGet(`http://localhost:${port}/results/${jobId}`)
-      .reply(200, validLhrData);
+      const result = await fetchResult({jobId, port: 3000, isHtml: true});
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(validHtmlData));
+    });
 
-    const result = await fetchResult({jobId, port: 3000});
-    expect(JSON.stringify(result)).toEqual(JSON.stringify(validLhrData));
+    it('Throws an error when bad data is returned', async () => {
+      mock
+        .onGet(`http://localhost:${port}/results/${jobId}`)
+        .reply(200, invalidLhrData);
+
+      try {
+        await fetchResult({jobId, port});
+      } catch (error: any) {
+        expect(error).rejects.toThrowError;
+        expect(error.message).toEqual('Received bad data');
+      }
+    });
+
+    it('Throws an axios error when the result is not ready', async () => {
+      mock.onGet(`http://localhost:${port}/results/${jobId}`).reply(404);
+
+      try {
+        await fetchResult({jobId, port});
+      } catch (error: any) {
+        expect(error).rejects.toThrowError;
+        expect(error.message).toEqual('Still awaiting results');
+      }
+    });
   });
 
-  it('Throws an error when bad data is returned', async () => {
-    mock
-      .onGet(`http://localhost:${port}/results/${jobId}`)
-      .reply(200, invalidLhrData);
+  describe('The delete endpoint works as expected', () => {
+    it('Receives an OK status when deleting a jobId', async () => {
+      mock.onDelete(`http://localhost:${port}/results/${jobId}`).reply(204);
 
-    try {
-      await fetchResult({jobId, port});
-    } catch (error: any) {
-      expect(error).rejects.toThrowError;
-      expect(error.message).toEqual('Received bad data');
-    }
-  });
+      const request = await deleteResult({jobId, port});
 
-  it('Throws an axios error when the result is not ready', async () => {
-    mock.onGet(`http://localhost:${port}/results/${jobId}`).reply(404);
+      expect(request).not.toThrowError;
+    });
 
-    try {
-      await fetchResult({jobId, port});
-    } catch (error: any) {
-      expect(error).rejects.toThrowError;
-      expect(error.message).toEqual('Still awaiting results');
-    }
+    it('Throws an error if deletion failed', async () => {
+      mock.onDelete(`http://localhost:${port}/results/${jobId}`).reply(205);
+
+      try {
+        await deleteResult({jobId, port});
+      } catch (error: any) {
+        expect(error).rejects.toThrowError;
+        expect(error.message).toEqual(`Failed to delete ${jobId}`);
+      }
+    });
   });
 
   // it('Appends HTML data to report', () => {
 
   // });
-
-  it('Throws an error when bad data is returned', () => {
-    expect(true).toBe(true);
-  });
 });
