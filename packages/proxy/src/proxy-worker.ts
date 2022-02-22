@@ -47,10 +47,9 @@ const handleErrorResponse = ({
 }) => {
   if (responseToBrowser instanceof ServerResponse) {
     responseToBrowser.writeHead(StatusCodes.NOT_FOUND);
-    responseToBrowser.write('Bloop');
     responseToBrowser.end();
   } else {
-    console.log('What is a socket anyway?');
+    // console.log('What is a socket anyway?');
   }
 };
 

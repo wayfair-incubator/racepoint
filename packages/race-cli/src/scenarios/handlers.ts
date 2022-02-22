@@ -18,7 +18,7 @@ const handleRacerError = (error: AxiosError) => {
   ) {
     throw new Error('Racer is currently running a lighthouse report');
   } else {
-    console.log('Unknown Racer error', error?.code);
+    logger.debug('Unknown Racer error', error?.code);
     throw new Error();
   }
 };
@@ -35,7 +35,6 @@ export const handleStartRacer = ({port, data}: {port: number; data: any}) =>
         logger.debug(`Success queuing ${jobId}`);
         return jobId;
       } else {
-        console.log('no job');
         throw 'No job ID received';
       }
     })
