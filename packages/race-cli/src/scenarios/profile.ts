@@ -1,11 +1,11 @@
 import {ScenarioContext, Scenario} from '../types';
 import path from 'path';
 import compose from 'docker-compose';
-import axios, {AxiosError, AxiosResponse} from 'axios';
+import {AxiosError} from 'axios';
 import async from 'async';
 import retry from 'async-await-retry';
 import {LHResultsReporter, ReportingTypes} from '../reporters/index';
-import {collectAndPruneResults, handleRacerError} from './handlers';
+import {handleStartRacer, collectAndPruneResults} from './handlers';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
 import cliProgress from 'cli-progress';
@@ -60,11 +60,12 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const dockerPath = path.join(__dirname, '..', '..');
 
-    const processingQueue = async.queue((task: any, completed: any) => {
-      // logger.info("Currently Busy Processing Task " + task);
+    const processingQueue = async.queue(() => {
       // Number of elements to be processed.
       const remaining = processingQueue.length();
-      completed(null, {task, remaining});
+      if (remaining === 0) {
+        logger.debug('Queue complete');
+      }
     }, 2);
 
     const multibar = new cliProgress.MultiBar(
@@ -96,6 +97,36 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       });
     };
 
+    const raceUrlAndProcess = async () =>
+      handleStartRacer({
+        port: context.racerPort,
+        data: context,
+      }).then((jobId: number) => {
+        const tryGetResults = retry(
+          () =>
+            collectAndPruneResults({
+              jobId,
+              port: context.racerPort,
+              retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
+            }).then((result: LighthouseResultsWrapper) => {
+              resultsArray.push(result);
+              numProcessed++;
+              // Update the counter for number of results received
+              resultsCounter.update(numProcessed);
+            }),
+          [],
+          {
+            retriesMax: MAX_RETRIES,
+            interval: RETRY_INTERVAL_MS,
+          }
+        ).catch((err) => {
+          numFailed++;
+          logger.error(`Results failed after ${MAX_RETRIES} retries!`);
+        });
+
+        processingQueue.push(tryGetResults);
+      });
+
     compose.buildAll({cwd: dockerPath}).then(() =>
       compose.upAll({cwd: dockerPath, log: isDebug}).then(
         async () => {
@@ -118,56 +149,8 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
           await resultsReporter.prepare();
 
-          const racerUrl = `http://localhost:${context.racerPort}/race`;
-
-          const fetchUrl = async () =>
-            axios
-              .post(racerUrl, context)
-              .then(async (response: AxiosResponse) => {
-                const jobId = response.data?.jobId;
-                if (jobId) {
-                  logger.debug(`Success queuing ${jobId}`);
-                  const tryGetResults = retry(
-                    () =>
-                      collectAndPruneResults({
-                        jobId,
-                        port: context.racerPort,
-                        retrieveHtml:
-                          context.outputFormat.includes(FORMAT_HTML),
-                      }).then((result: LighthouseResultsWrapper) => {
-                        resultsArray.push(result);
-                        numProcessed++;
-                        // Update the counter for number of results received
-                        resultsCounter.update(numProcessed);
-                      }),
-                    [],
-                    {
-                      retriesMax: MAX_RETRIES,
-                      interval: RETRY_INTERVAL_MS,
-                    }
-                  ).catch((err) => {
-                    numFailed++;
-                    logger.error(
-                      `Results failed after ${MAX_RETRIES} retries!`
-                    );
-                  });
-
-                  processingQueue.push(
-                    tryGetResults,
-                    (error: any, {remaining}: any) => {
-                      if (error) {
-                        logger.error('Processing queue failure');
-                      } else if (remaining === 0) {
-                        logger.debug('Queue complete');
-                      }
-                    }
-                  );
-                }
-              })
-              .catch((error: AxiosError) => handleRacerError(error));
-
           for (let i = 1; i <= context.numberRuns; i++) {
-            await retry(fetchUrl, [], {
+            await retry(raceUrlAndProcess, [], {
               retriesMax: MAX_RETRIES,
               interval: RETRY_INTERVAL_MS,
             })

@@ -15,12 +15,11 @@ export const handleStartRacer = ({port, data}: {port: number; data: any}) =>
         logger.debug(`Success queuing ${jobId}`);
         return jobId;
       } else {
+        console.log('no job');
         throw 'No job ID received';
       }
     })
-    .catch((e) => {
-      // console.log("error error", e)
-    });
+    .catch((error: AxiosError) => handleRacerError(error));
 
 /*
   Handler for the different error responses from the Racer
