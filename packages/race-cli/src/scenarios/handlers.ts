@@ -1,6 +1,7 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import logger from '../logger';
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
+import {StatusCodes} from 'http-status-codes';
 
 /*
   Handler for the different error responses from the Racer
@@ -22,10 +23,21 @@ export const handleRacerError = (error: AxiosError) => {
 const CONTENT_TYPE = 'content-type';
 const MIME_HTML = 'text/html';
 
+export const validateResponseData = (data: LighthouseResults | string) => {
+  if (
+    (typeof data !== 'string' && data.lighthouseVersion) ||
+    (typeof data === 'string' && data.length > 0)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 /*
   Fetch data from a jobId from the results endpoint
 */
-const fetchResult = async ({
+export const fetchResult = async ({
   jobId,
   port,
   isHtml = false,
@@ -44,12 +56,19 @@ const fetchResult = async ({
     .get(`http://localhost:${port}/results/${jobId}`, options)
     .then((response: AxiosResponse) => {
       logger.debug(`Success fetching ${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
-      return response.data;
+      if (validateResponseData(response.data)) {
+        return response.data;
+      } else {
+        throw {};
+      }
     })
-    .catch((error: AxiosError) => {
-      logger.debug('Still awaiting results...');
-      // results for this ID aren't ready yet, so throw an error and try again
-      throw new Error();
+    .catch((error: Error | AxiosError) => {
+      if (axios.isAxiosError(error)) {
+        throw new Error('Still awaiting results');
+        // results for this ID aren't ready yet, so throw an error and try again
+      } else {
+        throw new Error('Received bad data');
+      }
     });
 };
 
@@ -79,7 +98,13 @@ const fetchAndAppendHtml = async ({
 /*
   Delete a jobId from the results endpoint
 */
-const deleteResult = async ({jobId, port}: {jobId: number; port: number}) => {
+export const deleteResult = async ({
+  jobId,
+  port,
+}: {
+  jobId: number;
+  port: number;
+}) => {
   axios
     .delete(`http://localhost:${port}/results/${jobId}`)
     .then((response: AxiosResponse) => {
