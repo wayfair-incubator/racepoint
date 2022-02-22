@@ -6,7 +6,21 @@ import {StatusCodes} from 'http-status-codes';
 /*
   Handler to request initializing Lighthouse run
 */
-export const handleStartRacer = () => {};
+export const handleStartRacer = ({port, data}: {port: number; data: any}) =>
+  axios
+    .post(`http://localhost:${port}/race`, data)
+    .then(async (response: AxiosResponse) => {
+      const jobId = response.data?.jobId;
+      if (jobId) {
+        logger.debug(`Success queuing ${jobId}`);
+        return jobId;
+      } else {
+        throw 'No job ID received';
+      }
+    })
+    .catch((e) => {
+      // console.log("error error", e)
+    });
 
 /*
   Handler for the different error responses from the Racer

@@ -1,5 +1,9 @@
 import axios, {AxiosResponse, AxiosError} from 'axios';
-import {deleteResult, fetchResult} from '../src/scenarios/handlers';
+import {
+  handleStartRacer,
+  deleteResult,
+  fetchResult,
+} from '../src/scenarios/handlers';
 import MockAdapter from 'axios-mock-adapter';
 import {LighthouseResults} from '@racepoint/shared';
 
@@ -42,6 +46,9 @@ const validHtmlData = `
 
 const jobId = 1234;
 const port = 3000;
+const data = {
+  targetUrl: 'http://meow.com',
+};
 
 describe('postProcessData', () => {
   let mock: any;
@@ -54,10 +61,30 @@ describe('postProcessData', () => {
     mock.reset();
   });
 
-  describe('The fetch endpoint works as expected', () => {});
+  describe('The fetch endpoint works as expected', () => {
+    it('Receives a jobId when submitting a URL', async () => {
+      mock.onPost(`http://localhost:${port}/race`).reply(200, {jobId});
+
+      const result = await handleStartRacer({port: 3000, data});
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(jobId));
+    });
+
+    it('Receives a busy error when submitting a URL while running Lighthouse', async () => {
+      mock.onPost(`http://localhost:${port}/race`).reply(503, {jobId});
+
+      try {
+        await await handleStartRacer({port: 3000, data});
+      } catch (error: any) {
+        expect(error).toHaveProperty('isAxiosError');
+        expect(error.message).toEqual(
+          'Racer is currently running a lighthouse report'
+        );
+      }
+    });
+  });
 
   describe('The results endpoint works as expected', () => {
-    it('Recieves a LHR result when requesting a jobId', async () => {
+    it('Receives a LHR result when requesting a jobId', async () => {
       mock
         .onGet(`http://localhost:${port}/results/${jobId}`)
         .reply(200, validLhrData);
@@ -66,7 +93,7 @@ describe('postProcessData', () => {
       expect(JSON.stringify(result)).toEqual(JSON.stringify(validLhrData));
     });
 
-    it('Recieves a HTML result when requesting a jobId', async () => {
+    it('Receives a HTML result when requesting a jobId', async () => {
       mock
         .onGet(`http://localhost:${port}/results/${jobId}`)
         // Technically we should be altering the headers for the HTML request, but the mock client doesn't care
