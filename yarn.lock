@@ -1205,13 +1205,6 @@ axios-mock-adapter@*, axios-mock-adapter@^1.20.0:
     is-blob "^2.1.0"
     is-buffer "^2.0.5"
 
-axios@0.26.0:
-  version "0.26.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/axios/-/axios-0.26.0.tgz#9a318f1c69ec108f8cd5f3c3d390366635e13928"
-  integrity sha1-mjGPHGnsEI+M1fPD05A2ZjXhOSg=
-  dependencies:
-    follow-redirects "^1.14.8"
-
 axios@^0.25.0:
   version "0.25.0"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/axios/-/axios-0.25.0.tgz#349cfbb31331a9b4453190791760a8d35b093e0a"
@@ -2298,11 +2291,6 @@ follow-redirects@^1.0.0, follow-redirects@^1.14.7:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/follow-redirects/-/follow-redirects-1.14.8.tgz#016996fb9a11a100566398b1c6839337d7bfa8fc"
   integrity sha1-AWmW+5oRoQBWY5ixxoOTN9e/qPw=
 
-follow-redirects@^1.14.8:
-  version "1.14.9"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/follow-redirects/-/follow-redirects-1.14.9.tgz#dd4ea157de7bfaf9ea9b3fbd85aa16951f78d8d7"
-  integrity sha1-3U6hV957+vnqmz+9haoWlR942Nc=
-
 forever-agent@~0.6.1:
   version "0.6.1"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/forever-agent/-/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
@@ -2641,11 +2629,6 @@ inherits@2, inherits@^2.0.3, inherits@~2.0.3:
   version "2.0.4"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha1-D6LGT5MpF8NDOg3tVTY6rjdBa3w=
-
-inherits@2.0.3:
-  version "2.0.3"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
-  integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
 internal-slot@^1.0.3:
   version "1.0.3"
@@ -3837,13 +3820,6 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha1-Dc1p/yOhybEf0JeDFmRKA4ghamU=
 
-npm-java-runner@^0.0.17:
-  version "0.0.17"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/npm-java-runner/-/npm-java-runner-0.0.17.tgz#29e47326af98cc63f7d1f2eb769ba9ef24ba2cfc"
-  integrity sha1-KeRzJq+YzGP30fLrdpup7yS6LPw=
-  dependencies:
-    path "^0.12.7"
-
 npm-run-path@^4.0.1:
   version "4.0.1"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/npm-run-path/-/npm-run-path-4.0.1.tgz#b7ecd1e5ed53da8e37a55e1c2269e0b97ed748ea"
@@ -4058,14 +4034,6 @@ path-type@^4.0.0:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha1-hO0BwKe6OAr+CdkKjBgNzZ0DBDs=
 
-path@^0.12.7:
-  version "0.12.7"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/path/-/path-0.12.7.tgz#d4dc2a506c4ce2197eb481ebfcd5b36c0140b10f"
-  integrity sha1-1NwqUGxM4hl+tIHr/NWzbAFAsQ8=
-  dependencies:
-    process "^0.11.1"
-    util "^0.10.3"
-
 pathval@^1.1.1:
   version "1.1.1"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/pathval/-/pathval-1.1.1.tgz#8534e77a77ce7ac5a2512ea21e0fdb8fcf6c3d8d"
@@ -4126,11 +4094,6 @@ process-nextick-args@~2.0.0:
   version "2.0.1"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
   integrity sha1-eCDZsWEgzFXKmud5JoCufbptf+I=
-
-process@^0.11.1:
-  version "0.11.10"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
-  integrity sha1-czIwDoQBYb2j5podHZGn1LwW8YI=
 
 progress@^2.0.0:
   version "2.0.3"
@@ -4917,13 +4880,6 @@ util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=
 
-util@^0.10.3:
-  version "0.10.4"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/util/-/util-0.10.4.tgz#3aa0125bfe668a4672de58857d3ace27ecb76901"
-  integrity sha1-OqASW/5mikZy3liFfTrOJ+y3aQE=
-  dependencies:
-    inherits "2.0.3"
-
 uuid@3.3.2:
   version "3.3.2"
   resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
@@ -5069,20 +5025,6 @@ winston@^3.6.0:
     stack-trace "0.0.x"
     triple-beam "^1.3.0"
     winston-transport "^4.5.0"
-
-wiremock-captain@^2.2.2:
-  version "2.2.2"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/wiremock-captain/-/wiremock-captain-2.2.2.tgz#c054bff317e9079d4e3a0e976f606edc44285c27"
-  integrity sha1-wFS/8xfpB51OOg6Xb2Bu3EQoXCc=
-  dependencies:
-    axios "0.26.0"
-
-wiremock@^2.32.0:
-  version "2.32.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/wiremock/-/wiremock-2.32.0.tgz#ff5bb3571154bd4fa98cfc2ec2b08d255a983056"
-  integrity sha1-/1uzVxFUvU+pjPwuwrCNJVqYMFY=
-  dependencies:
-    npm-java-runner "^0.0.17"
 
 word-wrap@^1.2.3, word-wrap@~1.2.3:
   version "1.2.3"
