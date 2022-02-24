@@ -1,7 +1,6 @@
 import {ScenarioContext, Scenario} from '../types';
 import path from 'path';
 import compose from 'docker-compose';
-import {AxiosError} from 'axios';
 import async from 'async';
 import retry from 'async-await-retry';
 import {LHResultsReporter, ReportingTypes} from '../reporters/index';
@@ -59,6 +58,19 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let numFailed = 0;
 
     const dockerPath = path.join(__dirname, '..', '..');
+
+    try {
+      await compose.buildAll({cwd: dockerPath});
+    } catch (e) {
+      logger.info('Failed to start. Is Docker running?');
+      process.exit();
+    }
+    try {
+      await compose.upAll({cwd: dockerPath, log: isDebug});
+    } catch (e) {
+      logger.info('Failed to start. Check your Docker configuration');
+      process.exit();
+    }
 
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.
@@ -119,7 +131,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             retriesMax: MAX_RETRIES,
             interval: RETRY_INTERVAL_MS,
           }
-        ).catch((err) => {
+        ).catch(() => {
           numFailed++;
           logger.error(`Results failed after ${MAX_RETRIES} retries!`);
         });
@@ -127,67 +139,55 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         processingQueue.push(tryGetResults);
       });
 
-    compose.buildAll({cwd: dockerPath}).then(() =>
-      compose.upAll({cwd: dockerPath, log: isDebug}).then(
-        async () => {
-          // Configure how we want the results reported
-          const resultsReporter = new LHResultsReporter({
-            outputs: [
-              ReportingTypes.ConsoleReporter,
-              ...(context.outputFormat.includes(FORMAT_HTML)
-                ? [ReportingTypes.LighthouseHtml]
-                : []),
-              ...(context.outputFormat.includes(FORMAT_CSV)
-                ? [ReportingTypes.Repository]
-                : []),
-            ],
-            repositoryId: context.repositoryId,
-            targetUrl: context.targetUrl,
-            requestedRuns: context.numberRuns,
-            outputTarget: context.outputTarget,
-          });
+    // Configure how we want the results reported
+    const resultsReporter = new LHResultsReporter({
+      outputs: [
+        ReportingTypes.ConsoleReporter,
+        ...(context.outputFormat.includes(FORMAT_HTML)
+          ? [ReportingTypes.LighthouseHtml]
+          : []),
+        ...(context.outputFormat.includes(FORMAT_CSV)
+          ? [ReportingTypes.Repository]
+          : []),
+      ],
+      repositoryId: context.repositoryId,
+      targetUrl: context.targetUrl,
+      requestedRuns: context.numberRuns,
+      outputTarget: context.outputTarget,
+    });
 
-          await resultsReporter.prepare();
+    await resultsReporter.prepare();
 
-          for (let i = 1; i <= context.numberRuns; i++) {
-            await retry(raceUrlAndProcess, [], {
-              retriesMax: MAX_RETRIES,
-              interval: RETRY_INTERVAL_MS,
-            })
-              .then(() => {
-                // Update the counter for fetches sent
-                runsCounter.update(i);
-              })
-              .catch((error: AxiosError) => {
-                logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
-              });
-          }
+    for (let i = 1; i <= context.numberRuns; i++) {
+      try {
+        await retry(raceUrlAndProcess, [], {
+          retriesMax: MAX_RETRIES,
+          interval: RETRY_INTERVAL_MS,
+        });
+      } catch {
+        logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
+      }
+      // Update the counter for fetches sent
+      runsCounter.update(i);
+    }
 
-          // Wait until all the results have been processed
-          await retry(checkQueue, [], {
-            retriesMax: 100,
-            interval: RETRY_INTERVAL_MS,
-          }).catch((e) => {
-            // Do nothing atm
-          });
+    // Wait until all the results have been processed
+    await retry(checkQueue, [], {
+      retriesMax: 100,
+      interval: RETRY_INTERVAL_MS,
+    });
 
-          // Stop the progress bar
-          multibar.stop();
+    // Stop the progress bar
+    multibar.stop();
 
-          // Shut down container if success or failure
-          compose.down({
-            log: isDebug,
-          });
+    // Shut down container if success or failure
+    compose.down({
+      log: isDebug,
+    });
 
-          // Time to process the results
-          resultsArray.forEach((result: LighthouseResultsWrapper) => {
-            resultsReporter.process(result);
-          });
-        },
-        (err) => {
-          logger.error('Something went wrong:', err.message);
-        }
-      )
-    );
+    // Time to process the results
+    resultsArray.forEach((result: LighthouseResultsWrapper) => {
+      resultsReporter.process(result);
+    });
   }
 }
