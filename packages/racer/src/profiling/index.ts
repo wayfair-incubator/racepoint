@@ -2,7 +2,6 @@ import lighthouse from 'lighthouse';
 import {launch, Options} from 'chrome-launcher';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
-
 import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
 
 /**
@@ -10,25 +9,61 @@ import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
  *
  * @param targetUrl string of the url to profile
  */
-export const submitLighthouseRun = async (
-  targetUrl: string
-): Promise<number> => {
+export const submitLighthouseRun = async ({
+  targetUrl,
+  deviceType = 'Desktop',
+  chromeFlags = [],
+  overrideChromeFlags = false,
+}: {
+  targetUrl: string;
+  deviceType?: 'Desktop' | 'Mobile';
+  chromeFlags: string[];
+  overrideChromeFlags?: boolean;
+}): Promise<number> => {
   const jobId = await LighthouseResultsRepository.getNextId();
   // todo: need a better name for this function; take a pass on this when updating Lighthouse runs to receive configuration
-  doLighthouse(jobId, targetUrl);
+  doLighthouse({
+    assignedJobId: jobId,
+    targetUrl,
+    chromeFlags,
+    overrideChromeFlags,
+    deviceType,
+  });
   return jobId;
 };
 
-const doLighthouse = async (assignedJobId: number, targetUrl: string) => {
+const doLighthouse = async ({
+  assignedJobId,
+  targetUrl,
+  chromeFlags = [],
+  overrideChromeFlags,
+  // Where does this go ?
+  deviceType,
+}: {
+  assignedJobId: number;
+  targetUrl: string;
+  deviceType?: 'Desktop' | 'Mobile';
+  chromeFlags?: string[];
+  overrideChromeFlags?: boolean;
+}) => {
+  const chromeFlagDefaults = [
+    '--headless',
+    '--disable-gpu',
+    '--no-sandbox',
+    '--ignore-certificate-errors',
+  ];
+
+  const getChromeFlags = () => {
+    if (overrideChromeFlags) {
+      return chromeFlags;
+    } else {
+      return [...chromeFlagDefaults, ...chromeFlags];
+    }
+  };
+
   const chromeOptions: Options = {
-    // startingUrl: context.getStartingUrl(),
     logLevel: 'error',
-    chromeFlags: [
-      '--headless',
-      '--disable-gpu',
-      '--no-sandbox',
-      '--ignore-certificate-errors',
-    ],
+    chromeFlags: getChromeFlags(),
     // formFactor: userConfig.formFactor,
     // screenEmulation: userConfig.screenEmulation,
   };

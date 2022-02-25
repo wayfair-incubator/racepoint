@@ -5,8 +5,9 @@ import {
   descriptionHelper,
   raceLogo,
   parseIntArg,
+  parseUrlArg,
 } from './helpers';
-import {ProfileScenario, PROFILE_COMMAND} from './profile';
+import {ProfileScenario, PROFILE_COMMAND} from './scenarios/profile';
 
 const program = new commander.Command();
 
@@ -27,7 +28,7 @@ program
   .description(
     descriptionHelper('Perform a number of Lighthouse runs against a target')
   )
-  .argument('<url>', argumentHelper('URL to race'))
+  .argument('<url>', argumentHelper('URL to race'), parseUrlArg)
   .showHelpAfterError()
   // Keep these alphabetical
   .option(
@@ -48,13 +49,12 @@ program
     1
   )
   .option(
-    '--output-location <string>',
+    '--output-target <string>',
     descriptionHelper('Location to save results')
   )
   .option(
-    '--output-format <string>',
-    descriptionHelper('Save results as JSON or HTML'),
-    'JSON'
+    '--output-format [string...]',
+    descriptionHelper('Save results as CSV, HTML, or both')
   )
   // Does this make sense? Most people don't want to override the basics ie. headless, disable-gpu, etc. but they should have a way to do so
   .option(
@@ -74,11 +74,20 @@ program
     descriptionHelper('Port to start the racer container'),
     '3000'
   )
+  .option(
+    '--repository-id <string>',
+    descriptionHelper('Name of the repository file'),
+    'lighthouse-runs'
+  )
   .usage('http://neopets.com')
-  .action((url: string, options: any) => {
+  .action((targetUrl: string, options: any) => {
     new ProfileScenario().enter({
-      url,
       ...options,
+      targetUrl,
+      outputFormat: options.outputFormat
+        ? options.outputFormat.map((format: string) => format.toLowerCase())
+        : [],
+      outputTarget: options.outputTarget ? options.outputTarget : process.cwd(),
     });
   });
 
