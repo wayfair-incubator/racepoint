@@ -138,8 +138,7 @@ export const deleteResult = async ({
       }
     })
     .catch((error: Error | AxiosError) => {
-      throw new Error(`Failed to delete ${jobId}`);
-      // Do some sort of cleanup here?
+      logger.error(`Failed to delete ${jobId}`);
     });
 
 /*

@@ -59,6 +59,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const dockerPath = path.join(__dirname, '..', '..');
 
+    logger.info('Preparing Docker images...');
     try {
       await compose.buildAll({cwd: dockerPath});
     } catch (e) {
@@ -157,6 +158,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     await resultsReporter.prepare();
+    logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
 
     for (let i = 1; i <= context.numberRuns; i++) {
       try {

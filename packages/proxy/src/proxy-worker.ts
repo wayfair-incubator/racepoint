@@ -45,11 +45,13 @@ const handleErrorResponse = ({
   originalRequest: IncomingMessage;
   responseToBrowser: ServerResponse | net.Socket;
 }) => {
-  if (responseToBrowser instanceof ServerResponse) {
+  if (error) {
+    console.error(error);
+  } else if (responseToBrowser instanceof ServerResponse) {
     responseToBrowser.writeHead(StatusCodes.NOT_FOUND);
     responseToBrowser.end();
   } else {
-    // console.log('What is a socket anyway?');
+    console.error(`Cannot process response to ${originalRequest?.url}`);
   }
 };
 
