@@ -15,7 +15,9 @@ import {submitLighthouseRun} from '../profiling/index';
  */
 interface RaceContext {
   targetUrl: string;
-  flags?: string;
+  deviceType: 'Desktop' | 'Mobile';
+  chromeFlags: string[];
+  overrideChromeFlags?: boolean;
 }
 
 const isValid = (context: RaceContext): boolean => {
@@ -30,7 +32,7 @@ const maybeRunLighthouse = async (
   if (await UsageLock.getInstance().tryAcquire()) {
     return new EndpointResponse({
       // submit lighthouse run; it will return nearly immediately but then run an additional async process
-      jobId: await submitLighthouseRun(context.targetUrl),
+      jobId: await submitLighthouseRun(context),
     });
   } else {
     return new EndpointResponse({

@@ -6,6 +6,7 @@ import {StatusCodes} from 'http-status-codes';
 import {ProxyCache} from './proxy-cache';
 import {extractBody, cacheExtractedProxyResponse} from './cache-helpers';
 import {IncomingMessage, ServerResponse} from 'http';
+import net from 'net';
 
 const handleProxyResponse = ({
   cacheInstance,
@@ -35,6 +36,25 @@ const handleProxyResponse = ({
     .catch((err) => console.error(err));
 };
 
+const handleErrorResponse = ({
+  error,
+  originalRequest,
+  responseToBrowser,
+}: {
+  error: Error;
+  originalRequest: IncomingMessage;
+  responseToBrowser: ServerResponse | net.Socket;
+}) => {
+  if (error) {
+    console.error(error);
+  } else if (responseToBrowser instanceof ServerResponse) {
+    responseToBrowser.writeHead(StatusCodes.NOT_FOUND);
+    responseToBrowser.end();
+  } else {
+    console.error(`Cannot process response to ${originalRequest?.url}`);
+  }
+};
+
 export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
   const proxy = createProxyServer({
     selfHandleResponse: true,
@@ -49,8 +69,12 @@ export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
     });
   });
 
-  proxy.on('error', (err) => {
-    console.log('Error from the proxy!', err);
+  proxy.on('error', (error, originalRequest, responseToBrowser) => {
+    handleErrorResponse({
+      error,
+      originalRequest,
+      responseToBrowser,
+    });
   });
 
   return proxy;
