@@ -147,17 +147,13 @@ describe('Race CLI request handlers work as expected', () => {
       expect(request).not.toThrowError;
     });
 
-    it('Throws an error if deletion failed', async () => {
+    it('Does not throw an error if deletion failed', async () => {
       mock
         .onDelete(`http://localhost:${port}/results/${jobId}`)
         .reply(StatusCodes.IM_A_TEAPOT);
 
-      try {
-        await deleteResult({jobId, port});
-      } catch (error: any) {
-        expect(error).rejects.toThrowError;
-        expect(error.message).toEqual(`Failed to delete ${jobId}`);
-      }
+      const deletion = await deleteResult({jobId, port});
+      expect(deletion).not.toThrowError;
     });
   });
 
