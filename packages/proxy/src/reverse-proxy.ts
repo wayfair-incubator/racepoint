@@ -27,7 +27,7 @@ const handleIncomingRequest = async ({
   request: IncomingMessage;
   response: ServerResponse;
 }) => {
-  console.log('We have a real HTTP request coming in! 📫');
+  console.log('Incoming request! 📫');
 
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
@@ -64,6 +64,7 @@ const handleIncomingRequest = async ({
       autoRewrite: true,
       changeOrigin: true,
       followRedirects: true,
+      ignorePath: true,
       // Not sure if this is needed yet...
       // buffer: proxyBufferStream,
     });
