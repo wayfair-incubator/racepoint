@@ -61,16 +61,6 @@ export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
   });
 
   proxy.on('proxyRes', (proxyRes, originalRequest, responseToBrowser) => {
-    const key = originalRequest.headers['ll-cache-key'];
-
-    if (proxyRes.statusCode === 404 || proxyRes.statusCode === 403) {
-      console.error(`🆘 Status code for ${key} was:`, proxyRes.statusCode);
-    } else if (proxyRes.statusCode === 400 || proxyRes.statusCode === 500) {
-      console.error(`🆚 Status code for ${key} was:`, proxyRes.statusCode);
-    } else if (proxyRes.statusCode !== 200) {
-      console.error(`🈯 Status code for ${key} was:`, proxyRes.statusCode);
-    }
-
     handleProxyResponse({
       cacheInstance: cache,
       proxyRes,
@@ -78,10 +68,6 @@ export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
       responseToBrowser,
     });
   });
-
-  // proxy.on('proxyReq', function (proxyReq, req, res, options) {
-  //   proxyReq.setHeader('X-Special-Proxy-Header', 'pepperoni');
-  // });
 
   proxy.on('error', (error, originalRequest, responseToBrowser) => {
     handleErrorResponse({

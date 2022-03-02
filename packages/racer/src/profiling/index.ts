@@ -71,7 +71,9 @@ const doLighthouse = async ({
     //   chromeOptions.chromeFlags,
     output: 'html',
     port: chrome.port,
-    logLevel: 'error',
+    logLevel: 'verbose',
+    // unfortunately, setting a max wait causes the lighthouse run to break. can investigate in the future
+    // maxWaitForLoad: 12500
     ...(deviceType === 'desktop' && {...desktopSettings}),
   };
 

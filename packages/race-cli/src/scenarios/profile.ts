@@ -183,9 +183,9 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     multibar.stop();
 
     // Shut down container if success or failure
-    // compose.down({
-    //   log: isDebug,
-    // });
+    compose.down({
+      log: isDebug,
+    });
 
     // Time to process the results
     resultsArray.forEach((result: LighthouseResultsWrapper) => {

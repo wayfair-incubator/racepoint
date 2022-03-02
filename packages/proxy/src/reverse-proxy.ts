@@ -27,7 +27,7 @@ const handleIncomingRequest = async ({
   request: IncomingMessage;
   response: ServerResponse;
 }) => {
-  // console.log('Incoming request! 📫', JSON.stringify(request.headers));
+  console.log('Incoming request! 📫');
 
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
@@ -50,8 +50,6 @@ const handleIncomingRequest = async ({
     const destinationUrl = url.startsWith('http')
       ? url
       : `https://${request.headers.host}${url}`;
-
-    console.log('Incoming request! 📫', destinationUrl);
 
     const proxyBufferStream = new stream.PassThrough();
 
