@@ -69,6 +69,7 @@ export const cacheExtractedProxyResponse = async (
     const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
     if (key && !cacheInstance.contains(key)) {
+      console.log('💾 Writing to cache!');
       cacheInstance.write(key, {
         headers: {
           ...proxyResponse.headers,
