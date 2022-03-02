@@ -61,13 +61,21 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     logger.info('Preparing Docker images...');
     try {
-      await compose.buildAll({cwd: dockerPath});
+      await compose.buildAll({cwd: dockerPath, log: isDebug});
     } catch (e) {
       logger.info('Failed to start. Is Docker running?');
       process.exit();
     }
     try {
-      await compose.upAll({cwd: dockerPath, log: isDebug});
+      await compose.upAll({
+        cwd: dockerPath,
+        log: isDebug,
+        env: {
+          ...process.env,
+          RACER_PORT: context.racerPort.toString(),
+          RACEPROXY_PORT: context.raceproxyPort.toString(),
+        },
+      });
     } catch (e) {
       logger.info('Failed to start. Check your Docker configuration');
       process.exit();
