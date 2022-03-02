@@ -96,10 +96,13 @@ The following software is required to use Racepoint:
 
 - Docker Desktop
 - npm version 16 or later
+
   ```sh
   npm install npm@latest -g
   ```
+
 - via node version manager
+
   ```sh
   nvm install 16
   ```
@@ -111,21 +114,29 @@ setting up your app. This template doesn't rely on any external dependencies or
 services._
 
 1. Clone the repo
+
    ```sh
    git clone https://github.com/wayfair-incubator/racepoint.git
    ```
+
 2. Navigate to the `race-cli` subpackage
+
    ```sh
    cd racepoint/packages/race-cli
    ```
+
 3. Install Racepoint command line interface globally
+
    ```sh
    npm install -g
    ```
+
 4. Basic usage on an example URL
+
    ```sh
    race profile http://your-favorite-site.com/ -n 5
    ```
+
    <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
