@@ -18,7 +18,7 @@ const formatFilename = (url: string, date: string) => {
   const mi = ('0' + formattedDate.getMinutes()).slice(-2);
   const s = ('0' + formattedDate.getSeconds()).slice(-2);
 
-  return `${title}_${y}-${mo}-${d}_${h}-${mi}-${s}.report.html`;
+  return `${title}_${y}-${mo}-${d}_${h}-${mi}-${s}.race.html`;
 };
 
 /**

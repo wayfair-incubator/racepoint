@@ -10,7 +10,7 @@ import logger from '../logger';
 import cliProgress from 'cli-progress';
 import chalk from 'chalk';
 
-const MAX_RETRIES = 20;
+const MAX_RETRIES = 100;
 const RETRY_INTERVAL_MS = 3000;
 const FORMAT_CSV = 'csv';
 const FORMAT_HTML = 'html';
@@ -183,9 +183,9 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     multibar.stop();
 
     // Shut down container if success or failure
-    compose.down({
-      log: isDebug,
-    });
+    // compose.down({
+    //   log: isDebug,
+    // });
 
     // Time to process the results
     resultsArray.forEach((result: LighthouseResultsWrapper) => {

@@ -69,7 +69,12 @@ export const cacheExtractedProxyResponse = async (
     const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
     if (key && !cacheInstance.contains(key)) {
-      console.log('Writing to cache...');
+      if (key.includes('webp') || key.includes('jpg') || key.includes('svg')) {
+        console.log(
+          `📸 Saving key ${key} with this data:`,
+          proxyBodyData.toString().slice(0, 100)
+        );
+      }
 
       cacheInstance.write(key, {
         headers: {
