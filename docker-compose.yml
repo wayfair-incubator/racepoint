@@ -17,3 +17,5 @@ services:
     ports:
       - ${RACER_PORT:-3000}:${RACER_PORT:-3000}
     image: rp-racer
+    environment:
+      - RACER_PORT=${RACER_PORT:-3000}
