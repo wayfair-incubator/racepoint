@@ -94,7 +94,7 @@ To get a Racepoint up and running locally, follow these simple steps.
 
 The following software is required to use Racepoint:
 
-- Docker Desktop
+- Docker version 4.0.0 or later
 - npm version 16 or later
 
   ```sh
@@ -119,19 +119,31 @@ services._
    git clone https://github.com/wayfair-incubator/racepoint.git
    ```
 
-2. Navigate to the `race-cli` subpackage
+2. Navigate to the project folder
+
+   ```sh
+   cd racepoint
+   ```
+
+3. Build the packages
+
+   ```sh
+   npm run build
+   ```
+
+4. Navigate to the `race-cli` subpackage
 
    ```sh
    cd racepoint/packages/race-cli
    ```
 
-3. Install Racepoint command line interface globally
+5. Install Racepoint command line interface globally
 
    ```sh
    npm install -g
    ```
 
-4. Basic usage on an example URL
+6. Basic usage on an example URL
 
    ```sh
    race profile http://your-favorite-site.com/ -n 5
