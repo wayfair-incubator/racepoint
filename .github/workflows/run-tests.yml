@@ -11,3 +11,6 @@ jobs:
         run: yarn && yarn run build
       - name: Run tests
         run: yarn workspaces run test
+    ports:
+      # Opens tcp port 6379 on the host and service container
+      - 80:80
