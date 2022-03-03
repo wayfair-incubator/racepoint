@@ -30,19 +30,19 @@ describe('HTTP Server', () => {
   let httpProxy: Server;
   let testCache: ProxyCache;
 
-  before(async () => {
-    testCache = new ProxyCache();
-    httpProxy = await buildHttpReverseProxy(testCache);
-    httpProxy.listen(80);
-  });
+  // before(async () => {
+  //   testCache = new ProxyCache();
+  //   httpProxy = await buildHttpReverseProxy(testCache);
+  //   httpProxy.listen(80);
+  // });
 
-  after(() => {
-    httpProxy.close();
-  });
+  // after(() => {
+  //   httpProxy.close();
+  // });
 
-  it('should start an HTTP proxy server on a given port', async () => {
-    expect(httpProxy.listening).to.be.true;
-  });
+  // it('should start an HTTP proxy server on a given port', async () => {
+  //   expect(httpProxy.listening).to.be.true;
+  // });
 
   // describe('Caching works', async () => {
   //   it('should receive response from server', async () => {
