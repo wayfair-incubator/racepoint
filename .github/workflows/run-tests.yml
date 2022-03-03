@@ -5,9 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # - name: Install Node
-      #   uses: actions/setup-node@v1
-      - name: Install Mocha
+      - name: Install dependencies
         run: npm install -g yarn-workspaces
       - name: Install modules
         run: yarn && yarn run build
