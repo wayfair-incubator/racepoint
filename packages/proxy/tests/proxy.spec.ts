@@ -16,11 +16,14 @@ chai.use(chaiHttp);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+// Can't be 80 or 3000 etc.
+const TEST_PORT = 900;
+
 // @TODO instead of going into the wild internet for a URL,
 // we should be stubbing out a response using a mock API like wiremock
 // Follow-up ticket: SFPERF-2250
 const testOptions = {
-  url: 'http://example.com/',
+  url: 'http://github.com/',
   method: 'GET',
   proxy: 'http://localhost:900',
   resolveWithFullResponse: true,
