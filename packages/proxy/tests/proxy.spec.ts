@@ -22,7 +22,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const testOptions = {
   url: 'http://example.com/',
   method: 'GET',
-  proxy: 'http://localhost:80',
+  proxy: 'http://localhost:900',
   resolveWithFullResponse: true,
 };
 
@@ -40,35 +40,35 @@ describe('HTTP Server', () => {
     httpProxy.close();
   });
 
-  // it('should start an HTTP proxy server on a given port', async () => {
-  //   expect(httpProxy.listening).to.be.true;
-  // });
+  it('should start an HTTP proxy server on a given port', async () => {
+    expect(httpProxy.listening).to.be.true;
+  });
 
-  // describe('Caching works', async () => {
-  //   it('should receive response from server', async () => {
-  //     await rp(testOptions)
-  //       .then((response) => {
-  //         expect(response.statusCode).to.equal(200);
-  //         // Expect some blob of HTML
-  //         expect(response.body.length > 10);
-  //       })
-  //       .catch((e) => {
-  //         console.log(e);
-  //       });
-  //   });
+  describe('Caching works', async () => {
+    it('should receive response from server', async () => {
+      await rp(testOptions)
+        .then((response) => {
+          expect(response.statusCode).to.equal(200);
+          // Expect some blob of HTML
+          expect(response.body.length > 10);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    });
 
-  //   it('should receive cached response from server upon retry', async () => {
-  //     await rp(testOptions)
-  //       .then((response) => {
-  //         expect(response.statusCode).to.equal(200);
-  //         expect(response.body.length > 0);
-  //         expect(response.headers).to.have.property(CACHE_KEY_HEADER);
-  //       })
-  //       .catch((e) => {
-  //         console.log(e);
-  //       });
-  //   });
-  // });
+    it('should receive cached response from server upon retry', async () => {
+      await rp(testOptions)
+        .then((response) => {
+          expect(response.statusCode).to.equal(200);
+          expect(response.body.length > 0);
+          expect(response.headers).to.have.property(CACHE_KEY_HEADER);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    });
+  });
 });
 
 // describe('HTTPS Server', () => {
