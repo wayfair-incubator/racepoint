@@ -9,7 +9,7 @@
 
   <h3 align="center">Frontend Benchmarking</h3>
 
-  <p align="center">    ·
+  <p align="center">
     <a href="https://github.com/wayfair-incubator/racepoint/issues">Report Bug</a>
     ·
     <a href="https://github.com/wayfair-incubator/racepoint/pulls">Request Feature</a>
