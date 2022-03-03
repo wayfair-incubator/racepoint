@@ -133,12 +133,10 @@ export const deleteResult = async ({
     .then((response: AxiosResponse) => {
       if (response.status === StatusCodes.NO_CONTENT) {
         logger.debug(`Success deleting ${jobId}`);
-      } else {
-        throw 'Bad response';
       }
     })
     .catch((error: Error | AxiosError) => {
-      logger.error(`Failed to delete ${jobId}`);
+      logger.debug(`Failed to delete ${jobId}`);
     });
 
 /*
