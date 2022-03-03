@@ -94,11 +94,7 @@ To get a Racepoint up and running locally, follow these simple steps.
 
 The following software is required to use Racepoint:
 
-<<<<<<< HEAD
-
-- # Docker Desktop
 - Docker version 4.0.0 or later
-  > > > > > > > origin
 - npm version 16 or later
 
   ```sh
@@ -123,52 +119,37 @@ services._
    git clone https://github.com/wayfair-incubator/racepoint.git
    ```
 
-<<<<<<< HEAD 2. Navigate to the `race-cli` subpackage
-
-```sh
-cd racepoint/packages/race-cli
-```
-
-3. Install Racepoint command line interface globally
-
-   ```sh
-   npm install -g
-   ```
-
-4. # Basic usage on an example URL
-5. Navigate to the project folder
+2. Navigate to the project folder
 
    ```sh
    cd racepoint
    ```
 
-6. Build the packages
+3. Build the packages
 
    ```sh
    npm run build
    ```
 
-7. Navigate to the `race-cli` subpackage
+4. Navigate to the `race-cli` subpackage
 
    ```sh
    cd racepoint/packages/race-cli
    ```
 
-8. Install Racepoint command line interface globally
+5. Install Racepoint command line interface globally
 
    ```sh
    npm install -g
    ```
 
-9. Basic usage on an example URL
-
-   > > > > > > > origin
+6. Basic usage on an example URL
 
    ```sh
    race profile http://your-favorite-site.com/ -n 5
    ```
 
-      <p align="right">(<a href="#top">back to top</a>)</p>
+   <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 
@@ -198,8 +179,6 @@ Racepoint accepts the following commands and flags:
 
 ### Debug
 
-<<<<<<< HEAD
-
 To enable full console logging, run your race command with the environmental
 variable `LOG_LEVEL=debug`
 
@@ -219,30 +198,6 @@ There are many exciting new features we plan on adding in the future. Stay
 tuned!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-=======
-
-To enable full console logging, run your race command with the environmental
-variable `LOG_LEVEL=debug`
-
-```sh
-LOG_LEVEL=debug race profile http://my-site.com
-```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- ROADMAP -->
-
-## Roadmap
-
-- [ ] CI integration
-
-There are many exciting new features we plan on adding in the future. Stay
-tuned!
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-> > > > > > > origin
 
 <!-- CONTRIBUTING -->
 
