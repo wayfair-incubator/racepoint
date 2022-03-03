@@ -10,7 +10,7 @@
     "siblings_only": true
   },
   "MD041": false,
-  "no-inline-html": {
+  "MD033": {
     "allowed_elements": [
       "a",
       "p",
@@ -23,8 +23,5 @@
       "ul",
       "li"
     ]
-  },
-  "MD033": {
-    "allowed_elements": ["a", "p", "div"]
   }
 }
