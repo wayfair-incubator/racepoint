@@ -33,7 +33,7 @@ describe('HTTP Server', () => {
   before(async () => {
     testCache = new ProxyCache();
     httpProxy = await buildHttpReverseProxy(testCache);
-    httpProxy.listen(80);
+    httpProxy.listen(900);
   });
 
   after(() => {
