@@ -9,11 +9,13 @@
   "MD024": {
     "siblings_only": true
   },
-  "MD041": false,
   "MD033": {
     "allowed_elements": [
       "a",
       "p",
+      "h1",
+      "h2",
+      "h3",
       "div",
       "img",
       "span",
@@ -23,5 +25,6 @@
       "ul",
       "li"
     ]
-  }
+  },
+  "MD041": false
 }
