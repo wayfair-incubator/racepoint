@@ -11,7 +11,18 @@
   },
   "MD041": false,
   "no-inline-html": {
-    "allowed_elements": ["a", "p", "div"]
+    "allowed_elements": [
+      "a",
+      "p",
+      "div",
+      "img",
+      "span",
+      "details",
+      "summary",
+      "ol",
+      "ul",
+      "li"
+    ]
   },
   "MD033": {
     "allowed_elements": ["a", "p", "div"]
