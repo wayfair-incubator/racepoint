@@ -111,7 +111,7 @@ const launchLighthouse = async (
           networkQuietThresholdMs: 5000,
           cpuQuietThresholdMs: 5000,
           // todo: bring these blocked URL patterns in via some config
-          blockedUrlPatterns: ['*log*'],
+          // blockedUrlPatterns: [],
           gatherers: [
             'trace',
             'trace-compat',
@@ -121,7 +121,7 @@ const launchLighthouse = async (
             //   'viewport-dimensions',
             //   'console-messages',
             //   'anchor-elements',
-            //   'image-elements',
+            'image-elements',
             //   'link-elements',
             //   'meta-elements',
             //   'script-elements',
