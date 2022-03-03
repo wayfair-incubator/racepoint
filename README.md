@@ -9,7 +9,7 @@
 
   <h3 align="center">Frontend Benchmarking</h3>
 
-  <p align="center">    ·
+  <p align="center">
     <a href="https://github.com/wayfair-incubator/racepoint/issues">Report Bug</a>
     ·
     <a href="https://github.com/wayfair-incubator/racepoint/pulls">Request Feature</a>
@@ -94,7 +94,11 @@ To get a Racepoint up and running locally, follow these simple steps.
 
 The following software is required to use Racepoint:
 
-- Docker Desktop
+<<<<<<< HEAD
+
+- # Docker Desktop
+- Docker version 4.0.0 or later
+  > > > > > > > origin
 - npm version 16 or later
 
   ```sh
@@ -119,11 +123,11 @@ services._
    git clone https://github.com/wayfair-incubator/racepoint.git
    ```
 
-2. Navigate to the `race-cli` subpackage
+<<<<<<< HEAD 2. Navigate to the `race-cli` subpackage
 
-   ```sh
-   cd racepoint/packages/race-cli
-   ```
+```sh
+cd racepoint/packages/race-cli
+```
 
 3. Install Racepoint command line interface globally
 
@@ -131,13 +135,40 @@ services._
    npm install -g
    ```
 
-4. Basic usage on an example URL
+4. # Basic usage on an example URL
+5. Navigate to the project folder
+
+   ```sh
+   cd racepoint
+   ```
+
+6. Build the packages
+
+   ```sh
+   npm run build
+   ```
+
+7. Navigate to the `race-cli` subpackage
+
+   ```sh
+   cd racepoint/packages/race-cli
+   ```
+
+8. Install Racepoint command line interface globally
+
+   ```sh
+   npm install -g
+   ```
+
+9. Basic usage on an example URL
+
+   > > > > > > > origin
 
    ```sh
    race profile http://your-favorite-site.com/ -n 5
    ```
 
-   <p align="right">(<a href="#top">back to top</a>)</p>
+      <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 
@@ -167,6 +198,8 @@ Racepoint accepts the following commands and flags:
 
 ### Debug
 
+<<<<<<< HEAD
+
 To enable full console logging, run your race command with the environmental
 variable `LOG_LEVEL=debug`
 
@@ -186,6 +219,30 @@ There are many exciting new features we plan on adding in the future. Stay
 tuned!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+=======
+
+To enable full console logging, run your race command with the environmental
+variable `LOG_LEVEL=debug`
+
+```sh
+LOG_LEVEL=debug race profile http://my-site.com
+```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- ROADMAP -->
+
+## Roadmap
+
+- [ ] CI integration
+
+There are many exciting new features we plan on adding in the future. Stay
+tuned!
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+> > > > > > > origin
 
 <!-- CONTRIBUTING -->
 
