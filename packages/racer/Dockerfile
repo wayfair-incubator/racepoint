@@ -23,7 +23,7 @@ RUN chmod +x update-dns.sh
 # && ./update-dns.sh
 # RUN dnsmasq
 
-EXPOSE 3000/tcp
+EXPOSE ${RACER_PORT:-3000}/tcp
 
 CMD dbus-daemon --system && \
     ./update-dns.sh && \
