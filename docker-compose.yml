@@ -6,9 +6,7 @@ services:
       context: ./packages/proxy/.
       dockerfile: Dockerfile
     ports:
-      - '443:443'
-      - '80:80'
-      # - "443:8443"
+      - ${RACEPROXY_PORT:-443}:${RACEPROXY_PORT:-443}
     image: rp-proxy
 
   racer:
@@ -17,5 +15,7 @@ services:
       context: ./packages/racer/.
       dockerfile: Dockerfile
     ports:
-      - '3000:3000'
+      - ${RACER_PORT:-3000}:${RACER_PORT:-3000}
     image: rp-racer
+    environment:
+      - RACER_PORT=${RACER_PORT:-3000}

@@ -26,8 +26,8 @@ class ProfileContext implements ScenarioContext {
   outputFormat: string[];
   outputTarget: string;
   overrideChromeFlags: boolean;
-  raceproxyPort: number;
-  racerPort: number;
+  raceproxyPort: string;
+  racerPort: string;
   repositoryId: string;
 
   constructor(userArgs: any) {
@@ -61,13 +61,24 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     logger.info('Preparing Docker images...');
     try {
-      await compose.buildAll({cwd: dockerPath});
+      await compose.buildAll({
+        cwd: dockerPath,
+        log: isDebug,
+      });
     } catch (e) {
       logger.info('Failed to start. Is Docker running?');
       process.exit();
     }
     try {
-      await compose.upAll({cwd: dockerPath, log: isDebug});
+      await compose.upAll({
+        cwd: dockerPath,
+        log: isDebug,
+        env: {
+          ...process.env,
+          RACER_PORT: context.racerPort,
+          RACEPROXY_PORT: context.raceproxyPort,
+        },
+      });
     } catch (e) {
       logger.info('Failed to start. Check your Docker configuration');
       process.exit();
@@ -112,14 +123,14 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const raceUrlAndProcess = async () =>
       handleStartRacer({
-        port: context.racerPort,
+        port: parseInt(context.racerPort, 10),
         data: context,
       }).then((jobId: number) => {
         const tryGetResults = retry(
           () =>
             collectAndPruneResults({
               jobId,
-              port: context.racerPort,
+              port: parseInt(context.racerPort, 10),
               retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
             }).then((result: LighthouseResultsWrapper) => {
               resultsArray.push(result);
