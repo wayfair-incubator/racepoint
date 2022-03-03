@@ -15,7 +15,7 @@ import {submitLighthouseRun} from '../profiling/index';
  */
 interface RaceContext {
   targetUrl: string;
-  deviceType: 'Desktop' | 'Mobile';
+  deviceType: 'desktop' | 'mobile';
   chromeFlags: string[];
   overrideChromeFlags?: boolean;
 }

@@ -27,21 +27,21 @@ const handleIncomingRequest = async ({
   request: IncomingMessage;
   response: ServerResponse;
 }) => {
-  console.log('We have a real HTTP request coming in! 📫');
+  console.log('📫 Incoming request!');
 
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
 
   // Check if the resource is in the cache
   if (cache.contains(cacheKey)) {
-    console.log(`We have that 🔑! - ${cacheKey}`);
+    console.log(`🔑 Key found - ${cacheKey.slice(0, 150)}`);
     const cachedResponse = cache.read(cacheKey)!!;
 
     response.writeHead(cachedResponse.status, cachedResponse.headers);
     response.write(cachedResponse.data);
     response.end();
   } else {
-    console.log('This is 🆕 content!', cacheKey);
+    console.log(`🆕 Key created - ${cacheKey.slice(0, 150)}`);
 
     // If we don't have it, we need to get it and cache it
     const url = request.url || '';
@@ -64,6 +64,7 @@ const handleIncomingRequest = async ({
       autoRewrite: true,
       changeOrigin: true,
       followRedirects: true,
+      ignorePath: true,
       // Not sure if this is needed yet...
       // buffer: proxyBufferStream,
     });

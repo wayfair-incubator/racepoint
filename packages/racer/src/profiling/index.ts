@@ -11,14 +11,12 @@ import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
  */
 export const submitLighthouseRun = async ({
   targetUrl,
-  deviceType = 'Desktop',
+  deviceType = 'desktop',
   chromeFlags = [],
-  overrideChromeFlags = false,
 }: {
   targetUrl: string;
-  deviceType?: 'Desktop' | 'Mobile';
+  deviceType?: 'desktop' | 'mobile';
   chromeFlags: string[];
-  overrideChromeFlags?: boolean;
 }): Promise<number> => {
   const jobId = await LighthouseResultsRepository.getNextId();
   // todo: need a better name for this function; take a pass on this when updating Lighthouse runs to receive configuration
@@ -26,7 +24,6 @@ export const submitLighthouseRun = async ({
     assignedJobId: jobId,
     targetUrl,
     chromeFlags,
-    overrideChromeFlags,
     deviceType,
   });
   return jobId;
@@ -36,36 +33,34 @@ const doLighthouse = async ({
   assignedJobId,
   targetUrl,
   chromeFlags = [],
-  overrideChromeFlags,
-  // Where does this go ?
   deviceType,
 }: {
   assignedJobId: number;
   targetUrl: string;
-  deviceType?: 'Desktop' | 'Mobile';
+  deviceType?: 'desktop' | 'mobile';
   chromeFlags?: string[];
-  overrideChromeFlags?: boolean;
 }) => {
-  const chromeFlagDefaults = [
-    '--headless',
-    '--disable-gpu',
-    '--no-sandbox',
-    '--ignore-certificate-errors',
-  ];
-
-  const getChromeFlags = () => {
-    if (overrideChromeFlags) {
-      return chromeFlags;
-    } else {
-      return [...chromeFlagDefaults, ...chromeFlags];
-    }
+  const chromeOptions: Options = {
+    logLevel: 'verbose',
+    chromeFlags: [
+      '--headless',
+      '--disable-gpu',
+      '--no-sandbox',
+      '--ignore-certificate-errors',
+      '--disable-dev-shm-usage',
+      '--disable-setuid-sandbox',
+      ...chromeFlags,
+    ],
   };
 
-  const chromeOptions: Options = {
-    logLevel: 'error',
-    chromeFlags: getChromeFlags(),
-    // formFactor: userConfig.formFactor,
-    // screenEmulation: userConfig.screenEmulation,
+  const desktopSettings = {
+    formFactor: 'desktop',
+    screenEmulation: {
+      mobile: false,
+      width: 1440,
+      height: 900,
+      deviceScaleFactor: 1,
+    },
   };
 
   // chrome takes a moment or two to spinup
@@ -76,11 +71,14 @@ const doLighthouse = async ({
     //   chromeOptions.chromeFlags,
     output: 'html',
     port: chrome.port,
+    logLevel: 'verbose',
     // unfortunately, setting a max wait causes the lighthouse run to break. can investigate in the future
     // maxWaitForLoad: 12500
+    ...(deviceType === 'desktop' && {...desktopSettings}),
   };
 
   // and go
+  console.log('Starting Lighthouse');
   const results = await launchLighthouse(targetUrl, lhFlags);
   // don't forget the cleanup
   await chrome.kill();
