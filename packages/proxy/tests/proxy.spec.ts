@@ -7,8 +7,7 @@ import mockHttp from 'mock-http';
 import axios from 'axios';
 import {StatusCodes} from 'http-status-codes';
 import {
-  buildHttpReverseProxy,
-  buildHttpsReverseProxy,
+  handleProcessRequest,
   handleIncomingRequest,
 } from '../src/reverse-proxy';
 import {ProxyCache} from '../src/proxy-cache';
@@ -16,11 +15,6 @@ import {buildProxyWorker} from '../src/proxy-worker';
 import {calculateCacheKey, extractBody} from '../src/cache-helpers';
 import {handleProxyResponse} from '../src/proxy-worker';
 import {CACHE_KEY_HEADER} from '../src/cache-helpers';
-
-// Can't be 80 or 3000 etc.
-const HTTP_PROXY_TEST_PORT = 81;
-const HTTPS_PROXY_TEST_PORT = 82;
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const requestConfig = {
   url: 'http://example.com',
@@ -32,46 +26,28 @@ const requestConfig = {
 };
 
 describe('Servers initialize', () => {
-  let httpProxy: Server;
-  let httpsProxy: Server;
   const testCache = new ProxyCache();
 
-  beforeAll(async () => {
-    httpProxy = await buildHttpReverseProxy(testCache);
-    httpProxy.listen(HTTP_PROXY_TEST_PORT);
-    httpsProxy = await buildHttpsReverseProxy(testCache);
-    httpsProxy.listen(HTTPS_PROXY_TEST_PORT);
-  });
+  it('should return a fingerprint when requested', async () => {
+    const req = new mockHttp.Request({
+      url: '/fingerprint',
+      headers: {
+        host: 'raceproxy',
+      },
+    });
+    const res = new mockHttp.Response();
+    const proxy = buildProxyWorker({cache: testCache});
 
-  afterAll(() => {
-    httpProxy.close();
-    httpsProxy.close();
-  });
-
-  it('should start an HTTP proxy server on a given port', async () => {
-    expect(httpProxy.listening).toBe(true);
-  });
-
-  it('should start an HTTPS proxy server on a given port', async () => {
-    expect(httpsProxy.listening).toBe(true);
-  });
-
-  it('should receive a fingerprint when requesting one', async () => {
-    const response = await axios.get(
-      `https://localhost:${HTTPS_PROXY_TEST_PORT}/fingerprint`,
-      {
-        headers: {
-          host: 'raceproxy',
-        },
-        httpsAgent: new https.Agent({
-          rejectUnauthorized: false,
-        }),
-      }
-    );
-    const fingerprint = response.data?.spkiFingerprint;
-
-    expect(response.status).toEqual(StatusCodes.OK);
-    expect(fingerprint.length).toBeGreaterThan(1);
+    await handleProcessRequest({
+      request: req,
+      response: res,
+      cache: testCache,
+      proxy,
+      spkiFingerprint: 'abc123youandme',
+    });
+    // We can't see that the fingerprint is in the response,
+    // but we can see that it has ended
+    expect(res.writableEnded).toBe(true);
   });
 });
 

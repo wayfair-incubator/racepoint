@@ -17,16 +17,16 @@ import {buildProxyWorker} from './proxy-worker';
 import {IncomingMessage, ServerResponse} from 'http';
 
 export const handleIncomingRequest = async ({
-  cache,
-  proxy,
   request,
   response,
+  cache,
+  proxy,
   handleUncached,
 }: {
-  cache: ProxyCache;
-  proxy: Server;
   request: IncomingMessage;
   response: ServerResponse;
+  cache: ProxyCache;
+  proxy: Server;
   handleUncached: Function;
 }) => {
   console.log('📫 Incoming request!');
@@ -88,6 +88,44 @@ const proxyTrueDestination = ({
 };
 
 /*
+  Handler that decides to either return a fingerprint or proxy a URL
+*/
+export const handleProcessRequest = async ({
+  request,
+  response,
+  cache,
+  proxy,
+  spkiFingerprint,
+}: {
+  request: IncomingMessage;
+  response: ServerResponse;
+  cache: ProxyCache;
+  proxy: Server;
+  spkiFingerprint: string;
+}) => {
+  // On warm-up, the racer will need to get the fingerprint
+  if (
+    request.headers?.host?.includes('raceproxy') &&
+    request.url === '/fingerprint'
+  ) {
+    response.writeHead(StatusCodes.OK, {
+      'Content-Type': 'application/json',
+    });
+    response.write(JSON.stringify({spkiFingerprint}));
+    response.end();
+  } else {
+    // Otherwise treat it as a normal request
+    await handleIncomingRequest({
+      cache,
+      proxy,
+      request,
+      response,
+      handleUncached: proxyTrueDestination,
+    });
+  }
+};
+
+/*
   Build a HTTP reverse proxy server instance
 */
 export const buildHttpReverseProxy = async (cache: ProxyCache) => {
@@ -103,7 +141,7 @@ export const buildHttpReverseProxy = async (cache: ProxyCache) => {
     });
   };
 
-  const server = await http.createServer(requestListener);
+  const server = http.createServer(requestListener);
 
   return server;
 };
@@ -120,31 +158,16 @@ export const buildHttpsReverseProxy = async (cache: ProxyCache) => {
     cert,
     rejectUnauthorized: false,
   };
-  const server = await https.createServer(options);
+  const server = https.createServer(options);
 
   server.on('request', async (request, response) => {
-    // On warm-up, the racer will need to get the fingerprint
-    if (
-      request.headers?.host?.includes('raceproxy') &&
-      request.url === '/fingerprint'
-    ) {
-      response.writeHead(StatusCodes.OK, {
-        'Content-Type': 'application/json',
-      });
-      response.write(JSON.stringify({spkiFingerprint}));
-      response.end();
-    }
-
-    // Otherwise treat it as a normal request
-    else {
-      handleIncomingRequest({
-        cache,
-        proxy,
-        request,
-        response,
-        handleUncached: proxyTrueDestination,
-      });
-    }
+    await handleProcessRequest({
+      request,
+      response,
+      cache,
+      proxy,
+      spkiFingerprint,
+    });
   });
 
   server.on('error', (err) => {
