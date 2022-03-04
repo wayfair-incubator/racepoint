@@ -828,8 +828,8 @@
 
 "@types/jest@^27.4.0", "@types/jest@^27.4.1":
   version "27.4.1"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/@types/jest/-/jest-27.4.1.tgz#185cbe2926eaaf9662d340cc02e548ce9e11ab6d"
-  integrity sha1-GFy+KSbqr5Zi00DMAuVIzp4Rq20=
+  resolved "https://registry.npmjs.org/@types/jest/-/jest-27.4.1.tgz#185cbe2926eaaf9662d340cc02e548ce9e11ab6d"
+  integrity sha512-23iPJADSmicDVrWk+HT58LMJtzLAnB2AgIzplQuq/bSrGaxCrlvRFjGbXmamnnk/mAmCdLStiGqggu28ocUyiw==
   dependencies:
     jest-matcher-utils "^27.0.0"
     pretty-format "^27.0.0"
@@ -1228,7 +1228,7 @@ async@^3.2.3:
 
 async@~0.2.7:
   version "0.2.10"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/async/-/async-0.2.10.tgz#b6bbe0b0674b9d719708ca38de8c237cb526c3d1"
+  resolved "https://registry.npmjs.org/async/-/async-0.2.10.tgz#b6bbe0b0674b9d719708ca38de8c237cb526c3d1"
   integrity sha1-trvgsGdLnXGXCMo43owjfLUmw9E=
 
 asynckit@^0.4.0:
@@ -1253,8 +1253,8 @@ axe-core@4.3.5:
 
 axios-mock-adapter@*, axios-mock-adapter@^1.20.0:
   version "1.20.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/axios-mock-adapter/-/axios-mock-adapter-1.20.0.tgz#21f5b4b625306f43e8c05673616719da86e20dcb"
-  integrity sha1-IfW0tiUwb0PowFZzYWcZ2obiDcs=
+  resolved "https://registry.npmjs.org/axios-mock-adapter/-/axios-mock-adapter-1.20.0.tgz#21f5b4b625306f43e8c05673616719da86e20dcb"
+  integrity sha512-shZRhTjLP0WWdcvHKf3rH3iW9deb3UdKbdnKUoHmmsnBhVXN3sjPJM6ZvQ2r/ywgvBVQrMnjrSyQab60G1sr2w==
   dependencies:
     fast-deep-equal "^3.1.3"
     is-blob "^2.1.0"
@@ -1269,8 +1269,8 @@ axios@^0.25.0:
 
 axios@^0.26.0:
   version "0.26.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/axios/-/axios-0.26.0.tgz#9a318f1c69ec108f8cd5f3c3d390366635e13928"
-  integrity sha1-mjGPHGnsEI+M1fPD05A2ZjXhOSg=
+  resolved "https://registry.npmjs.org/axios/-/axios-0.26.0.tgz#9a318f1c69ec108f8cd5f3c3d390366635e13928"
+  integrity sha512-lKoGLMYtHvFrPVt3r+RBMp9nh34N0M8zEfCWqdWZx6phynIEhQqAdydpyBAAG211zlhX9Rgu08cOamy6XjE5Og==
   dependencies:
     follow-redirects "^1.14.8"
 
@@ -1443,9 +1443,9 @@ camelcase@^6.0.0, camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001312:
-  version "1.0.30001312"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001312.tgz#e11eba4b87e24d22697dae05455d5aea28550d5f"
-  integrity sha512-Wiz1Psk2MEK0pX3rUzWaunLTZzqS2JYZFzNKqAiJGiuxIjRPLgV6+VDPOg6lQOUxmDwhTlh198JsTTi8Hzw6aQ==
+  version "1.0.30001313"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001313.tgz#a380b079db91621e1b7120895874e2fd62ed2e2f"
+  integrity sha512-rI1UN0koZUiKINjysQDuRi2VeSCce3bYJNmDcj3PIKREiAmjakugBul1QSkg/fPrlULYl6oWfGg3PbgOSY9X4Q==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -1635,7 +1635,7 @@ combined-stream@^1.0.6, combined-stream@^1.0.8, combined-stream@~1.0.6:
 
 combined-stream@~0.0.4:
   version "0.0.7"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/combined-stream/-/combined-stream-0.0.7.tgz#0137e657baa5a7541c57ac37ac5fc07d73b4dc1f"
+  resolved "https://registry.npmjs.org/combined-stream/-/combined-stream-0.0.7.tgz#0137e657baa5a7541c57ac37ac5fc07d73b4dc1f"
   integrity sha1-ATfmV7qlp1QcV6w3rF/AfXO03B8=
   dependencies:
     delayed-stream "0.0.5"
@@ -1815,7 +1815,7 @@ define-properties@^1.1.3:
 
 delayed-stream@0.0.5:
   version "0.0.5"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/delayed-stream/-/delayed-stream-0.0.5.tgz#d4b1f43a93e8296dfe02694f4680bc37a313c73f"
+  resolved "https://registry.npmjs.org/delayed-stream/-/delayed-stream-0.0.5.tgz#d4b1f43a93e8296dfe02694f4680bc37a313c73f"
   integrity sha1-1LH0OpPoKW3+AmlPRoC8N6MTxz8=
 
 delayed-stream@~1.0.0:
@@ -2357,7 +2357,7 @@ form-data@^3.0.0:
 
 form-data@~0.0.3:
   version "0.0.10"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/form-data/-/form-data-0.0.10.tgz#db345a5378d86aeeb1ed5d553b869ac192d2f5ed"
+  resolved "https://registry.npmjs.org/form-data/-/form-data-0.0.10.tgz#db345a5378d86aeeb1ed5d553b869ac192d2f5ed"
   integrity sha1-2zRaU3jYau6x7V1VO4aawZLS9e0=
   dependencies:
     async "~0.2.7"
@@ -2571,7 +2571,7 @@ http-link-header@^0.8.0:
 
 http-mock@^0.1.0:
   version "0.1.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/http-mock/-/http-mock-0.1.0.tgz#76963211fac0a1acb333a586f2c977815b2e2c71"
+  resolved "https://registry.npmjs.org/http-mock/-/http-mock-0.1.0.tgz#76963211fac0a1acb333a586f2c977815b2e2c71"
   integrity sha1-dpYyEfrAoayzM6WG8sl3gVsuLHE=
   dependencies:
     request "2.12.x"
@@ -2605,8 +2605,8 @@ http-signature@~1.2.0:
 
 http-status-codes@2.2.0, http-status-codes@^2.2.0:
   version "2.2.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/http-status-codes/-/http-status-codes-2.2.0.tgz#bb2efe63d941dfc2be18e15f703da525169622be"
-  integrity sha1-uy7+Y9lB38K+GOFfcD2lJRaWIr4=
+  resolved "https://registry.npmjs.org/http-status-codes/-/http-status-codes-2.2.0.tgz#bb2efe63d941dfc2be18e15f703da525169622be"
+  integrity sha512-feERVo9iWxvnejp3SEfm/+oNG517npqL2/PIA8ORjyOZjGC7TwCRQsZylciLS64i6pJ0wRYz3rkXLRwbtFa8Ng==
 
 https-proxy-agent@^5.0.0:
   version "5.0.0"
@@ -3334,8 +3334,8 @@ jest-worker@^27.5.1:
 
 jest@^27.5.1:
   version "27.5.1"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/jest/-/jest-27.5.1.tgz#dadf33ba70a779be7a6fc33015843b51494f63fc"
-  integrity sha1-2t8zunCneb56b8MwFYQ7UUlPY/w=
+  resolved "https://registry.npmjs.org/jest/-/jest-27.5.1.tgz#dadf33ba70a779be7a6fc33015843b51494f63fc"
+  integrity sha512-Yn0mADZB89zTtjkPJEXwrac3LHudkQMR+Paqa8uxJHCBr9agxztUifWCyiYrjhMPBoUVBjyny0I7XH6ozDr7QQ==
   dependencies:
     "@jest/core" "^27.5.1"
     import-local "^3.0.2"
@@ -3702,8 +3702,8 @@ merge2@^1.3.0, merge2@^1.4.1:
 
 mergee@^1.0.0:
   version "1.0.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/mergee/-/mergee-1.0.0.tgz#027c5addc650f6ecbe4bf56100bd00dae763fda7"
-  integrity sha1-Anxa3cZQ9uy+S/VhAL0A2udj/ac=
+  resolved "https://registry.npmjs.org/mergee/-/mergee-1.0.0.tgz#027c5addc650f6ecbe4bf56100bd00dae763fda7"
+  integrity sha512-hbbXD4LOcxVkpS+mp3BMEhkSDf+lTVENFeEeqACgjjL8WrgKuW2EyLT0fOHyTbyDiuRLZJZ1HrHNeiX4iOd79Q==
 
 metaviewport-parser@0.2.0:
   version "0.2.0"
@@ -3732,7 +3732,7 @@ mime-types@^2.1.12, mime-types@~2.1.19:
 
 mime@~1.2.2, mime@~1.2.7:
   version "1.2.11"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/mime/-/mime-1.2.11.tgz#58203eed86e3a5ef17aed2b7d9ebd47f0a60dd10"
+  resolved "https://registry.npmjs.org/mime/-/mime-1.2.11.tgz#58203eed86e3a5ef17aed2b7d9ebd47f0a60dd10"
   integrity sha1-WCA+7Ybjpe8XrtK32evUfwpg3RA=
 
 mimic-fn@^2.1.0:
@@ -3798,8 +3798,8 @@ mocha@^9.2.0:
 
 mock-http@^1.1.0:
   version "1.1.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/mock-http/-/mock-http-1.1.0.tgz#b89380a718a103fc5801095804bedd0b20f7638c"
-  integrity sha1-uJOApxihA/xYAQlYBL7dCyD3Y4w=
+  resolved "https://registry.npmjs.org/mock-http/-/mock-http-1.1.0.tgz#b89380a718a103fc5801095804bedd0b20f7638c"
+  integrity sha512-H2HMGaHNQPWY8PdeEw4RFux2WEOHD6eJAtN3+iFELik5kGjPKAcoyPWcsC2vgDiTa2yimAEDssmMed51e+cBKQ==
   dependencies:
     mergee "^1.0.0"
 
@@ -4210,7 +4210,7 @@ regexpp@^3.1.0:
 
 request@2.12.x:
   version "2.12.0"
-  resolved "https://artifactory.service.bo1.csnzoo.com/artifactory/api/npm/npm/request/-/request-2.12.0.tgz#11f46f20b3d0f4848c6383991c80790af16c8e48"
+  resolved "https://registry.npmjs.org/request/-/request-2.12.0.tgz#11f46f20b3d0f4848c6383991c80790af16c8e48"
   integrity sha1-EfRvILPQ9ISMY4OZHIB5CvFsjkg=
   dependencies:
     form-data "~0.0.3"
@@ -4741,9 +4741,9 @@ ts-node@^10.1.0:
     yn "3.1.1"
 
 tsconfig-paths@^3.12.0, tsconfig-paths@^3.5.0:
-  version "3.12.0"
-  resolved "https://registry.npmjs.org/tsconfig-paths/-/tsconfig-paths-3.12.0.tgz#19769aca6ee8f6a1a341e38c8fa45dd9fb18899b"
-  integrity sha512-e5adrnOYT6zqVnWqZu7i/BQ3BnhzvGbjEjejFXO20lKIKpwTaupkCPgEfv4GZK1IBciJUEhYs3J3p75FdaTFVg==
+  version "3.13.0"
+  resolved "https://registry.npmjs.org/tsconfig-paths/-/tsconfig-paths-3.13.0.tgz#f3e9b8f6876698581d94470c03c95b3a48c0e3d7"
+  integrity sha512-nWuffZppoaYK0vQ1SQmkSsQzJoHA4s6uzdb2waRpD806x9yfq153AdVsWz4je2qZcW+pENrMQXbGQ3sMCkXuhw==
   dependencies:
     "@types/json5" "^0.0.29"
     json5 "^1.0.1"
