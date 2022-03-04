@@ -1,3 +1,6 @@
+/**
+ * Methods for interacting with the Racer.
+ */
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import retry from 'async-await-retry';
 import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
@@ -200,6 +203,7 @@ export const executeWarmingRun = async ({
     logger.error(
       `Could not initiate warming run. Did the Racer container actually start?`
     );
+    process.exit();
   }
 
   try {
@@ -208,8 +212,11 @@ export const executeWarmingRun = async ({
       interval: 1000,
     });
   } catch (e) {
-    logger.error(`Warming run failed after ${50} retries!`);
+    logger.error(`Warming run failed!`);
+    process.exit();
   }
+  // we may want to rethink these try catches, and signal upwards that an error occurred. In other hand, if the warming run fails we may want to guarantee
+  // a stop
 
   return deleteResult({jobId, port});
 };

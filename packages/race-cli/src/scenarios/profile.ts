@@ -9,7 +9,7 @@ import {
   handleStartRacer,
   collectAndPruneResults,
   executeWarmingRun,
-} from './handlers';
+} from './racerClient';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
 
@@ -81,7 +81,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         }
       });
     };
-    // extract this into a reusable section
+
     const raceUrlAndProcess = async () =>
       handleStartRacer({
         port: parseInt(context.racerPort, 10),
