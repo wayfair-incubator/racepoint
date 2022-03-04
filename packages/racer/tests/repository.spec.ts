@@ -1,4 +1,5 @@
 import {LighthouseResultsRepository} from '../src/profiling/repository';
+import chai, {expect} from 'chai';
 
 describe('Empty LighthouseResults Repository', () => {
   it('should generate a next Id', async () => {
@@ -41,7 +42,7 @@ describe('Lighthouse Results Repository CRUD operations', () => {
       await LighthouseResultsRepository.getNextId().then((nextId) =>
         LighthouseResultsRepository.write(nextId, samplePayload)
       )
-    ).toEqual(1);
+    ).to.equal(1);
     expect(await LighthouseResultsRepository.getNextId()).to.equal(2);
   });
 
@@ -50,15 +51,15 @@ describe('Lighthouse Results Repository CRUD operations', () => {
       LighthouseResultsRepository.write(nextId, samplePayload)
     );
     const retrieved = await LighthouseResultsRepository.read(jobId);
-    // expect(retrieved).to.not.be.undefined;
-    // expect(retrieved!!.timestamp).to.not.be.undefined;
-    // expect(retrieved!!.jobId).to.equal(jobId);
-    // expect(retrieved!!.results.report).to.equal('<html></html>');
-    // expect(retrieved!!.results.lhr.requestedUrl).to.equal(
-    //   'https://www.foo.com'
-    // );
+    expect(retrieved).to.not.be.undefined;
+    expect(retrieved!!.timestamp).to.not.be.undefined;
+    expect(retrieved!!.jobId).to.equal(jobId);
+    expect(retrieved!!.results.report).to.equal('<html></html>');
+    expect(retrieved!!.results.lhr.requestedUrl).to.equal(
+      'https://www.foo.com'
+    );
 
-    // await LighthouseResultsRepository.delete(jobId);
-    // expect(await LighthouseResultsRepository.read(jobId)).to.be.undefined;
+    await LighthouseResultsRepository.delete(jobId);
+    expect(await LighthouseResultsRepository.read(jobId)).to.be.undefined;
   });
 });
