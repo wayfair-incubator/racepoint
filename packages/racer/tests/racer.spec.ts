@@ -1,1 +1,5 @@
-console.log('Success!');
+describe('', () => {
+  it('', () => {
+    expect(true).toBe(true);
+  });
+});
