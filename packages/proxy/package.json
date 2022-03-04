@@ -8,6 +8,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "axios": "^0.26.0",
     "http-mock": "^0.1.0",
     "http-proxy": "^1.18.1",
     "md5": "^2.3.0",
