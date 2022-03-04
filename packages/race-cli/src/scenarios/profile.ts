@@ -1,14 +1,13 @@
-import {ScenarioContext, Scenario} from '../types';
-import path from 'path';
-import compose from 'docker-compose';
 import async from 'async';
 import retry from 'async-await-retry';
+import cliProgress from 'cli-progress';
+import chalk from 'chalk';
+import {ScenarioContext, Scenario} from '../types';
+import {establishRacers, haltRacers, inspectServices} from '../docker';
 import {LHResultsReporter, ReportingTypes} from '../reporters/index';
 import {handleStartRacer, collectAndPruneResults} from './handlers';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
-import cliProgress from 'cli-progress';
-import chalk from 'chalk';
 
 const MAX_RETRIES = 100;
 const RETRY_INTERVAL_MS = 3000;
@@ -57,32 +56,10 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let numProcessed = 0;
     let numFailed = 0;
 
-    const dockerPath = path.join(__dirname, '..', '..');
-
-    logger.info('Preparing Docker images...');
-    try {
-      await compose.buildAll({
-        cwd: dockerPath,
-        log: isDebug,
-      });
-    } catch (e) {
-      logger.info('Failed to start. Is Docker running?');
-      process.exit();
-    }
-    try {
-      await compose.upAll({
-        cwd: dockerPath,
-        log: isDebug,
-        env: {
-          ...process.env,
-          RACER_PORT: context.racerPort,
-          RACEPROXY_PORT: context.raceproxyPort,
-        },
-      });
-    } catch (e) {
-      logger.info('Failed to start. Check your Docker configuration');
-      process.exit();
-    }
+    // initialize the Racer and Proxy containers
+    // will first attempt to build them if not already present. Should we include a force-build option?
+    await establishRacers(context.racerPort, context.raceproxyPort);
+    // await inspectServices();
 
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.
@@ -120,7 +97,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         }
       });
     };
-
+    // extract this into a reusable section
     const raceUrlAndProcess = async () =>
       handleStartRacer({
         port: parseInt(context.racerPort, 10),
@@ -194,9 +171,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     multibar.stop();
 
     // Shut down container if success or failure
-    compose.down({
-      log: isDebug,
-    });
+    await haltRacers();
 
     // Time to process the results
     resultsArray.forEach((result: LighthouseResultsWrapper) => {
