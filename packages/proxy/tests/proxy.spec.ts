@@ -1,11 +1,7 @@
 /*
   Proxy Mocha Test
 */
-import {Server} from 'http';
-import https from 'https';
 import mockHttp from 'mock-http';
-import axios from 'axios';
-import {StatusCodes} from 'http-status-codes';
 import {
   handleProcessRequest,
   handleIncomingRequest,
