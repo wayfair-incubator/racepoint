@@ -6,9 +6,6 @@
   "license": "ISC",
   "main": "build/index.js",
   "types": "build/index.d.ts",
-  "scripts": {
-    "test": "mocha -r ts-node/register 'tests/*.ts'"
-  },
   "dependencies": {},
   "devDependencies": {},
   "mocha": {
