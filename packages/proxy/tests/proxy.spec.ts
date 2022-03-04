@@ -19,7 +19,7 @@ import {CACHE_KEY_HEADER} from '../src/cache-helpers';
 
 // Can't be 80 or 3000 etc.
 const HTTP_PROXY_TEST_PORT = 81;
-const HTTPS_PROXY_TEST_PORT = 444;
+const HTTPS_PROXY_TEST_PORT = 82;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const requestConfig = {
