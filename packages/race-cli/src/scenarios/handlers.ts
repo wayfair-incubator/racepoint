@@ -28,7 +28,7 @@ const handleRacerError = (error: AxiosError) => {
 */
 export const handleStartRacer = ({port, data}: {port: number; data: any}) =>
   axios
-    .post(`http://localhost:${port}/race`, data)
+    .post(`http://localhost:${port}/race`, data) // the url will not always be localhost
     .then(async (response: AxiosResponse) => {
       const jobId = response.data?.jobId;
       if (jobId) {
