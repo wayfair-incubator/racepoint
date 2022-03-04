@@ -11,13 +11,8 @@ import {buildProxyWorker} from '../src/proxy-worker';
 import {calculateCacheKey, extractBody} from '../src/cache-helpers';
 import {handleProxyResponse} from '../src/proxy-worker';
 import {Server} from 'http';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
 import {StatusCodes} from 'http-status-codes';
-import chaiHttp from 'chai-http';
-import rp from 'request-promise';
 import {CACHE_KEY_HEADER} from '../src/cache-helpers';
-import {IncomingMessage, ServerResponse} from 'http';
 import mockHttp from 'mock-http';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -35,24 +30,25 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 // Can't be 80 or 3000 etc.
 const TEST_PORT = 80;
 
+const requestConfig = {
+  url: 'http://example.com',
+  method: 'GET',
+  buffer: Buffer.from('name=mock&version=first'),
+  headers: {
+    host: 'test',
+  },
+};
+
 describe('HTTP Server', () => {
   let httpProxy: Server;
-  let testCache = new ProxyCache();
-  let mock: any;
+  const testCache = new ProxyCache();
+  const proxy = buildProxyWorker({cache: testCache});
 
   beforeAll(async () => {
     // testCache = new ProxyCache();
     console.log('This runs');
     httpProxy = await buildHttpReverseProxy(testCache);
     httpProxy.listen(TEST_PORT);
-  });
-
-  beforeEach(() => {
-    mock = new MockAdapter(axios);
-  });
-
-  afterEach(() => {
-    mock.reset();
   });
 
   afterAll(() => {
@@ -66,18 +62,8 @@ describe('HTTP Server', () => {
   describe('Caching works', () => {
     const mockProxyHandler = jest.fn();
 
-    const proxy = buildProxyWorker({cache: testCache});
-
     it('should proxy an incoming request', async () => {
-      const req = new mockHttp.Request({
-        url: 'http://example.com',
-        method: 'GET',
-        buffer: Buffer.from('name=mock&version=first'),
-        headers: {
-          host: 'doop',
-        },
-      });
-
+      const req = new mockHttp.Request(requestConfig);
       const res = new mockHttp.Response();
 
       await handleIncomingRequest({
@@ -88,26 +74,12 @@ describe('HTTP Server', () => {
         handleUncached: mockProxyHandler,
       });
 
-      expect(mockProxyHandler).toHaveBeenCalled();
+      expect(mockProxyHandler).toBeCalled();
     });
 
     it('should cache an incoming request', async () => {
-      const req = new mockHttp.Request({
-        url: 'http://example.com',
-        method: 'GET',
-        headers: {
-          host: 'doop',
-        },
-      });
-
-      const req2 = new mockHttp.Request({
-        url: 'http://example.com',
-        method: 'GET',
-        headers: {
-          host: 'doop',
-        },
-      });
-
+      const req = new mockHttp.Request(requestConfig);
+      const proxyRes = new mockHttp.Request(requestConfig);
       const res = new mockHttp.Response();
 
       await handleIncomingRequest({
@@ -119,7 +91,7 @@ describe('HTTP Server', () => {
           // Skip proxying the real URL and just handle the response
           await handleProxyResponse({
             cacheInstance: testCache,
-            proxyRes: req2,
+            proxyRes,
             originalRequest: req,
             responseToBrowser: res,
           });
@@ -130,17 +102,36 @@ describe('HTTP Server', () => {
       expect(cacheStats.count).toBe(1);
     });
 
-    // it('should receive cached response from server upon retry', async () => {
-    //   await rp(testOptions)
-    //     .then((response) => {
-    //       expect(response.statusCode).to.equal(200);
-    //       expect(response.body.length > 0);
-    //       expect(response.headers).to.have.property(CACHE_KEY_HEADER);
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //     });
-    // });
+    it('should not proxy for cached content', async () => {
+      const req = new mockHttp.Request(requestConfig);
+      const res = new mockHttp.Response();
+      const uncalledProxyHandler = jest.fn();
+
+      await handleIncomingRequest({
+        cache: testCache,
+        proxy,
+        request: req,
+        response: res,
+        handleUncached: uncalledProxyHandler,
+      });
+
+      expect(uncalledProxyHandler).not.toBeCalled();
+    });
+
+    it('should return the correct cached data', async () => {
+      const req = new mockHttp.Request(requestConfig);
+      const res = new mockHttp.Response();
+      const requestData = await extractBody(req);
+      const cacheKey = calculateCacheKey(req, requestData);
+
+      expect(testCache.contains(cacheKey)).toBe(true);
+      expect(testCache.read(cacheKey)?.headers[CACHE_KEY_HEADER]).toBe(
+        cacheKey
+      );
+      expect(JSON.stringify(testCache.read(cacheKey)?.data)).toEqual(
+        JSON.stringify(requestData)
+      );
+    });
   });
 });
 
