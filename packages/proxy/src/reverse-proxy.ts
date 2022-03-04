@@ -53,10 +53,6 @@ export const handleIncomingRequest = async ({
       ? url
       : `https://${request.headers.host}${url}`;
 
-    // const proxyBufferStream = new stream.PassThrough();
-
-    // proxyBufferStream.write(requestData);
-
     // Add this key for correlation
     request.headers[CACHE_KEY_HEADER] = cacheKey;
 
@@ -88,8 +84,6 @@ const proxyTrueDestination = ({
     changeOrigin: true,
     followRedirects: true,
     ignorePath: true,
-    // Not sure if this is needed yet...
-    // buffer: proxyBufferStream,
   });
 };
 

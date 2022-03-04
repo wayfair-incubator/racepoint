@@ -15,18 +15,6 @@ import {StatusCodes} from 'http-status-codes';
 import {CACHE_KEY_HEADER} from '../src/cache-helpers';
 import mockHttp from 'mock-http';
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-/*
-  HTTP 
-
-  it should cache a new request 
-  it should fire off the handler when it's new
-  it should return cached data
-  it should not call handler 
-
-*/
-
 // Can't be 80 or 3000 etc.
 const TEST_PORT = 80;
 
@@ -120,7 +108,6 @@ describe('HTTP Server', () => {
 
     it('should return the correct cached data', async () => {
       const req = new mockHttp.Request(requestConfig);
-      const res = new mockHttp.Response();
       const requestData = await extractBody(req);
       const cacheKey = calculateCacheKey(req, requestData);
 
@@ -132,50 +119,26 @@ describe('HTTP Server', () => {
         JSON.stringify(requestData)
       );
     });
+
+    it('should receive a fingerprint when requesting HTTPS proxy', async () => {
+      //     let fingerprint;
+      //     await rp({
+      //       uri: 'https://localhost:443/fingerprint',
+      //       headers: {
+      //         'User-Agent': 'Request-Promise',
+      //         host: 'raceproxy',
+      //       },
+      //       resolveWithFullResponse: true,
+      //     })
+      //       .then((response) => {
+      //         const parsedBody = JSON.parse(response.body);
+      //         fingerprint = parsedBody.spkiFingerprint;
+      //         expect(response.statusCode).to.equal(200);
+      //         expect(fingerprint).to.have.lengthOf.at.least(1);
+      //       })
+      //       .catch((e) => {
+      //         console.log(e);
+      //       });
+    });
   });
 });
-
-// describe('HTTPS Server', () => {
-//   let httpsProxy: Server;
-//   let testCache: ProxyCache;
-
-//   beforeEach(async () => {
-//     testCache = new ProxyCache();
-//     httpsProxy = await buildHttpsReverseProxy(testCache);
-//     httpsProxy.listen(443);
-//   });
-
-//   afterEach(() => {
-//     if (httpsProxy) {
-//       httpsProxy.close();
-//     }
-//   });
-
-//   it('should start an HTTPS proxy server on a given port', async () => {
-//     expect(httpsProxy.listening).to.be.true;
-//   });
-
-//   it('should receive a fingerprint when requesting HTTPS proxy', async () => {
-//     let fingerprint;
-
-//     await rp({
-//       uri: 'https://localhost:443/fingerprint',
-//       headers: {
-//         'User-Agent': 'Request-Promise',
-//         host: 'raceproxy',
-//       },
-//       resolveWithFullResponse: true,
-//     })
-//       .then((response) => {
-//         const parsedBody = JSON.parse(response.body);
-//         fingerprint = parsedBody.spkiFingerprint;
-//         expect(response.statusCode).to.equal(200);
-//         expect(fingerprint).to.have.lengthOf.at.least(1);
-//       })
-//       .catch((e) => {
-//         console.log(e);
-//       });
-//   });
-
-//   // @TODO caching tests similar to HTTP when we figure out insecure requests
-// });
