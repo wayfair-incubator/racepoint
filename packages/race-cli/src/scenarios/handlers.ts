@@ -1,7 +1,9 @@
 import axios, {AxiosError, AxiosResponse} from 'axios';
-import logger from '../logger';
+import retry from 'async-await-retry';
 import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
 import {StatusCodes} from 'http-status-codes';
+import logger from '../logger';
+import {ProfileContext} from '../types';
 
 /*
   Handler for the different error responses from the Racer
@@ -26,7 +28,13 @@ const handleRacerError = (error: AxiosError) => {
 /*
   Handler to request initializing Lighthouse run
 */
-export const handleStartRacer = ({port, data}: {port: number; data: any}) =>
+export const handleStartRacer = async ({
+  port,
+  data,
+}: {
+  port: number;
+  data: ProfileContext;
+}): Promise<number> =>
   axios
     .post(`http://localhost:${port}/race`, data) // the url will not always be localhost
     .then(async (response: AxiosResponse) => {
@@ -169,4 +177,39 @@ export const collectAndPruneResults = async ({
       deleteResult({jobId, port});
     })
     .then(() => resultsWrapper);
+};
+
+export const executeWarmingRun = async ({
+  port,
+  data,
+}: {
+  port: number;
+  data: ProfileContext;
+}) => {
+  // start a race, but for this case do it in a retry loop to account for the lag in racer startup time
+  // this works for this version, but in the future we'll need to get a bit more sophisticated, perhaps tracking 'awake' racers.
+  // const jobId = await handleStartRacer({port, data});
+  let jobId = 0;
+
+  try {
+    jobId = await retry(() => handleStartRacer({port, data}), [], {
+      retriesMax: 10,
+      interval: 250,
+    });
+  } catch (e) {
+    logger.error(
+      `Could not initiate warming run. Did the Racer container actually start?`
+    );
+  }
+
+  try {
+    await retry(() => fetchResult({jobId, port}), [], {
+      retriesMax: 50,
+      interval: 1000,
+    });
+  } catch (e) {
+    logger.error(`Warming run failed after ${50} retries!`);
+  }
+
+  return deleteResult({jobId, port});
 };
