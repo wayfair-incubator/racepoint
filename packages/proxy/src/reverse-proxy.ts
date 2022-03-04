@@ -16,16 +16,18 @@ import {
 import {buildProxyWorker} from './proxy-worker';
 import {IncomingMessage, ServerResponse} from 'http';
 
-const handleIncomingRequest = async ({
+export const handleIncomingRequest = async ({
   cache,
   proxy,
   request,
   response,
+  handleUncached,
 }: {
   cache: ProxyCache;
   proxy: Server;
   request: IncomingMessage;
   response: ServerResponse;
+  handleUncached: Function;
 }) => {
   console.log('📫 Incoming request!');
 
@@ -51,24 +53,44 @@ const handleIncomingRequest = async ({
       ? url
       : `https://${request.headers.host}${url}`;
 
-    const proxyBufferStream = new stream.PassThrough();
+    // const proxyBufferStream = new stream.PassThrough();
 
-    proxyBufferStream.write(requestData);
+    // proxyBufferStream.write(requestData);
 
     // Add this key for correlation
     request.headers[CACHE_KEY_HEADER] = cacheKey;
 
-    // Have the proxy get that URL
-    proxy.web(request, response, {
-      target: destinationUrl,
-      autoRewrite: true,
-      changeOrigin: true,
-      followRedirects: true,
-      ignorePath: true,
-      // Not sure if this is needed yet...
-      // buffer: proxyBufferStream,
-    });
+    // Handle the response if it's not cached
+    await handleUncached({request, response, proxy, target: destinationUrl});
   }
+};
+
+/*
+  Proxy a URL target
+
+  Isolated for testing purposes
+*/
+const proxyTrueDestination = ({
+  request,
+  response,
+  proxy,
+  target,
+}: {
+  request: IncomingMessage;
+  response: ServerResponse;
+  proxy: Server;
+  target: string;
+}) => {
+  // Have the proxy get that URL
+  proxy.web(request, response, {
+    target,
+    autoRewrite: true,
+    changeOrigin: true,
+    followRedirects: true,
+    ignorePath: true,
+    // Not sure if this is needed yet...
+    // buffer: proxyBufferStream,
+  });
 };
 
 /*
@@ -78,7 +100,13 @@ export const buildHttpReverseProxy = async (cache: ProxyCache) => {
   const proxy = buildProxyWorker({cache});
 
   const requestListener = async function (request: any, response: any) {
-    handleIncomingRequest({cache, proxy, request, response});
+    handleIncomingRequest({
+      cache,
+      proxy,
+      request,
+      response,
+      handleUncached: proxyTrueDestination,
+    });
   };
 
   const server = await http.createServer(requestListener);
@@ -115,7 +143,13 @@ export const buildHttpsReverseProxy = async (cache: ProxyCache) => {
 
     // Otherwise treat it as a normal request
     else {
-      handleIncomingRequest({cache, proxy, request, response});
+      handleIncomingRequest({
+        cache,
+        proxy,
+        request,
+        response,
+        handleUncached: proxyTrueDestination,
+      });
     }
   });
 

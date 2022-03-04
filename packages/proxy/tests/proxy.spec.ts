@@ -4,74 +4,144 @@
 import {
   buildHttpReverseProxy,
   buildHttpsReverseProxy,
+  handleIncomingRequest,
 } from '../src/reverse-proxy';
 import {ProxyCache} from '../src/proxy-cache';
+import {buildProxyWorker} from '../src/proxy-worker';
+import {calculateCacheKey, extractBody} from '../src/cache-helpers';
+import {handleProxyResponse} from '../src/proxy-worker';
 import {Server} from 'http';
-import chai, {expect} from 'chai';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import {StatusCodes} from 'http-status-codes';
 import chaiHttp from 'chai-http';
 import rp from 'request-promise';
 import {CACHE_KEY_HEADER} from '../src/cache-helpers';
-
-chai.use(chaiHttp);
+import {IncomingMessage, ServerResponse} from 'http';
+import mockHttp from 'mock-http';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-// Can't be 80 or 3000 etc.
-const TEST_PORT = 900;
+/*
+  HTTP 
 
-// @TODO instead of going into the wild internet for a URL,
-// we should be stubbing out a response using a mock API like wiremock
-// Follow-up ticket: SFPERF-2250
-const testOptions = {
-  url: 'http://github.com/',
-  method: 'GET',
-  proxy: 'http://localhost:900',
-  resolveWithFullResponse: true,
-};
+  it should cache a new request 
+  it should fire off the handler when it's new
+  it should return cached data
+  it should not call handler 
+
+*/
+
+// Can't be 80 or 3000 etc.
+const TEST_PORT = 80;
 
 describe('HTTP Server', () => {
   let httpProxy: Server;
-  let testCache: ProxyCache;
+  let testCache = new ProxyCache();
+  let mock: any;
 
-  before(async () => {
-    testCache = new ProxyCache();
+  beforeAll(async () => {
+    // testCache = new ProxyCache();
+    console.log('This runs');
     httpProxy = await buildHttpReverseProxy(testCache);
-    httpProxy.listen(900);
+    httpProxy.listen(TEST_PORT);
   });
 
-  after(() => {
+  beforeEach(() => {
+    mock = new MockAdapter(axios);
+  });
+
+  afterEach(() => {
+    mock.reset();
+  });
+
+  afterAll(() => {
     httpProxy.close();
   });
 
   it('should start an HTTP proxy server on a given port', async () => {
-    expect(httpProxy.listening).to.be.true;
+    expect(httpProxy.listening).toBe(true);
   });
 
-  // describe('Caching works', async () => {
-  //   it('should receive response from server', async () => {
-  //     await rp(testOptions)
-  //       .then((response) => {
-  //         expect(response.statusCode).to.equal(200);
-  //         // Expect some blob of HTML
-  //         expect(response.body.length > 10);
-  //       })
-  //       .catch((e) => {
-  //         console.log(e);
-  //       });
-  //   });
+  describe('Caching works', () => {
+    const mockProxyHandler = jest.fn();
 
-  //   it('should receive cached response from server upon retry', async () => {
-  //     await rp(testOptions)
-  //       .then((response) => {
-  //         expect(response.statusCode).to.equal(200);
-  //         expect(response.body.length > 0);
-  //         expect(response.headers).to.have.property(CACHE_KEY_HEADER);
-  //       })
-  //       .catch((e) => {
-  //         console.log(e);
-  //       });
-  //   });
-  // });
+    const proxy = buildProxyWorker({cache: testCache});
+
+    it('should proxy an incoming request', async () => {
+      const req = new mockHttp.Request({
+        url: 'http://example.com',
+        method: 'GET',
+        buffer: Buffer.from('name=mock&version=first'),
+        headers: {
+          host: 'doop',
+        },
+      });
+
+      const res = new mockHttp.Response();
+
+      await handleIncomingRequest({
+        cache: testCache,
+        proxy,
+        request: req,
+        response: res,
+        handleUncached: mockProxyHandler,
+      });
+
+      expect(mockProxyHandler).toHaveBeenCalled();
+    });
+
+    it('should cache an incoming request', async () => {
+      const req = new mockHttp.Request({
+        url: 'http://example.com',
+        method: 'GET',
+        headers: {
+          host: 'doop',
+        },
+      });
+
+      const req2 = new mockHttp.Request({
+        url: 'http://example.com',
+        method: 'GET',
+        headers: {
+          host: 'doop',
+        },
+      });
+
+      const res = new mockHttp.Response();
+
+      await handleIncomingRequest({
+        cache: testCache,
+        proxy,
+        request: req,
+        response: res,
+        handleUncached: async () => {
+          // Skip proxying the real URL and just handle the response
+          await handleProxyResponse({
+            cacheInstance: testCache,
+            proxyRes: req2,
+            originalRequest: req,
+            responseToBrowser: res,
+          });
+        },
+      });
+
+      const cacheStats = testCache.stats();
+      expect(cacheStats.count).toBe(1);
+    });
+
+    // it('should receive cached response from server upon retry', async () => {
+    //   await rp(testOptions)
+    //     .then((response) => {
+    //       expect(response.statusCode).to.equal(200);
+    //       expect(response.body.length > 0);
+    //       expect(response.headers).to.have.property(CACHE_KEY_HEADER);
+    //     })
+    //     .catch((e) => {
+    //       console.log(e);
+    //     });
+    // });
+  });
 });
 
 // describe('HTTPS Server', () => {

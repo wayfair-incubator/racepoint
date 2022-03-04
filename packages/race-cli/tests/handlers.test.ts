@@ -1,13 +1,13 @@
 import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import {StatusCodes} from 'http-status-codes';
+import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
 import {
   handleStartRacer,
   deleteResult,
   fetchResult,
   fetchAndAppendHtml,
 } from '../src/scenarios/handlers';
-import MockAdapter from 'axios-mock-adapter';
-import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
-import {StatusCodes} from 'http-status-codes';
 
 const validLhrData: LighthouseResults = {
   lighthouseVersion: '9.1.0',
