@@ -191,7 +191,6 @@ export const executeWarmingRun = async ({
 }) => {
   // start a race, but for this case do it in a retry loop to account for the lag in racer startup time
   // this works for this version, but in the future we'll need to get a bit more sophisticated, perhaps tracking 'awake' racers.
-  // const jobId = await handleStartRacer({port, data});
   let jobId = 0;
 
   try {
