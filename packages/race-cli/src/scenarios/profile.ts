@@ -2,10 +2,14 @@ import async from 'async';
 import retry from 'async-await-retry';
 import cliProgress from 'cli-progress';
 import chalk from 'chalk';
-import {ScenarioContext, Scenario} from '../types';
-import {establishRacers, haltRacers, inspectServices} from '../docker';
+import {ProfileContext, Scenario} from '../types';
+import {establishRacers, haltRacers} from '../docker';
 import {LHResultsReporter, ReportingTypes} from '../reporters/index';
-import {handleStartRacer, collectAndPruneResults} from './handlers';
+import {
+  handleStartRacer,
+  collectAndPruneResults,
+  executeWarmingRun,
+} from './handlers';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
 
@@ -17,30 +21,6 @@ const FORMAT_HTML = 'html';
 const isDebug = process.env.LOG_LEVEL === 'debug';
 
 export const PROFILE_COMMAND = 'profile';
-
-class ProfileContext implements ScenarioContext {
-  targetUrl: string;
-  deviceType: 'Mobile' | 'Desktop';
-  numberRuns: number;
-  outputFormat: string[];
-  outputTarget: string;
-  overrideChromeFlags: boolean;
-  raceproxyPort: string;
-  racerPort: string;
-  repositoryId: string;
-
-  constructor(userArgs: any) {
-    this.targetUrl = userArgs?.targetUrl || '';
-    this.deviceType = userArgs?.deviceType;
-    this.numberRuns = userArgs?.numberRuns;
-    this.outputFormat = userArgs?.outputFormat;
-    this.outputTarget = userArgs?.outputTarget;
-    this.overrideChromeFlags = userArgs?.overrideChromeFlags;
-    this.raceproxyPort = userArgs?.raceproxyPort;
-    this.racerPort = userArgs?.racerPort;
-    this.repositoryId = userArgs?.repositoryId;
-  }
-}
 
 export class ProfileScenario extends Scenario<ProfileContext> {
   getCommand(): string {
@@ -55,11 +35,15 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let resultsArray: any = [];
     let numProcessed = 0;
     let numFailed = 0;
+    const racerPort = parseInt(context.racerPort, 10);
 
     // initialize the Racer and Proxy containers
     // will first attempt to build them if not already present. Should we include a force-build option?
     await establishRacers(context.racerPort, context.raceproxyPort);
-    // await inspectServices();
+
+    logger.info('Executing warming run...');
+    await executeWarmingRun({port: racerPort, data: context});
+    logger.info('Warming run complete!');
 
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.

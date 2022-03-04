@@ -39,3 +39,27 @@ export interface LLReporter {
   initialize: () => Promise<void>;
   process: (results: LighthouseResultsWrapper) => Promise<void> | undefined;
 }
+
+export class ProfileContext implements ScenarioContext {
+  targetUrl: string;
+  deviceType: 'Mobile' | 'Desktop';
+  numberRuns: number;
+  outputFormat: string[];
+  outputTarget: string;
+  overrideChromeFlags: boolean;
+  raceproxyPort: string;
+  racerPort: string;
+  repositoryId: string;
+
+  constructor(userArgs: any) {
+    this.targetUrl = userArgs?.targetUrl || '';
+    this.deviceType = userArgs?.deviceType;
+    this.numberRuns = userArgs?.numberRuns;
+    this.outputFormat = userArgs?.outputFormat;
+    this.outputTarget = userArgs?.outputTarget;
+    this.overrideChromeFlags = userArgs?.overrideChromeFlags;
+    this.raceproxyPort = userArgs?.raceproxyPort;
+    this.racerPort = userArgs?.racerPort;
+    this.repositoryId = userArgs?.repositoryId;
+  }
+}
