@@ -5,7 +5,6 @@ import logger from '../logger';
 const dockerPath = path.join(__dirname, '..', '..');
 const isDebug = process.env.LOG_LEVEL === 'debug';
 
-// logger.info('Preparing Docker images...');
 /**
  *  Initializes the Racer and Proxy docker containers.
  *
