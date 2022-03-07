@@ -16,16 +16,18 @@ import {
 import {buildProxyWorker} from './proxy-worker';
 import {IncomingMessage, ServerResponse} from 'http';
 
-const handleIncomingRequest = async ({
-  cache,
-  proxy,
+export const handleIncomingRequest = async ({
   request,
   response,
+  cache,
+  proxy,
+  handleUncached,
 }: {
-  cache: ProxyCache;
-  proxy: Server;
   request: IncomingMessage;
   response: ServerResponse;
+  cache: ProxyCache;
+  proxy: Server;
+  handleUncached: Function;
 }) => {
   console.log('📫 Incoming request!');
 
@@ -51,22 +53,74 @@ const handleIncomingRequest = async ({
       ? url
       : `https://${request.headers.host}${url}`;
 
-    const proxyBufferStream = new stream.PassThrough();
-
-    proxyBufferStream.write(requestData);
-
     // Add this key for correlation
     request.headers[CACHE_KEY_HEADER] = cacheKey;
 
-    // Have the proxy get that URL
-    proxy.web(request, response, {
-      target: destinationUrl,
-      autoRewrite: true,
-      changeOrigin: true,
-      followRedirects: true,
-      ignorePath: true,
-      // Not sure if this is needed yet...
-      // buffer: proxyBufferStream,
+    // Handle the response if it's not cached
+    await handleUncached({request, response, proxy, target: destinationUrl});
+  }
+};
+
+/*
+  Proxy a URL target
+
+  Isolated for testing purposes
+*/
+const proxyTrueDestination = ({
+  request,
+  response,
+  proxy,
+  target,
+}: {
+  request: IncomingMessage;
+  response: ServerResponse;
+  proxy: Server;
+  target: string;
+}) => {
+  // Have the proxy get that URL
+  proxy.web(request, response, {
+    target,
+    autoRewrite: true,
+    changeOrigin: true,
+    followRedirects: true,
+    ignorePath: true,
+  });
+};
+
+/*
+  Handler that decides to either return a fingerprint or proxy a URL
+*/
+export const handleProcessRequest = async ({
+  request,
+  response,
+  cache,
+  proxy,
+  spkiFingerprint,
+}: {
+  request: IncomingMessage;
+  response: ServerResponse;
+  cache: ProxyCache;
+  proxy: Server;
+  spkiFingerprint: string;
+}) => {
+  // On warm-up, the racer will need to get the fingerprint
+  if (
+    request.headers?.host?.includes('raceproxy') &&
+    request.url === '/fingerprint'
+  ) {
+    response.writeHead(StatusCodes.OK, {
+      'Content-Type': 'application/json',
+    });
+    response.write(JSON.stringify({spkiFingerprint}));
+    response.end();
+  } else {
+    // Otherwise treat it as a normal request
+    await handleIncomingRequest({
+      cache,
+      proxy,
+      request,
+      response,
+      handleUncached: proxyTrueDestination,
     });
   }
 };
@@ -78,10 +132,16 @@ export const buildHttpReverseProxy = async (cache: ProxyCache) => {
   const proxy = buildProxyWorker({cache});
 
   const requestListener = async function (request: any, response: any) {
-    handleIncomingRequest({cache, proxy, request, response});
+    handleIncomingRequest({
+      cache,
+      proxy,
+      request,
+      response,
+      handleUncached: proxyTrueDestination,
+    });
   };
 
-  const server = await http.createServer(requestListener);
+  const server = http.createServer(requestListener);
 
   return server;
 };
@@ -98,25 +158,16 @@ export const buildHttpsReverseProxy = async (cache: ProxyCache) => {
     cert,
     rejectUnauthorized: false,
   };
-  const server = await https.createServer(options);
+  const server = https.createServer(options);
 
   server.on('request', async (request, response) => {
-    // On warm-up, the racer will need to get the fingerprint
-    if (
-      request.headers?.host?.includes('raceproxy') &&
-      request.url === '/fingerprint'
-    ) {
-      response.writeHead(StatusCodes.OK, {
-        'Content-Type': 'application/json',
-      });
-      response.write(JSON.stringify({spkiFingerprint}));
-      response.end();
-    }
-
-    // Otherwise treat it as a normal request
-    else {
-      handleIncomingRequest({cache, proxy, request, response});
-    }
+    await handleProcessRequest({
+      request,
+      response,
+      cache,
+      proxy,
+      spkiFingerprint,
+    });
   });
 
   server.on('error', (err) => {

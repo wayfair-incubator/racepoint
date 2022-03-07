@@ -11,7 +11,9 @@ export const CACHE_KEY_HEADER = 'll-cache-key';
  *
  * @param httpMessage
  */
-export const extractBody = (httpMessage: IncomingMessage): Promise<Buffer> =>
+export const extractBody = async (
+  httpMessage: IncomingMessage
+): Promise<Buffer> =>
   new Promise((resolve) => {
     const bodyData: Buffer[] = [];
     httpMessage.on('data', function (data: Buffer) {

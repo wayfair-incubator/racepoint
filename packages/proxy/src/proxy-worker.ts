@@ -8,7 +8,7 @@ import {extractBody, cacheExtractedProxyResponse} from './cache-helpers';
 import {IncomingMessage, ServerResponse} from 'http';
 import net from 'net';
 
-const handleProxyResponse = ({
+export const handleProxyResponse = async ({
   cacheInstance,
   proxyRes,
   originalRequest,
@@ -19,7 +19,7 @@ const handleProxyResponse = ({
   originalRequest: IncomingMessage;
   responseToBrowser: ServerResponse;
 }) => {
-  extractBody(proxyRes)
+  await extractBody(proxyRes)
     .then((bodyBuffer) =>
       cacheExtractedProxyResponse(
         cacheInstance,
