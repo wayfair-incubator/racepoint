@@ -151,7 +151,7 @@ The following software is required to use Racepoint:
 
 ## Usage
 
-Please note that all modes make use of port 3000 and 442 on your local machine
+Please note that all modes make use of port 3000 and 443 on your local machine
 unless otherwise specified. If you have any existing webservers (e.g. nginx)
 this may interfere.
 
