@@ -1,117 +1,122 @@
 /*
   Proxy Mocha Test
 */
+import mockHttp from 'mock-http';
 import {
-  buildHttpReverseProxy,
-  buildHttpsReverseProxy,
+  handleProcessRequest,
+  handleIncomingRequest,
 } from '../src/reverse-proxy';
 import {ProxyCache} from '../src/proxy-cache';
-import {Server} from 'http';
-import chai, {expect} from 'chai';
-import chaiHttp from 'chai-http';
-import rp from 'request-promise';
+import {buildProxyWorker} from '../src/proxy-worker';
+import {calculateCacheKey, extractBody} from '../src/cache-helpers';
+import {handleProxyResponse} from '../src/proxy-worker';
 import {CACHE_KEY_HEADER} from '../src/cache-helpers';
 
-chai.use(chaiHttp);
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-// @TODO instead of going into the wild internet for a URL,
-// we should be stubbing out a response using a mock API like wiremock
-// Follow-up ticket: SFPERF-2250
-const testOptions = {
-  url: 'http://example.com/',
+const requestConfig = {
+  url: 'http://example.com',
   method: 'GET',
-  proxy: 'http://localhost:80',
-  resolveWithFullResponse: true,
+  buffer: Buffer.from('name=mock&version=first'),
+  headers: {
+    host: 'test',
+  },
 };
 
-describe('HTTP Server', () => {
-  let httpProxy: Server;
-  let testCache: ProxyCache;
+describe('Servers initialize', () => {
+  const testCache = new ProxyCache();
 
-  before(async () => {
-    testCache = new ProxyCache();
-    httpProxy = await buildHttpReverseProxy(testCache);
-    httpProxy.listen(80);
-  });
-
-  after(() => {
-    httpProxy.close();
-  });
-
-  it('should start an HTTP proxy server on a given port', async () => {
-    expect(httpProxy.listening).to.be.true;
-  });
-
-  describe('Caching works', async () => {
-    it('should receive response from server', async () => {
-      await rp(testOptions)
-        .then((response) => {
-          expect(response.statusCode).to.equal(200);
-          // Expect some blob of HTML
-          expect(response.body.length > 10);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+  it('should return a fingerprint when requested', async () => {
+    const req = new mockHttp.Request({
+      url: '/fingerprint',
+      headers: {
+        host: 'raceproxy',
+      },
     });
+    const res = new mockHttp.Response();
+    const proxy = buildProxyWorker({cache: testCache});
 
-    it('should receive cached response from server upon retry', async () => {
-      await rp(testOptions)
-        .then((response) => {
-          expect(response.statusCode).to.equal(200);
-          expect(response.body.length > 0);
-          expect(response.headers).to.have.property(CACHE_KEY_HEADER);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+    await handleProcessRequest({
+      request: req,
+      response: res,
+      cache: testCache,
+      proxy,
+      spkiFingerprint: 'abc123youandme',
     });
+    // We can't see that the fingerprint is in the response,
+    // but we can see that it has ended
+    expect(res.writableEnded).toBe(true);
   });
 });
 
-describe('HTTPS Server', () => {
-  let httpsProxy: Server;
-  let testCache: ProxyCache;
+describe('Cache mechanism', () => {
+  const testCache = new ProxyCache();
+  const proxy = buildProxyWorker({cache: testCache});
 
-  beforeEach(async () => {
-    testCache = new ProxyCache();
-    httpsProxy = await buildHttpsReverseProxy(testCache);
-    httpsProxy.listen(443);
+  it('should proxy an incoming request', async () => {
+    const req = new mockHttp.Request(requestConfig);
+    const res = new mockHttp.Response();
+    const mockProxyHandler = jest.fn();
+
+    await handleIncomingRequest({
+      cache: testCache,
+      proxy,
+      request: req,
+      response: res,
+      handleUncached: mockProxyHandler,
+    });
+
+    expect(mockProxyHandler).toBeCalled();
   });
 
-  afterEach(() => {
-    if (httpsProxy) {
-      httpsProxy.close();
-    }
-  });
+  it('should cache an incoming request', async () => {
+    const req = new mockHttp.Request(requestConfig);
+    const proxyRes = new mockHttp.Request(requestConfig);
+    const res = new mockHttp.Response();
 
-  it('should start an HTTPS proxy server on a given port', async () => {
-    expect(httpsProxy.listening).to.be.true;
-  });
-
-  it('should receive a fingerprint when requesting HTTPS proxy', async () => {
-    let fingerprint;
-
-    await rp({
-      uri: 'https://localhost:443/fingerprint',
-      headers: {
-        'User-Agent': 'Request-Promise',
-        host: 'raceproxy',
+    await handleIncomingRequest({
+      cache: testCache,
+      proxy,
+      request: req,
+      response: res,
+      handleUncached: async () => {
+        // Skip proxying the real URL and just handle the response
+        await handleProxyResponse({
+          cacheInstance: testCache,
+          proxyRes,
+          originalRequest: req,
+          responseToBrowser: res,
+        });
       },
-      resolveWithFullResponse: true,
-    })
-      .then((response) => {
-        const parsedBody = JSON.parse(response.body);
-        fingerprint = parsedBody.spkiFingerprint;
-        expect(response.statusCode).to.equal(200);
-        expect(fingerprint).to.have.lengthOf.at.least(1);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    });
+
+    const cacheStats = testCache.stats();
+    expect(cacheStats.count).toBe(1);
   });
 
-  // @TODO caching tests similar to HTTP when we figure out insecure requests
+  it('should not proxy for cached content', async () => {
+    const req = new mockHttp.Request(requestConfig);
+    const res = new mockHttp.Response();
+    const uncalledProxyHandler = jest.fn();
+
+    await handleIncomingRequest({
+      cache: testCache,
+      proxy,
+      request: req,
+      response: res,
+      handleUncached: uncalledProxyHandler,
+    });
+
+    expect(uncalledProxyHandler).not.toBeCalled();
+  });
+
+  it('should return the correct cached data', async () => {
+    const req = new mockHttp.Request(requestConfig);
+    const requestData = await extractBody(req);
+    const cacheKey = calculateCacheKey(req, requestData);
+
+    expect(testCache.contains(cacheKey)).toBe(true);
+    expect(testCache.read(cacheKey)?.headers[CACHE_KEY_HEADER]).toBe(cacheKey);
+    expect(JSON.stringify(testCache.read(cacheKey)?.data)).toEqual(
+      JSON.stringify(requestData)
+    );
+  });
 });
