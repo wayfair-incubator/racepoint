@@ -1,6 +1,6 @@
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
-import {ConsoleReporter} from './console-reporter';
+import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
 import {HtmlReporter} from './html-reporter';
 import {LLReporter} from '../types';
@@ -14,7 +14,7 @@ export interface ReporterSettings {
 }
 
 export enum ReportingTypes {
-  ConsoleReporter,
+  IndividualRunsReporter,
   ConsoleRunCounter,
   Repository,
   LighthouseHtml,
@@ -33,8 +33,8 @@ export class LHResultsReporter {
 
     // initialize reporters based on options, as we add more reporting types, add them here
     this._reporters = options.outputs.map((type: ReportingTypes) => {
-      if (type === ReportingTypes.ConsoleReporter) {
-        return new ConsoleReporter();
+      if (type === ReportingTypes.IndividualRunsReporter) {
+        return new IndividualRunsReporter();
       } else if (type === ReportingTypes.LighthouseHtml) {
         // for now, hardcode the result. We could make it a setting in ReporterSettings but as it stands, it feels weird to add
         // more file path locations there. hmm

@@ -115,7 +115,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     // Configure how we want the results reported
     const resultsReporter = new LHResultsReporter({
       outputs: [
-        ReportingTypes.ConsoleReporter,
+        ReportingTypes.IndividualRunsReporter,
         ...(context.outputFormat.includes(FORMAT_HTML)
           ? [ReportingTypes.LighthouseHtml]
           : []),
