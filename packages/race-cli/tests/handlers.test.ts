@@ -7,7 +7,8 @@ import {
   deleteResult,
   fetchResult,
   fetchAndAppendHtml,
-} from '../src/scenarios/handlers';
+} from '../src/scenarios/racerClient';
+import {ProfileContext} from '../src/types';
 
 const validLhrData: LighthouseResults = {
   lighthouseVersion: '9.1.0',
@@ -48,8 +49,16 @@ const validHtmlData = `
 
 const jobId = 1234;
 const port = 3000;
-const data = {
+const data: ProfileContext = {
   targetUrl: 'http://meow.com',
+  numberRuns: 1,
+  deviceType: 'Desktop',
+  outputFormat: ['json'],
+  overrideChromeFlags: false,
+  raceproxyPort: '443',
+  racerPort: '3000',
+  outputTarget: '',
+  repositoryId: 'lhruns',
 };
 
 describe('Race CLI request handlers work as expected', () => {
