@@ -17,8 +17,8 @@ const endpoints: RegisteredEndpoint<any>[] = [
 
 const goSpeedRacer = async () => {
   const server = initialize(endpoints);
-  console.log('Go Speed Racer Go');
   server.listen(process.env?.RACER_PORT || 3000);
+  console.log('Go Speed Racer Go!', server.address());
 };
 
 goSpeedRacer();
