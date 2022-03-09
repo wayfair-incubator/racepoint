@@ -59,6 +59,7 @@ const data: ProfileContext = {
   racerPort: '3000',
   outputTarget: '',
   repositoryId: 'lhruns',
+  includeIndividual: false,
 };
 
 describe('Race CLI request handlers work as expected', () => {
