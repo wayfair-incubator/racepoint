@@ -65,6 +65,13 @@ program
     false
   )
   .option(
+    '--include-individual',
+    descriptionHelper(
+      'Will display the results of individual runs to the console'
+    ),
+    false
+  )
+  .option(
     '--raceproxy-port <number>',
     descriptionHelper('Port to start the raceproxy container'),
     '443'

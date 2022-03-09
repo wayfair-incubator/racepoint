@@ -63,6 +63,7 @@ export class ProfileContext implements ScenarioContext {
   raceproxyPort: string;
   racerPort: string;
   repositoryId: string;
+  includeIndividual: boolean;
 
   constructor(userArgs: any) {
     this.targetUrl = userArgs?.targetUrl || '';
@@ -74,5 +75,6 @@ export class ProfileContext implements ScenarioContext {
     this.raceproxyPort = userArgs?.raceproxyPort;
     this.racerPort = userArgs?.racerPort;
     this.repositoryId = userArgs?.repositoryId;
+    this.includeIndividual = userArgs.includeIndividual;
   }
 }
