@@ -115,7 +115,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     // Configure how we want the results reported
     const resultsReporter = new LHResultsReporter({
       outputs: [
-        ReportingTypes.IndividualRunsReporter,
+        ReportingTypes.Aggregate,
         ...(context.outputFormat.includes(FORMAT_HTML)
           ? [ReportingTypes.LighthouseHtml]
           : []),
@@ -154,12 +154,14 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     // Stop the progress bar
     multibar.stop();
 
+    // Time to process the results
+    resultsArray.forEach(async (result: LighthouseResultsWrapper) => {
+      await resultsReporter.process(result);
+    });
+
+    await resultsReporter.finalize();
+
     // Shut down container if success or failure
     await haltRacers();
-
-    // Time to process the results
-    resultsArray.forEach((result: LighthouseResultsWrapper) => {
-      resultsReporter.process(result);
-    });
   }
 }

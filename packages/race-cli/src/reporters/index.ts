@@ -3,6 +3,7 @@ import logger from '../logger';
 import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
 import {HtmlReporter} from './html-reporter';
+import {AggregateConsoleReporter} from './aggregate-console-reporter';
 import {LLReporter} from '../types';
 
 export interface ReporterSettings {
@@ -18,6 +19,7 @@ export enum ReportingTypes {
   ConsoleRunCounter,
   Repository,
   LighthouseHtml,
+  Aggregate,
 }
 
 /**
@@ -35,6 +37,8 @@ export class LHResultsReporter {
     this._reporters = options.outputs.map((type: ReportingTypes) => {
       if (type === ReportingTypes.IndividualRunsReporter) {
         return new IndividualRunsReporter();
+      } else if (type === ReportingTypes.Aggregate) {
+        return new AggregateConsoleReporter();
       } else if (type === ReportingTypes.LighthouseHtml) {
         // for now, hardcode the result. We could make it a setting in ReporterSettings but as it stands, it feels weird to add
         // more file path locations there. hmm
@@ -61,6 +65,13 @@ export class LHResultsReporter {
   // do not hold on to reports more than necessary
   //
 
-  process = (report: LighthouseResultsWrapper): Promise<any> =>
-    Promise.all(this._reporters.map((reporter) => reporter?.process(report)));
+  async process(report: LighthouseResultsWrapper): Promise<any> {
+    return Promise.all(
+      this._reporters.map((reporter) => reporter?.process(report))
+    );
+  }
+
+  async finalize(): Promise<any> {
+    return Promise.all(this._reporters.map((reporter) => reporter?.finalize()));
+  }
 }
