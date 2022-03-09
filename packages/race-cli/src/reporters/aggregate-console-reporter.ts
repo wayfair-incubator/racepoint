@@ -22,13 +22,18 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
     console.log('Calculating Summary:');
     let table: {[metric: string]: SummaryRow} = {};
     Object.entries(LightHouseAuditKeys).forEach(([key, value]) => {
-      table[key] = {
-        Mean: round(mean(this.collectedData[value]), 4),
-        'Std Dev': round(std(...this.collectedData[value]), 4),
-      };
+      table[key] = this.calculateRow(this.collectedData[value]);
     });
 
     console.table(table);
+  }
+
+  private calculateRow(data: number[]): SummaryRow {
+    std;
+    return {
+      Mean: round(mean(data), 4),
+      'Std Dev': round(std(data, 'unbiased'), 4),
+    };
   }
 }
 
