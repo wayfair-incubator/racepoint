@@ -66,10 +66,10 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     );
 
     const runsCounter = multibar.create(context.numberRuns, 0, {
-      step: 'Runs requested',
+      step: 'Runs requested\t\t',
     });
     const resultsCounter = multibar.create(context.numberRuns, 0, {
-      step: 'Results received',
+      step: 'Results received\t',
     });
 
     const checkQueue = async () => {
@@ -116,6 +116,9 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     const resultsReporter = new LHResultsReporter({
       outputs: [
         ReportingTypes.Aggregate,
+        ...(context.includeIndividual
+          ? [ReportingTypes.IndividualRunsReporter]
+          : []),
         ...(context.outputFormat.includes(FORMAT_HTML)
           ? [ReportingTypes.LighthouseHtml]
           : []),
