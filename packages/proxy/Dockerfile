@@ -1,7 +1,7 @@
 FROM node:16.10.0-alpine
 
 LABEL \
-    name="racepoint-proxy" \
+    name="racepoint/proxy" \
     version="0.2.0" 
 
 COPY . /rp/

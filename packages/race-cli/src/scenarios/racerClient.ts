@@ -39,7 +39,7 @@ export const handleStartRacer = async ({
   data: ProfileContext;
 }): Promise<number> =>
   axios
-    .post(`http://localhost:${port}/race`, data) // the url will not always be localhost
+    .post(`${process.env?.RACEPROXY_SERVER}/race`, data) // the url will not always be localhost
     .then(async (response: AxiosResponse) => {
       const jobId = response.data?.jobId;
       if (jobId) {
