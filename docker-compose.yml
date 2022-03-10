@@ -5,6 +5,7 @@ services:
     build:
       context: ./packages/proxy/.
       dockerfile: Dockerfile
+    network_mode: bridge
     ports:
       - ${RACEPROXY_PORT:-443}:${RACEPROXY_PORT:-443}
     image: rp-proxy
@@ -14,8 +15,20 @@ services:
     build:
       context: ./packages/racer/.
       dockerfile: Dockerfile
+    network_mode: bridge
+    depends_on:
+      - raceproxy
     ports:
       - ${RACER_PORT:-3000}:${RACER_PORT:-3000}
     image: rp-racer
     environment:
       - RACER_PORT=${RACER_PORT:-3000}
+      - SERVER_URL=http://raceproxy:${RACER_PORT:-3000}/
+
+  # race-cli:
+  #   container_name: race-cli
+  #   image: node:16
+  #   network_mode: bridge
+  #   depends_on:
+  #     - raceproxy
+  #     - racer
