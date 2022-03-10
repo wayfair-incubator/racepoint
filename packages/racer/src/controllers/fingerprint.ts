@@ -11,7 +11,7 @@ import {RegisteredEndpoint, EndpointResponse} from '../server/utils';
 import {selectAgentForProtocol} from './common';
 
 // this should be configurable and / or an env var (e.g. locally we'd want this to be localhost)
-const FINGERPRINT_ENDPOINT = 'https://raceproxy.com/fingerprint';
+const FINGERPRINT_ENDPOINT = `${process.env?.RACEPROXY_SERVER}/fingerprint`;
 
 const fetchFingerprint = async (): Promise<object> => {
   console.log('Retrieving fingerprint from proxy...');

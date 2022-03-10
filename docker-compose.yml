@@ -5,7 +5,7 @@ services:
     build:
       context: ./packages/proxy/.
       dockerfile: Dockerfile
-    network_mode: bridge
+    # network_mode: bridge
     ports:
       - ${RACEPROXY_PORT:-443}:${RACEPROXY_PORT:-443}
     image: rp-proxy
@@ -15,7 +15,7 @@ services:
     build:
       context: ./packages/racer/.
       dockerfile: Dockerfile
-    network_mode: bridge
+    # network_mode: bridge
     depends_on:
       - raceproxy
     ports:
@@ -23,12 +23,17 @@ services:
     image: rp-racer
     environment:
       - RACER_PORT=${RACER_PORT:-3000}
-      - SERVER_URL=http://raceproxy:${RACER_PORT:-3000}/
+      - RACEPROXY_SERVER=http://raceproxy:${RACEPROXY_PORT:-443}/
 
-  # race-cli:
-  #   container_name: race-cli
-  #   image: node:16
-  #   network_mode: bridge
-  #   depends_on:
-  #     - raceproxy
-  #     - racer
+  race-cli:
+    container_name: race-cli
+    build:
+      context: ./packages/race-cli/.
+      dockerfile: Dockerfile
+    # network_mode: bridge
+    depends_on:
+      - raceproxy
+      - racer
+    environment:
+      - RACER_SERVER=http://racer:${RACER_PORT:-3000}/
+    command: 'build/index.js profile http://google.com'
