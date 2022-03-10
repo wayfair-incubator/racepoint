@@ -39,7 +39,7 @@ export const handleStartRacer = async ({
   data: ProfileContext;
 }): Promise<number> =>
   axios
-    .post(`${process.env?.RACEPROXY_SERVER}/race`, data) // the url will not always be localhost
+    .post(`${process.env?.RACER_SERVER}/race`, data) // the url will not always be localhost
     .then(async (response: AxiosResponse) => {
       const jobId = response.data?.jobId;
       if (jobId) {
@@ -87,7 +87,7 @@ export const fetchResult = async ({
     : {};
 
   return axios
-    .get(`http://localhost:${port}/results/${jobId}`, options)
+    .get(`${process.env.RACER_SERVER}:${port}/results/${jobId}`, options)
     .then((response: AxiosResponse) => {
       logger.debug(`Success fetching ${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
       if (validateResponseData(response.data)) {
@@ -140,7 +140,7 @@ export const deleteResult = async ({
   port: number;
 }) =>
   axios
-    .delete(`http://localhost:${port}/results/${jobId}`)
+    .delete(`${process.env?.RACER_SERVER}:${port}/results/${jobId}`)
     .then((response: AxiosResponse) => {
       if (response.status === StatusCodes.NO_CONTENT) {
         logger.debug(`Success deleting ${jobId}`);

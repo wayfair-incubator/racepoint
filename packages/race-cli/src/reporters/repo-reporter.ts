@@ -1,15 +1,11 @@
-import {
-  LighthouseResultsWrapper,
-  LighthouseResults,
-  LightHouseAuditKeys,
-} from '@racepoint/shared';
+import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
 import {
   connectRepository,
   ReportingRepository,
   ReportingRow,
 } from './repository';
 import logger from '../logger';
-import {LLReporter} from '../types';
+import {LLReporter, LightHouseAuditKeys} from '../types';
 
 /**
  * Report Lighthouse results to some ReportingRepository.

@@ -63,3 +63,15 @@ export class ProfileContext implements ScenarioContext {
     this.repositoryId = userArgs?.repositoryId;
   }
 }
+
+/**
+ * The keys (among many dozens) in a Lighthouse Report that we wish to look into
+ */
+export enum LightHouseAuditKeys {
+  SI = 'speed-index',
+  FCP = 'first-contentful-paint',
+  LCP = 'largest-contentful-paint',
+  CLS = 'cumulative-layout-shift',
+  MaxFID = 'max-potential-fid',
+  TotalBlocking = 'total-blocking-time',
+}
