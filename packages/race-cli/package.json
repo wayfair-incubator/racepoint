@@ -10,7 +10,8 @@
   },
   "scripts": {
     "setup": "yarn install && yarn install -g",
-    "test": "jest"
+    "test": "jest",
+    "build": "yarn tsc"
   },
   "dependencies": {
     "async": "^3.2.3",

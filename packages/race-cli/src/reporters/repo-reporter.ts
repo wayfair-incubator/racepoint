@@ -2,7 +2,7 @@ import {
   LighthouseResultsWrapper,
   LighthouseResults,
   LightHouseAuditKeys,
-} from '@racepoint/shared';
+} from '../shared';
 import {
   connectRepository,
   ReportingRepository,

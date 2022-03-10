@@ -10,7 +10,7 @@ import {
   collectAndPruneResults,
   executeWarmingRun,
 } from './racerClient';
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper} from '../shared';
 import logger from '../logger';
 
 const MAX_RETRIES = 100;
@@ -39,11 +39,11 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     // initialize the Racer and Proxy containers
     // will first attempt to build them if not already present. Should we include a force-build option?
-    await establishRacers(context.racerPort, context.raceproxyPort);
+    // await establishRacers(context.racerPort, context.raceproxyPort);
 
-    logger.info('Executing warming run...');
-    await executeWarmingRun({port: racerPort, data: context});
-    logger.info('Warming run complete!');
+    // logger.info('Executing warming run...');
+    // await executeWarmingRun({port: racerPort, data: context});
+    // logger.info('Warming run complete!');
 
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.

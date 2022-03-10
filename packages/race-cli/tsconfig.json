@@ -1,15 +1,22 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "references": [
-    {
-      "path": "../shared"
-    }
-  ],
   "compilerOptions": {
+    "target": "es6",
+    "lib": ["es6", "ES2021"],
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "declaration": true,
+    "declarationMap": true,
     "composite": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "strict": true,
     "rootDir": "./src",
     "outDir": "./build"
   },
+  // "noUnusedLocals": true,
+  // "noUnusedParameters": true,
+  // "noImplicitReturns": true,
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*", "**/*.test.ts"]
 }

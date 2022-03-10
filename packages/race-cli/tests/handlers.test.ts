@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import {StatusCodes} from 'http-status-codes';
-import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResults, LighthouseResultsWrapper} from './shared';
 import {
   handleStartRacer,
   deleteResult,

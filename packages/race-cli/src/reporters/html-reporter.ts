@@ -1,4 +1,4 @@
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper} from '../shared';
 import fs from 'fs/promises';
 import {LLReporter} from '../types';
 import logger from '../logger';

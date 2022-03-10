@@ -1,4 +1,4 @@
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper} from './shared';
 
 export interface ScenarioContext {}
 

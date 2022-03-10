@@ -1,4 +1,4 @@
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper} from '../shared';
 import logger from '../logger';
 import {ConsoleReporter} from './console-reporter';
 import {RepositoryReporter} from './repo-reporter';

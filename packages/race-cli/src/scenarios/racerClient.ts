@@ -3,7 +3,7 @@
  */
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import retry from 'async-await-retry';
-import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
+import {LighthouseResultsWrapper, LighthouseResults} from '../shared';
 import {StatusCodes} from 'http-status-codes';
 import logger from '../logger';
 import {ProfileContext} from '../types';
