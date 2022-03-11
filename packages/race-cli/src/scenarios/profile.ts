@@ -144,7 +144,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
       }
       // Update the counter for fetches sent
-      runsCounter.update(i);
+      // runsCounter.update(i);
     }
 
     // Wait until all the results have been processed
@@ -154,14 +154,17 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     // Stop the progress bar
+
     multibar.stop();
 
     // Shut down container if success or failure
-    await haltRacers();
+    // await haltRacers();
 
     // Time to process the results
     resultsArray.forEach((result: LighthouseResultsWrapper) => {
       resultsReporter.process(result);
     });
+
+    process.exit(1);
   }
 }

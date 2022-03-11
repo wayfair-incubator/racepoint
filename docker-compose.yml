@@ -36,4 +36,5 @@ services:
       - racer
     environment:
       - RACER_SERVER=http://racer:${RACER_PORT:-3000}/
-    command: 'build/index.js profile http://google.com'
+      - LOG_LEVEL=debug
+    command: 'node build/index.js profile http://google.com'
