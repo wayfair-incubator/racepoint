@@ -31,6 +31,6 @@ services:
       - raceproxy
       - racer
     environment:
-      - RACER_SERVER=http://racer:${RACER_PORT:-3000}/
+      - RACER_SERVER=http://racer
       - LOG_LEVEL=debug
     command: 'node build/index.js profile http://google.com'
