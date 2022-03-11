@@ -1,6 +1,5 @@
 import {RegisteredEndpoint} from './server/utils';
 import {FetchEndpoint} from './controllers/fetch';
-import {FingerprintEndpoint} from './controllers/fingerprint';
 import {ProfileEndpoint} from './controllers/profile';
 import {ResultsGet, ResultsDelete} from './controllers/results';
 import {initialize} from './server';
@@ -9,7 +8,6 @@ import {initialize} from './server';
 
 const endpoints: RegisteredEndpoint<any>[] = [
   FetchEndpoint,
-  FingerprintEndpoint,
   ProfileEndpoint,
   ResultsGet,
   ResultsDelete,

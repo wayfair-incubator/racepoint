@@ -8,6 +8,7 @@ import {StatusCodes} from 'http-status-codes';
 import logger from '../logger';
 import {ProfileContext} from '../types';
 
+const racerServer = process.env?.RACER_SERVER || 'http://localhost';
 /*
   Handler for the different error responses from the Racer
 */
@@ -39,7 +40,7 @@ export const handleStartRacer = async ({
   data: ProfileContext;
 }): Promise<number> =>
   axios
-    .post(`${process.env?.RACER_SERVER}/race`, data) // the url will not always be localhost
+    .post(`${racerServer}:${port}/race`, data)
     .then(async (response: AxiosResponse) => {
       const jobId = response.data?.jobId;
       if (jobId) {
@@ -87,7 +88,7 @@ export const fetchResult = async ({
     : {};
 
   return axios
-    .get(`${process.env.RACER_SERVER}:${port}/results/${jobId}`, options)
+    .get(`${racerServer}:${port}/results/${jobId}`, options)
     .then((response: AxiosResponse) => {
       logger.debug(`Success fetching ${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
       if (validateResponseData(response.data)) {
@@ -142,6 +143,10 @@ export const deleteResult = async ({
   axios
     .delete(`${process.env?.RACER_SERVER}:${port}/results/${jobId}`)
     .then((response: AxiosResponse) => {
+      console.log(
+        '👹 Delete endpoint: ',
+        `${process.env?.RACER_SERVER}:${port}/results/${jobId}`
+      );
       if (response.status === StatusCodes.NO_CONTENT) {
         logger.debug(`Success deleting ${jobId}`);
       }
