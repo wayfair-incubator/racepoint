@@ -10,7 +10,6 @@ import {ProfileContext} from '../types';
 
 const racerServer = process.env?.RACER_SERVER || 'http://localhost';
 const racerPort = process.env?.RACER_PORT || 3000;
-// const racerServer = process.env?.RACER_SERVER || 'http://localhost';
 
 /*
   Handler for the different error responses from the Racer
@@ -131,12 +130,8 @@ export const fetchAndAppendHtml = async ({
 */
 export const deleteResult = async ({jobId}: {jobId: number}) =>
   axios
-    .delete(`${process.env?.RACER_SERVER}:${racerPort}/results/${jobId}`)
+    .delete(`${racerServer}:${racerPort}/results/${jobId}`)
     .then((response: AxiosResponse) => {
-      console.log(
-        '👹 Delete endpoint: ',
-        `${process.env?.RACER_SERVER}:${racerPort}/results/${jobId}`
-      );
       if (response.status === StatusCodes.NO_CONTENT) {
         logger.debug(`Success deleting ${jobId}`);
       }
