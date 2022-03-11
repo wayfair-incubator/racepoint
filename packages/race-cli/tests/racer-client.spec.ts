@@ -7,7 +7,7 @@ import {
   deleteResult,
   fetchResult,
   fetchAndAppendHtml,
-} from '../src/scenarios/racerClient';
+} from '../src/scenarios/racer-client';
 import {ProfileContext} from '../src/types';
 
 const validLhrData: LighthouseResults = {
