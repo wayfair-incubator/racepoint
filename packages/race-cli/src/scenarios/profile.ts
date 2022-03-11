@@ -34,20 +34,16 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let resultsArray: any = [];
     let numProcessed = 0;
     let numFailed = 0;
-    const racerPort = parseInt(context.racerPort, 10);
+    const racerPort = process.env?.RACER_PORT || 3000;
 
     process.on('SIGINT', function () {
       console.log('\nGracefully shutting down from SIGINT (Ctrl-C)');
       process.exit(0);
     });
 
-    // initialize the Racer and Proxy containers
-    // will first attempt to build them if not already present. Should we include a force-build option?
-    // await establishRacers(context.racerPort, context.raceproxyPort);
-
-    // logger.info('Executing warming run...');
-    // await executeWarmingRun({port: racerPort, data: context});
-    // logger.info('Warming run complete!');
+    logger.info('Executing warming run...');
+    await executeWarmingRun({data: context});
+    logger.info('Warming run complete!');
 
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.
@@ -88,14 +84,12 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const raceUrlAndProcess = async () =>
       handleStartRacer({
-        port: racerPort,
         data: context,
       }).then((jobId: number) => {
         const tryGetResults = retry(
           () =>
             collectAndPruneResults({
               jobId,
-              port: racerPort,
               retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
             }).then((result: LighthouseResultsWrapper) => {
               resultsArray.push(result);

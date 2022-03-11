@@ -47,8 +47,6 @@ export class ProfileContext implements ScenarioContext {
   outputFormat: string[];
   outputTarget: string;
   overrideChromeFlags: boolean;
-  raceproxyPort: string;
-  racerPort: string;
   repositoryId: string;
 
   constructor(userArgs: any) {
@@ -58,8 +56,6 @@ export class ProfileContext implements ScenarioContext {
     this.outputFormat = userArgs?.outputFormat;
     this.outputTarget = userArgs?.outputTarget;
     this.overrideChromeFlags = userArgs?.overrideChromeFlags;
-    this.raceproxyPort = userArgs?.raceproxyPort;
-    this.racerPort = userArgs?.racerPort;
     this.repositoryId = userArgs?.repositoryId;
   }
 }
