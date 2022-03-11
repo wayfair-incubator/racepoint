@@ -4,6 +4,11 @@ LABEL \
     name="racepoint/proxy" \
     version="0.2.0" 
 
+ARG BK_HTTP_PROXY
+ARG BK_HTTPS_PROXY
+ARG HTTP_PROXY=${BK_HTTP_PROXY}
+ARG HTTPS_PROXY=${BK_HTTPS_PROXY}
+
 COPY . /rp/
 WORKDIR /rp/
 

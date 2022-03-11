@@ -45,8 +45,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     // await executeWarmingRun({port: racerPort, data: context});
     // logger.info('Warming run complete!');
 
-    console.log('Jason test 1234', process.env);
-
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.
       const remaining = processingQueue.length();
@@ -132,7 +130,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     await resultsReporter.prepare();
-    logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
+    logger.info(`🦀 Beginning Lighthouse runs for ${context.targetUrl}`);
 
     for (let i = 1; i <= context.numberRuns; i++) {
       try {
@@ -144,7 +142,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
       }
       // Update the counter for fetches sent
-      runsCounter.update(i);
+      // runsCounter.update(i);
     }
 
     // Wait until all the results have been processed
@@ -154,14 +152,17 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     // Stop the progress bar
+
     multibar.stop();
 
     // Shut down container if success or failure
-    await haltRacers();
+    // await haltRacers();
 
     // Time to process the results
     resultsArray.forEach((result: LighthouseResultsWrapper) => {
       resultsReporter.process(result);
     });
+
+    process.exit(1);
   }
 }

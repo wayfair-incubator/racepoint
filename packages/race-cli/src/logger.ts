@@ -8,7 +8,7 @@ const customFormat = format.combine(
 const logger = createLogger();
 
 // Enable debug logs or info only
-if (process.env.LOG_LEVEL === 'debug') {
+if (true) {
   logger.add(
     new transports.Console({
       level: 'debug',
