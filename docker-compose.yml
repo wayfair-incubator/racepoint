@@ -22,8 +22,8 @@ services:
     environment:
       - RACER_PORT=${RACER_PORT:-3000}
 
-  race-cli:
-    container_name: race-cli
+  racepoint:
+    container_name: racepoint
     build:
       context: ./packages/race-cli/.
       dockerfile: Dockerfile
@@ -33,4 +33,4 @@ services:
     environment:
       - RACER_SERVER=http://racer
       # - LOG_LEVEL=debug
-    command: 'node build/index.js profile http://google.com'
+    # command: 'node build/index.js profile http://google.com'

@@ -127,22 +127,10 @@ The following software is required to use Racepoint:
    npm run build
    ```
 
-4. Navigate to the `race-cli` subpackage
+4. Basic usage on an example URL
 
    ```sh
-   cd racepoint/packages/race-cli
-   ```
-
-5. Install Racepoint command line interface globally
-
-   ```sh
-   npm install -g
-   ```
-
-6. Basic usage on an example URL
-
-   ```sh
-   race profile http://your-favorite-site.com/ -n 5
+   docker compose run racepoint race profile http://your-favorite-site.com/ -n 5
    ```
 
    <p align="right">(<a href="#top">back to top</a>)</p>
