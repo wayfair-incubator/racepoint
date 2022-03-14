@@ -18,6 +18,7 @@ const FORMAT_CSV = 'csv';
 const FORMAT_HTML = 'html';
 
 const isDebug = process.env.LOG_LEVEL === 'debug';
+const mockCounter = {update: (i: number) => {}};
 
 export const PROFILE_COMMAND = 'profile';
 
@@ -34,7 +35,8 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let resultsArray: any = [];
     let numProcessed = 0;
     let numFailed = 0;
-    const racerPort = process.env?.RACER_PORT || 3000;
+    let runsCounter = mockCounter;
+    let resultsCounter = mockCounter;
 
     process.on('SIGINT', function () {
       console.log('\nGracefully shutting down from SIGINT (Ctrl-C)');
@@ -55,7 +57,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const multibar = new cliProgress.MultiBar(
       {
-        // Hide the multibar in debug mode so it doesn't mess up the other logs
         format: isDebug
           ? ''
           : '{step} |' +
@@ -65,10 +66,11 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       cliProgress.Presets.rect
     );
 
-    const runsCounter = multibar.create(context.numberRuns, 0, {
+    // Hide the multibar counters in debug mode so it doesn't mess up the other logs
+    runsCounter = multibar.create(context.numberRuns, 0, {
       step: 'Runs requested',
     });
-    const resultsCounter = multibar.create(context.numberRuns, 0, {
+    resultsCounter = multibar.create(context.numberRuns, 0, {
       step: 'Results received',
     });
 
@@ -128,7 +130,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     await resultsReporter.prepare();
-    logger.info(`🦀 Beginning Lighthouse runs for ${context.targetUrl}`);
+    logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
     for (let i = 1; i <= context.numberRuns; i++) {
       try {
         await retry(raceUrlAndProcess, [], {
@@ -139,7 +141,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
       }
       // Update the counter for fetches sent
-      // runsCounter.update(i);
+      runsCounter.update(i);
     }
 
     // Wait until all the results have been processed
@@ -156,6 +158,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       resultsReporter.process(result);
     });
 
-    process.exit(1);
+    process.exit(0);
   }
 }
