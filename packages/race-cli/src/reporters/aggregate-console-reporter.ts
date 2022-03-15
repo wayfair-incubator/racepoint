@@ -1,6 +1,7 @@
 import {std, mean, round} from 'mathjs';
 import {LighthouseResultsWrapper, LightHouseAuditKeys} from '@racepoint/shared';
 import {BaseRacepointReporter} from '../types';
+import logger from '../logger';
 
 export class AggregateConsoleReporter extends BaseRacepointReporter {
   private collectedData: {[key: string]: number[]} = {};
@@ -19,7 +20,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   };
 
   async finalize() {
-    console.log('Calculating Summary:');
+    logger.info('Calculating Summary:');
     let table: {[metric: string]: SummaryRow} = {};
     Object.entries(LightHouseAuditKeys).forEach(([key, value]) => {
       table[key] = this.calculateRow(this.collectedData[value]);
