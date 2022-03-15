@@ -127,10 +127,23 @@ The following software is required to use Racepoint:
    npm run build
    ```
 
-4. Basic usage on an example URL
+4. Build the images
+
+   ```sh
+   docker compose build
+   ```
+
+5. Run the race command inside a new docker container. Basic usage on an example
+   URL
 
    ```sh
    docker compose run racepoint race profile http://your-favorite-site.com/ -n 5
+   ```
+
+6. Shut down containers when finished
+
+   ```sh
+   docker compose down
    ```
 
    <p align="right">(<a href="#top">back to top</a>)</p>
