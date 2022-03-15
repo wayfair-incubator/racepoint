@@ -1,12 +1,13 @@
 import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
-import {LLReporter, LightHouseAuditKeys} from '../types';
+import {LightHouseAuditKeys} from '../types';
+import {BaseRacepointReporter} from '../types';
 
 interface MetricHeader {
   name: string;
   key: string;
 }
 
-export class ConsoleReporter implements LLReporter {
+export class IndividualRunsReporter extends BaseRacepointReporter {
   private metricHeaders: MetricHeader[] = [
     {name: 'SI', key: LightHouseAuditKeys.SI},
     {name: 'FCP', key: LightHouseAuditKeys.FCP},
@@ -20,10 +21,9 @@ export class ConsoleReporter implements LLReporter {
   private _hasBegun: boolean;
 
   constructor() {
+    super();
     this._hasBegun = false;
   }
-
-  initialize = (): Promise<void> => Promise.resolve();
 
   process = (results: LighthouseResultsWrapper): Promise<void> =>
     new Promise((resolve) => {

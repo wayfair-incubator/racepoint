@@ -56,6 +56,7 @@ const data: ProfileContext = {
   overrideChromeFlags: false,
   outputTarget: '',
   repositoryId: 'lhruns',
+  includeIndividual: false,
 };
 
 describe('Race CLI request handlers work as expected', () => {

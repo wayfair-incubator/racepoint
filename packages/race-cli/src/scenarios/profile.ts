@@ -18,7 +18,6 @@ const FORMAT_CSV = 'csv';
 const FORMAT_HTML = 'html';
 
 const isDebug = process.env.LOG_LEVEL === 'debug';
-const mockCounter = {update: (i: number) => {}};
 
 export const PROFILE_COMMAND = 'profile';
 
@@ -35,8 +34,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let resultsArray: any = [];
     let numProcessed = 0;
     let numFailed = 0;
-    let runsCounter = mockCounter;
-    let resultsCounter = mockCounter;
 
     process.on('SIGINT', function () {
       console.log('\nGracefully shutting down from SIGINT (Ctrl-C)');
@@ -66,12 +63,11 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       cliProgress.Presets.rect
     );
 
-    // Hide the multibar counters in debug mode so it doesn't mess up the other logs
-    runsCounter = multibar.create(context.numberRuns, 0, {
-      step: 'Runs requested',
+    const runsCounter = multibar.create(context.numberRuns, 0, {
+      step: 'Runs requested\t\t',
     });
-    resultsCounter = multibar.create(context.numberRuns, 0, {
-      step: 'Results received',
+    const resultsCounter = multibar.create(context.numberRuns, 0, {
+      step: 'Results received\t',
     });
 
     const checkQueue = async () => {
@@ -115,7 +111,10 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     // Configure how we want the results reported
     const resultsReporter = new LHResultsReporter({
       outputs: [
-        ReportingTypes.ConsoleReporter,
+        ReportingTypes.Aggregate,
+        ...(context.includeIndividual
+          ? [ReportingTypes.IndividualRunsReporter]
+          : []),
         ...(context.outputFormat.includes(FORMAT_HTML)
           ? [ReportingTypes.LighthouseHtml]
           : []),
@@ -154,10 +153,11 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     multibar.stop();
 
     // Time to process the results
-    resultsArray.forEach((result: LighthouseResultsWrapper) => {
-      resultsReporter.process(result);
+    resultsArray.forEach(async (result: LighthouseResultsWrapper) => {
+      await resultsReporter.process(result);
     });
 
+    await resultsReporter.finalize();
     process.exit(0);
   }
 }

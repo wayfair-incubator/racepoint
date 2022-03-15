@@ -66,6 +66,13 @@ program
     false
   )
   .option(
+    '--include-individual',
+    descriptionHelper(
+      'Will display the results of individual runs to the console'
+    ),
+    false
+  )
+  .option(
     '--repository-id <string>',
     descriptionHelper('Name of the repository file'),
     'lighthouse-runs'
