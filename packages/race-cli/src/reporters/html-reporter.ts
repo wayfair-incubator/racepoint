@@ -1,6 +1,6 @@
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import fs from 'fs/promises';
-import {LLReporter} from '../types';
+import {BaseRacepointReporter} from '../types';
 import logger from '../logger';
 
 /*
@@ -24,14 +24,12 @@ const formatFilename = (url: string, date: string) => {
 /**
  * Writes a single lighthouse result to an html file
  */
-export class HtmlReporter implements LLReporter {
+export class HtmlReporter extends BaseRacepointReporter {
   private _reportPath: string;
   constructor(outputTarget: string) {
+    super();
     this._reportPath = outputTarget; //`${outputTarget}/results.html`;
   }
-
-  // for now, just resolve. We can get fancy and not overwrite by checking fs.access and selecting a new reportPath name
-  initialize = (): Promise<void> => Promise.resolve();
 
   process = (results: LighthouseResultsWrapper): Promise<void> => {
     const htmlPath = `${this._reportPath}/${formatFilename(

@@ -38,6 +38,19 @@ export abstract class Scenario<SC extends ScenarioContext> {
 export interface LLReporter {
   initialize: () => Promise<void>;
   process: (results: LighthouseResultsWrapper) => Promise<void> | undefined;
+  finalize: () => Promise<void>;
+}
+
+export abstract class BaseRacepointReporter implements LLReporter {
+  initialize(): Promise<void> {
+    return Promise.resolve();
+  }
+  finalize(): Promise<void> {
+    return Promise.resolve();
+  }
+  abstract process: (
+    results: LighthouseResultsWrapper
+  ) => Promise<void> | undefined;
 }
 
 export class ProfileContext implements ScenarioContext {
@@ -48,6 +61,7 @@ export class ProfileContext implements ScenarioContext {
   outputTarget: string;
   overrideChromeFlags: boolean;
   repositoryId: string;
+  includeIndividual: boolean;
 
   constructor(userArgs: any) {
     this.targetUrl = userArgs?.targetUrl || '';
@@ -57,6 +71,7 @@ export class ProfileContext implements ScenarioContext {
     this.outputTarget = userArgs?.outputTarget;
     this.overrideChromeFlags = userArgs?.overrideChromeFlags;
     this.repositoryId = userArgs?.repositoryId;
+    this.includeIndividual = userArgs.includeIndividual;
   }
 }
 

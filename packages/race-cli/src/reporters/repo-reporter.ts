@@ -5,7 +5,7 @@ import {
   ReportingRow,
 } from './repository';
 import logger from '../logger';
-import {LLReporter, LightHouseAuditKeys} from '../types';
+import {LightHouseAuditKeys, BaseRacepointReporter} from '../types';
 
 /**
  * Report Lighthouse results to some ReportingRepository.
@@ -13,7 +13,7 @@ import {LLReporter, LightHouseAuditKeys} from '../types';
  * If repository id does not exist, will attempt to create one
  *
  */
-export class RepositoryReporter implements LLReporter {
+export class RepositoryReporter extends BaseRacepointReporter {
   private _repositoryLocation: string;
   private _targetUrl: string;
   private _repository: ReportingRepository | undefined; // lateinit
@@ -23,6 +23,7 @@ export class RepositoryReporter implements LLReporter {
     repositoryId: string | undefined,
     outputTarget: string | undefined
   ) {
+    super();
     this._targetUrl = targetUrl;
     this._repositoryLocation = `${outputTarget}/${repositoryId}`;
   }
