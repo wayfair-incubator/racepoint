@@ -50,7 +50,8 @@ program
   )
   .option(
     '--output-target <string>',
-    descriptionHelper('Location to save results')
+    descriptionHelper('Location to save results'),
+    'results'
   )
   .option(
     '--output-format [string...]',

@@ -140,7 +140,14 @@ The following software is required to use Racepoint:
    docker compose run racepoint race profile http://your-favorite-site.com/ -n 5
    ```
 
-6. Shut down containers when finished
+6. Perform a single run and save the results HTML to the current working
+   directory
+
+   ```sh
+   docker compose run -v "$(pwd):/rp/results" racepoint race profile http://example.com/ --output-format html
+   ```
+
+7. Shut down containers when finished
 
    ```sh
    docker compose down

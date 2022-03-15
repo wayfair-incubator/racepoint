@@ -8,7 +8,7 @@ services:
     ports:
       - ${RACEPROXY_PORT:-443}:${RACEPROXY_PORT:-443}
     image: rp-proxy
-
+    restart: always
   racer:
     container_name: racer
     build:
@@ -21,7 +21,7 @@ services:
     image: rp-racer
     environment:
       - RACER_PORT=${RACER_PORT:-3000}
-
+    restart: always
   racepoint:
     container_name: racepoint
     build:
@@ -33,3 +33,5 @@ services:
     environment:
       - RACER_SERVER=http://racer
       # - LOG_LEVEL=debug
+    volumes:
+      - './results:/rp/results'

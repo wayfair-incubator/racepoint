@@ -8,6 +8,8 @@ LABEL \
 COPY . /rp/
 WORKDIR /rp/
 
-# RUN dbus-daemon --system
+# Create default logs directory
+RUN mkdir -p results
+
 RUN npm install
 RUN npm install -g 
