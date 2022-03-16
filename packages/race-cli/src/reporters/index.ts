@@ -38,7 +38,7 @@ export class LHResultsReporter {
       if (type === ReportingTypes.IndividualRunsReporter) {
         return new IndividualRunsReporter();
       } else if (type === ReportingTypes.Aggregate) {
-        return new AggregateConsoleReporter();
+        return new AggregateConsoleReporter(options.outputTarget, true);
       } else if (type === ReportingTypes.LighthouseHtml) {
         // for now, hardcode the result. We could make it a setting in ReporterSettings but as it stands, it feels weird to add
         // more file path locations there. hmm
