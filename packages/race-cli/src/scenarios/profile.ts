@@ -3,13 +3,12 @@ import retry from 'async-await-retry';
 import cliProgress from 'cli-progress';
 import chalk from 'chalk';
 import {ProfileContext, Scenario} from '../types';
-import {establishRacers, haltRacers} from '../docker';
 import {LHResultsReporter, ReportingTypes} from '../reporters/index';
 import {
   handleStartRacer,
   collectAndPruneResults,
   executeWarmingRun,
-} from './racerClient';
+} from './racer-client';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
 
@@ -35,14 +34,14 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let resultsArray: any = [];
     let numProcessed = 0;
     let numFailed = 0;
-    const racerPort = parseInt(context.racerPort, 10);
 
-    // initialize the Racer and Proxy containers
-    // will first attempt to build them if not already present. Should we include a force-build option?
-    await establishRacers(context.racerPort, context.raceproxyPort);
+    process.on('SIGINT', function () {
+      console.log('\nGracefully shutting down from SIGINT (Ctrl-C)');
+      process.exit(0);
+    });
 
     logger.info('Executing warming run...');
-    await executeWarmingRun({port: racerPort, data: context});
+    await executeWarmingRun({data: context});
     logger.info('Warming run complete!');
 
     const processingQueue = async.queue(() => {
@@ -55,7 +54,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const multibar = new cliProgress.MultiBar(
       {
-        // Hide the multibar in debug mode so it doesn't mess up the other logs
         format: isDebug
           ? ''
           : '{step} |' +
@@ -84,14 +82,12 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const raceUrlAndProcess = async () =>
       handleStartRacer({
-        port: parseInt(context.racerPort, 10),
         data: context,
       }).then((jobId: number) => {
         const tryGetResults = retry(
           () =>
             collectAndPruneResults({
               jobId,
-              port: parseInt(context.racerPort, 10),
               retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
             }).then((result: LighthouseResultsWrapper) => {
               resultsArray.push(result);
@@ -134,7 +130,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     await resultsReporter.prepare();
     logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
-
     for (let i = 1; i <= context.numberRuns; i++) {
       try {
         await retry(raceUrlAndProcess, [], {
@@ -163,8 +158,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     await resultsReporter.finalize();
-
-    // Shut down container if success or failure
-    await haltRacers();
+    process.exit(0);
   }
 }

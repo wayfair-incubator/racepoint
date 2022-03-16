@@ -8,6 +8,9 @@ import {StatusCodes} from 'http-status-codes';
 import logger from '../logger';
 import {ProfileContext} from '../types';
 
+const racerServer = process.env?.RACER_SERVER || 'http://localhost';
+const racerPort = process.env?.RACER_PORT || 3000;
+
 /*
   Handler for the different error responses from the Racer
 */
@@ -32,14 +35,12 @@ const handleRacerError = (error: AxiosError) => {
   Handler to request initializing Lighthouse run
 */
 export const handleStartRacer = async ({
-  port,
   data,
 }: {
-  port: number;
   data: ProfileContext;
 }): Promise<number> =>
   axios
-    .post(`http://localhost:${port}/race`, data) // the url will not always be localhost
+    .post(`${racerServer}:${racerPort}/race`, data)
     .then(async (response: AxiosResponse) => {
       const jobId = response.data?.jobId;
       if (jobId) {
@@ -73,11 +74,9 @@ const MIME_HTML = 'text/html';
 */
 export const fetchResult = async ({
   jobId,
-  port,
   isHtml = false,
 }: {
   jobId: number;
-  port: number;
   isHtml?: boolean;
 }) => {
   const options = isHtml
@@ -87,7 +86,7 @@ export const fetchResult = async ({
     : {};
 
   return axios
-    .get(`http://localhost:${port}/results/${jobId}`, options)
+    .get(`${racerServer}:${racerPort}/results/${jobId}`, options)
     .then((response: AxiosResponse) => {
       logger.debug(`Success fetching ${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
       if (validateResponseData(response.data)) {
@@ -111,16 +110,13 @@ export const fetchResult = async ({
 */
 export const fetchAndAppendHtml = async ({
   jobId,
-  port,
   resultsWrapper,
 }: {
   jobId: number;
-  port: number;
   resultsWrapper: LighthouseResultsWrapper;
 }) => {
   return fetchResult({
     jobId,
-    port,
     isHtml: true,
   }).then((data) => {
     resultsWrapper.report = data;
@@ -132,15 +128,9 @@ export const fetchAndAppendHtml = async ({
 /*
   Delete a jobId from the results endpoint
 */
-export const deleteResult = async ({
-  jobId,
-  port,
-}: {
-  jobId: number;
-  port: number;
-}) =>
+export const deleteResult = async ({jobId}: {jobId: number}) =>
   axios
-    .delete(`http://localhost:${port}/results/${jobId}`)
+    .delete(`${racerServer}:${racerPort}/results/${jobId}`)
     .then((response: AxiosResponse) => {
       if (response.status === StatusCodes.NO_CONTENT) {
         logger.debug(`Success deleting ${jobId}`);
@@ -155,46 +145,38 @@ export const deleteResult = async ({
 */
 export const collectAndPruneResults = async ({
   jobId,
-  port,
   retrieveHtml = false,
 }: {
   jobId: number;
-  port: number;
   retrieveHtml: boolean;
 }) => {
   let resultsWrapper: LighthouseResultsWrapper;
 
-  return fetchResult({jobId, port})
+  return fetchResult({jobId})
     .then((data: any) => {
       resultsWrapper = {
         lhr: data,
         report: '',
       };
       if (retrieveHtml) {
-        return fetchAndAppendHtml({jobId, port, resultsWrapper});
+        return fetchAndAppendHtml({jobId, resultsWrapper});
       } else {
         return resultsWrapper;
       }
     })
     .then(async () => {
-      deleteResult({jobId, port});
+      deleteResult({jobId});
     })
     .then(() => resultsWrapper);
 };
 
-export const executeWarmingRun = async ({
-  port,
-  data,
-}: {
-  port: number;
-  data: ProfileContext;
-}) => {
+export const executeWarmingRun = async ({data}: {data: ProfileContext}) => {
   // start a race, but for this case do it in a retry loop to account for the lag in racer startup time
   // this works for this version, but in the future we'll need to get a bit more sophisticated, perhaps tracking 'awake' racers.
   let jobId = 0;
 
   try {
-    jobId = await retry(() => handleStartRacer({port, data}), [], {
+    jobId = await retry(() => handleStartRacer({data}), [], {
       retriesMax: 10,
       interval: 250,
     });
@@ -206,7 +188,7 @@ export const executeWarmingRun = async ({
   }
 
   try {
-    await retry(() => fetchResult({jobId, port}), [], {
+    await retry(() => fetchResult({jobId}), [], {
       retriesMax: 50,
       interval: 1000,
     });
@@ -217,5 +199,5 @@ export const executeWarmingRun = async ({
   // we may want to rethink these try catches, and signal upwards that an error occurred. In other hand, if the warming run fails we may want to guarantee
   // a stop
 
-  return deleteResult({jobId, port});
+  return deleteResult({jobId});
 };

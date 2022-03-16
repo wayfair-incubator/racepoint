@@ -50,7 +50,8 @@ program
   )
   .option(
     '--output-target <string>',
-    descriptionHelper('Location to save results')
+    descriptionHelper('Location to save results'),
+    'results'
   )
   .option(
     '--output-format [string...]',
@@ -70,16 +71,6 @@ program
       'Will display the results of individual runs to the console'
     ),
     false
-  )
-  .option(
-    '--raceproxy-port <number>',
-    descriptionHelper('Port to start the raceproxy container'),
-    '443'
-  )
-  .option(
-    '--racer-port <number>',
-    descriptionHelper('Port to start the racer container'),
-    '3000'
   )
   .option(
     '--repository-id <string>',
