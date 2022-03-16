@@ -25,7 +25,10 @@ RUN chmod +x update-dns.sh
 
 EXPOSE ${RACER_PORT:-3000}/tcp
 
+# CMD dbus-daemon --system && \
+#     ./update-dns.sh && \
+#     dnsmasq && \
+#     node build/index.js
+
 CMD dbus-daemon --system && \
-    ./update-dns.sh && \
-    dnsmasq && \
     node build/index.js

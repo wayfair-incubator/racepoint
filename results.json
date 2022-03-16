@@ -1,8 +1,0 @@
-{
-  "SI": {"Mean": 2737.724, "Std Dev": 0},
-  "FCP": {"Mean": 2737.724, "Std Dev": 0},
-  "LCP": {"Mean": 2917.724, "Std Dev": 0},
-  "CLS": {"Mean": 0, "Std Dev": 0},
-  "MaxFID": {"Mean": 273, "Std Dev": 0},
-  "TotalBlocking": {"Mean": 491, "Std Dev": 0}
-}

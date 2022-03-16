@@ -1,21 +1,43 @@
 import {std, mean, round} from 'mathjs';
 import fs from 'fs/promises';
+import json2md from 'json2md';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import {BaseRacepointReporter, LightHouseAuditKeys} from '../types';
 import logger from '../logger';
 
+const STD_DEVIATION_KEY = 'Std Dev';
+const MEAN_KEY = 'Mean';
+
+const resultsToMarkdown = (data: any) => {
+  const rows = Array.from(Object.keys(data), (key) => ({
+    ['Index']: key,
+    [MEAN_KEY]: data[key][MEAN_KEY],
+    [STD_DEVIATION_KEY]: data[key][STD_DEVIATION_KEY],
+  }));
+
+  return json2md([
+    {h1: 'Lighthouse Aggregated Results'},
+    {
+      table: {
+        headers: ['Index', MEAN_KEY, STD_DEVIATION_KEY],
+        rows,
+      },
+    },
+  ]);
+};
+
 export class AggregateConsoleReporter extends BaseRacepointReporter {
   private collectedData: {[key: string]: number[]} = {};
   private reportPath: string;
-  private outputJson: boolean;
+  private outputMarkdown: boolean;
 
-  constructor(outputTarget: string, outputJson: boolean) {
+  constructor(outputTarget: string, outputMarkdown: boolean) {
     super();
     Object.values(LightHouseAuditKeys).forEach((value) => {
       this.collectedData[value] = [];
     });
     this.reportPath = outputTarget || '';
-    this.outputJson = outputJson || false;
+    this.outputMarkdown = outputMarkdown || false;
   }
 
   process = async (results: LighthouseResultsWrapper) => {
@@ -33,11 +55,13 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
 
     console.table(table);
 
-    // console.log(table)
-    const tableData = JSON.stringify(table);
-    return this.outputJson
+    const report = resultsToMarkdown(table);
+
+    return this.outputMarkdown
       ? fs
-          .writeFile(`${this.reportPath}/results.json`, tableData, {flag: 'w'})
+          .writeFile(`${this.reportPath}/aggregate-report.md`, report, {
+            flag: 'w',
+          })
           .then(() => {
             logger.debug(`Lighthouse HTML results successfully saved`);
           })
@@ -50,13 +74,13 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   private calculateRow(data: number[]): SummaryRow {
     std;
     return {
-      Mean: round(mean(data), 4),
-      'Std Dev': round(std(data, 'unbiased'), 4),
+      [MEAN_KEY]: round(mean(data), 4),
+      [STD_DEVIATION_KEY]: round(std(data, 'unbiased'), 4),
     };
   }
 }
 
 interface SummaryRow {
-  Mean: number;
-  'Std Dev': number;
+  [MEAN_KEY]: number;
+  [STD_DEVIATION_KEY]: number;
 }
