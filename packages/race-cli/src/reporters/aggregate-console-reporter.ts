@@ -66,7 +66,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
             }
           )
           .then(() => {
-            logger.debug(`Lighthouse HTML results successfully saved`);
+            logger.debug(`Aggregate results Markdown file successfully saved`);
           })
           .catch((e) => {
             logger.error('Failed to write results', e);
