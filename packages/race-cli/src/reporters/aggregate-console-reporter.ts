@@ -7,19 +7,20 @@ import logger from '../logger';
 
 const STD_DEVIATION_KEY = 'Std Dev';
 const MEAN_KEY = 'Mean';
+const METRIC_KEY = 'Metric';
 
 const resultsToMarkdown = (data: any) => {
   const rows = Array.from(Object.keys(data), (key) => ({
-    ['Index']: key,
+    [METRIC_KEY]: key,
     [MEAN_KEY]: data[key][MEAN_KEY],
     [STD_DEVIATION_KEY]: data[key][STD_DEVIATION_KEY],
   }));
 
   return json2md([
-    {h1: 'Lighthouse Aggregated Results'},
+    {h2: 'Lighthouse Aggregated Results'},
     {
       table: {
-        headers: ['Index', MEAN_KEY, STD_DEVIATION_KEY],
+        headers: [METRIC_KEY, MEAN_KEY, STD_DEVIATION_KEY],
         rows,
       },
     },
@@ -55,13 +56,15 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
 
     console.table(table);
 
-    const report = resultsToMarkdown(table);
-
     return this.outputMarkdown
       ? fs
-          .writeFile(`${this.reportPath}/aggregate-report.md`, report, {
-            flag: 'w',
-          })
+          .writeFile(
+            `${this.reportPath}/aggregate-report.md`,
+            resultsToMarkdown(table),
+            {
+              flag: 'w',
+            }
+          )
           .then(() => {
             logger.debug(`Lighthouse HTML results successfully saved`);
           })
