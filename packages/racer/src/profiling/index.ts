@@ -2,7 +2,7 @@ import lighthouse from 'lighthouse';
 import {launch, Options} from 'chrome-launcher';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
-import {LighthouseResults, LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper} from '@racepoint/shared';
 
 /**
  * Starts a lighthouse run asynchronously, returning a job id immediately.
@@ -71,7 +71,7 @@ const doLighthouse = async ({
     //   chromeOptions.chromeFlags,
     output: 'html',
     port: chrome.port,
-    logLevel: 'verbose',
+    logLevel: 'info',
     // unfortunately, setting a max wait causes the lighthouse run to break. can investigate in the future
     // maxWaitForLoad: 12500
     ...(deviceType === 'desktop' && {...desktopSettings}),

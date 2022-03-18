@@ -127,22 +127,30 @@ The following software is required to use Racepoint:
    npm run build
    ```
 
-4. Navigate to the `race-cli` subpackage
+4. Build the images
 
    ```sh
-   cd racepoint/packages/race-cli
+   docker compose build
    ```
 
-5. Install Racepoint command line interface globally
+5. Run the race command inside a new docker container. Basic usage on an example
+   URL
 
    ```sh
-   npm install -g
+   docker compose run racepoint race profile http://your-favorite-site.com/ -n 5
    ```
 
-6. Basic usage on an example URL
+6. Perform a single run and save the results HTML to the current working
+   directory
 
    ```sh
-   race profile http://your-favorite-site.com/ -n 5
+   docker compose run -v "$(pwd):/rp/results" racepoint race profile http://example.com/ --output-format html
+   ```
+
+7. Shut down containers when finished
+
+   ```sh
+   docker compose down
    ```
 
    <p align="right">(<a href="#top">back to top</a>)</p>
