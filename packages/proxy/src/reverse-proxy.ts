@@ -4,6 +4,9 @@
 import https from 'https';
 import http from 'http';
 import Server from 'http-proxy';
+import stream from 'stream';
+import {StatusCodes} from 'http-status-codes';
+import {generateCACertificate, generateSPKIFingerprint} from './tls';
 import {ProxyCache} from './proxy-cache';
 import {
   CACHE_KEY_HEADER,
@@ -85,6 +88,44 @@ const proxyTrueDestination = ({
 };
 
 /*
+  Handler that decides to either return a fingerprint or proxy a URL
+*/
+export const handleProcessRequest = async ({
+  request,
+  response,
+  cache,
+  proxy,
+  spkiFingerprint,
+}: {
+  request: IncomingMessage;
+  response: ServerResponse;
+  cache: ProxyCache;
+  proxy: Server;
+  spkiFingerprint: string;
+}) => {
+  // On warm-up, the racer will need to get the fingerprint
+  if (
+    request.headers?.host?.includes('raceproxy') &&
+    request.url === '/fingerprint'
+  ) {
+    response.writeHead(StatusCodes.OK, {
+      'Content-Type': 'application/json',
+    });
+    response.write(JSON.stringify({spkiFingerprint}));
+    response.end();
+  } else {
+    // Otherwise treat it as a normal request
+    await handleIncomingRequest({
+      cache,
+      proxy,
+      request,
+      response,
+      handleUncached: proxyTrueDestination,
+    });
+  }
+};
+
+/*
   Build a HTTP reverse proxy server instance
 */
 export const buildHttpReverseProxy = async (cache: ProxyCache) => {
@@ -110,17 +151,22 @@ export const buildHttpReverseProxy = async (cache: ProxyCache) => {
 */
 export const buildHttpsReverseProxy = async (cache: ProxyCache) => {
   const proxy = buildProxyWorker({cache});
-  const server = https.createServer({
+  const {key, cert} = await generateCACertificate();
+  const spkiFingerprint = generateSPKIFingerprint(cert);
+  const options = {
+    key,
+    cert,
     rejectUnauthorized: false,
-  });
+  };
+  const server = https.createServer(options);
 
   server.on('request', async (request, response) => {
-    await handleIncomingRequest({
-      cache,
-      proxy,
+    await handleProcessRequest({
       request,
       response,
-      handleUncached: proxyTrueDestination,
+      cache,
+      proxy,
+      spkiFingerprint,
     });
   });
 

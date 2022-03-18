@@ -2,7 +2,10 @@
   Proxy Mocha Test
 */
 import mockHttp from 'mock-http';
-import {handleIncomingRequest} from '../src/reverse-proxy';
+import {
+  handleProcessRequest,
+  handleIncomingRequest,
+} from '../src/reverse-proxy';
 import {ProxyCache} from '../src/proxy-cache';
 import {buildProxyWorker} from '../src/proxy-worker';
 import {calculateCacheKey, extractBody} from '../src/cache-helpers';
@@ -17,6 +20,32 @@ const requestConfig = {
     host: 'test',
   },
 };
+
+describe('Servers initialize', () => {
+  const testCache = new ProxyCache();
+
+  it('should return a fingerprint when requested', async () => {
+    const req = new mockHttp.Request({
+      url: '/fingerprint',
+      headers: {
+        host: 'raceproxy',
+      },
+    });
+    const res = new mockHttp.Response();
+    const proxy = buildProxyWorker({cache: testCache});
+
+    await handleProcessRequest({
+      request: req,
+      response: res,
+      cache: testCache,
+      proxy,
+      spkiFingerprint: 'abc123youandme',
+    });
+    // We can't see that the fingerprint is in the response,
+    // but we can see that it has ended
+    expect(res.writableEnded).toBe(true);
+  });
+});
 
 describe('Cache mechanism', () => {
   const testCache = new ProxyCache();

@@ -60,6 +60,8 @@ export class ProfileContext implements ScenarioContext {
   outputFormat: string[];
   outputTarget: string;
   overrideChromeFlags: boolean;
+  raceproxyPort: string;
+  racerPort: string;
   repositoryId: string;
   includeIndividual: boolean;
 
@@ -70,19 +72,9 @@ export class ProfileContext implements ScenarioContext {
     this.outputFormat = userArgs?.outputFormat;
     this.outputTarget = userArgs?.outputTarget;
     this.overrideChromeFlags = userArgs?.overrideChromeFlags;
+    this.raceproxyPort = userArgs?.raceproxyPort;
+    this.racerPort = userArgs?.racerPort;
     this.repositoryId = userArgs?.repositoryId;
     this.includeIndividual = userArgs.includeIndividual;
   }
-}
-
-/**
- * The keys (among many dozens) in a Lighthouse Report that we wish to look into
- */
-export enum LightHouseAuditKeys {
-  SI = 'speed-index',
-  FCP = 'first-contentful-paint',
-  LCP = 'largest-contentful-paint',
-  CLS = 'cumulative-layout-shift',
-  MaxFID = 'max-potential-fid',
-  TotalBlocking = 'total-blocking-time',
 }
