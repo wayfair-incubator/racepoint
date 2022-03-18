@@ -2,7 +2,7 @@
   Functions for initializing servers
 */
 import https from 'https';
-import http from 'http';
+import http, {IncomingMessage, ServerResponse} from 'http';
 import Server from 'http-proxy';
 import {ProxyCache} from './proxy-cache';
 import {
@@ -11,7 +11,7 @@ import {
   calculateCacheKey,
 } from './cache-helpers';
 import {buildProxyWorker} from './proxy-worker';
-import {IncomingMessage, ServerResponse} from 'http';
+import {generateCACertificate} from './tls';
 
 export const handleIncomingRequest = async ({
   request,
@@ -110,7 +110,11 @@ export const buildHttpReverseProxy = async (cache: ProxyCache) => {
 */
 export const buildHttpsReverseProxy = async (cache: ProxyCache) => {
   const proxy = buildProxyWorker({cache});
+  const {key, cert} = await generateCACertificate();
+
   const server = https.createServer({
+    key,
+    cert,
     rejectUnauthorized: false,
   });
 
