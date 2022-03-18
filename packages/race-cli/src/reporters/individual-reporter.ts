@@ -1,5 +1,8 @@
-import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
-import {LightHouseAuditKeys} from '../types';
+import {
+  LighthouseResultsWrapper,
+  LighthouseResults,
+  LightHouseAuditKeys,
+} from '@racepoint/shared';
 import {BaseRacepointReporter} from '../types';
 
 interface MetricHeader {

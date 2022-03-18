@@ -7,8 +7,7 @@
   "main": "build/index.js",
   "scripts": {
     "setup": "yarn install && yarn install -g",
-    "test": "mocha -r ts-node/register 'tests/*.ts'",
-    "build": "tsc"
+    "test": "mocha -r ts-node/register 'tests/*.ts'"
   },
   "dependencies": {
     "chrome-launcher": "^0.14.2",

@@ -1,7 +1,7 @@
 FROM node:16.10.0-alpine
 
 LABEL \
-    name="racepoint/racer" \
+    name="race-point/racer" \
     version="0.2.0" 
 
 # update the repos to get modern chromium

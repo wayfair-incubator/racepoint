@@ -1,6 +1,6 @@
 import {std, mean, round} from 'mathjs';
-import {LighthouseResultsWrapper} from '@racepoint/shared';
-import {BaseRacepointReporter, LightHouseAuditKeys} from '../types';
+import {LighthouseResultsWrapper, LightHouseAuditKeys} from '@racepoint/shared';
+import {BaseRacepointReporter} from '../types';
 import logger from '../logger';
 
 export class AggregateConsoleReporter extends BaseRacepointReporter {

@@ -1,5 +1,6 @@
 import {RegisteredEndpoint} from './server/utils';
 import {FetchEndpoint} from './controllers/fetch';
+import {FingerprintEndpoint} from './controllers/fingerprint';
 import {ProfileEndpoint} from './controllers/profile';
 import {ResultsGet, ResultsDelete} from './controllers/results';
 import {initialize} from './server';
@@ -8,6 +9,7 @@ import {initialize} from './server';
 
 const endpoints: RegisteredEndpoint<any>[] = [
   FetchEndpoint,
+  FingerprintEndpoint,
   ProfileEndpoint,
   ResultsGet,
   ResultsDelete,
@@ -15,7 +17,7 @@ const endpoints: RegisteredEndpoint<any>[] = [
 
 const goSpeedRacer = async () => {
   const server = initialize(endpoints);
-  console.log('Go Speed Racer Go!!!');
+  console.log('Go Speed Racer Go');
   server.listen(process.env?.RACER_PORT || 3000);
 };
 

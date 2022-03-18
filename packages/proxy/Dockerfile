@@ -1,8 +1,10 @@
 FROM node:16.10.0-alpine
 
+
 LABEL \
-    name="racepoint/proxy" \
+    name="race-point-proxy" \
     version="0.2.0" 
+
 
 COPY . /rp/
 WORKDIR /rp/
