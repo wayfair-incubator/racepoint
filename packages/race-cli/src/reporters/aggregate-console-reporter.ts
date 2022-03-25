@@ -5,7 +5,7 @@ import {LighthouseResultsWrapper} from '@racepoint/shared';
 import {BaseRacepointReporter, LightHouseAuditKeys} from '../types';
 import logger from '../logger';
 
-const STD_DEVIATION_KEY = 'Std Dev';
+const STD_DEVIATION_KEY = 'Standard Deviation';
 const MEAN_KEY = 'Mean';
 const METRIC_KEY = 'Metric';
 
@@ -17,7 +17,7 @@ const resultsToMarkdown = (data: any) => {
   }));
 
   return json2md([
-    {h2: 'Lighthouse Aggregated Results'},
+    {h2: 'Racepoint Aggregated Results'},
     {
       table: {
         headers: [METRIC_KEY, MEAN_KEY, STD_DEVIATION_KEY],
