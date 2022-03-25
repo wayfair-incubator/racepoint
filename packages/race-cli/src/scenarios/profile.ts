@@ -125,6 +125,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       repositoryId: context.repositoryId,
       targetUrl: context.targetUrl,
       requestedRuns: context.numberRuns,
+      outputFormat: context.outputFormat,
       outputTarget: context.outputTarget,
     });
 
