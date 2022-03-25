@@ -6,11 +6,14 @@ import {HtmlReporter} from './html-reporter';
 import {AggregateConsoleReporter} from './aggregate-console-reporter';
 import {LLReporter} from '../types';
 
+const FORMAT_MD = 'md';
+
 export interface ReporterSettings {
   targetUrl: string;
   outputs: ReportingTypes[];
   repositoryId?: string;
   requestedRuns?: number;
+  outputFormat: string[];
   outputTarget: string;
 }
 
@@ -38,7 +41,10 @@ export class LHResultsReporter {
       if (type === ReportingTypes.IndividualRunsReporter) {
         return new IndividualRunsReporter();
       } else if (type === ReportingTypes.Aggregate) {
-        return new AggregateConsoleReporter();
+        return new AggregateConsoleReporter(
+          options.outputTarget,
+          options.outputFormat.includes(FORMAT_MD)
+        );
       } else if (type === ReportingTypes.LighthouseHtml) {
         // for now, hardcode the result. We could make it a setting in ReporterSettings but as it stands, it feels weird to add
         // more file path locations there. hmm

@@ -55,7 +55,7 @@ program
   )
   .option(
     '--output-format [string...]',
-    descriptionHelper('Save results as CSV, HTML, or both')
+    descriptionHelper('Save results as CSV, HTML, and/or MD')
   )
   // Does this make sense? Most people don't want to override the basics ie. headless, disable-gpu, etc. but they should have a way to do so
   .option(
