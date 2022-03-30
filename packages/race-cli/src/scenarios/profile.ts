@@ -34,7 +34,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     let numFailed = 0;
 
     process.on('SIGINT', function () {
-      console.log('\nGracefully shutting down from SIGINT (Ctrl-C)');
+      logger.warn('\nGracefully shutting down from SIGINT (Ctrl-C)');
       process.exit(0);
     });
 
@@ -73,7 +73,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
               resultsArray.push(result);
               numProcessed++;
               logger.info(
-                `Processed result [${numProcessed}/${context.numberRuns}]`
+                `Results received [${numProcessed}/${context.numberRuns}]`
               );
             }),
           [],
@@ -130,7 +130,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       interval: RETRY_INTERVAL_MS,
     });
 
-    // Time to process the results
+    logger.debug('Processing results...');
     resultsArray.forEach(async (result: LighthouseResultsWrapper) => {
       await resultsReporter.process(result);
     });
