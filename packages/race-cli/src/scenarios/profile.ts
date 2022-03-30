@@ -54,6 +54,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const multibar = new cliProgress.MultiBar(
       {
+        noTTYOutput: true,
         format: isDebug
           ? ''
           : '{step} |' +
