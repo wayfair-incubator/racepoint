@@ -44,7 +44,7 @@ export const handleStartRacer = async ({
     .then(async (response: AxiosResponse) => {
       const jobId = response.data?.jobId;
       if (jobId) {
-        logger.debug(`Success queuing ${jobId}`);
+        logger.debug(`Success queuing job #${jobId}`);
         return jobId;
       } else {
         throw 'No job ID received';
@@ -88,7 +88,7 @@ export const fetchResult = async ({
   return axios
     .get(`${racerServer}:${racerPort}/results/${jobId}`, options)
     .then((response: AxiosResponse) => {
-      logger.debug(`Success fetching ${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
+      logger.debug(`Success fetching job #${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
       if (validateResponseData(response.data)) {
         return response.data;
       } else {

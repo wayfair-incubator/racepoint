@@ -15,8 +15,6 @@ const RETRY_INTERVAL_MS = 3000;
 const FORMAT_CSV = 'csv';
 const FORMAT_HTML = 'html';
 
-const isDebug = process.env.LOG_LEVEL === 'debug';
-
 export const PROFILE_COMMAND = 'profile';
 
 export class ProfileScenario extends Scenario<ProfileContext> {
@@ -130,7 +128,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       interval: RETRY_INTERVAL_MS,
     });
 
-    logger.debug('Processing results...');
     resultsArray.forEach(async (result: LighthouseResultsWrapper) => {
       await resultsReporter.process(result);
     });
