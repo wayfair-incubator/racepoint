@@ -1,7 +1,5 @@
 import async from 'async';
 import retry from 'async-await-retry';
-import cliProgress from 'cli-progress';
-import chalk from 'chalk';
 import {ProfileContext, Scenario} from '../types';
 import {LHResultsReporter, ReportingTypes} from '../reporters/index';
 import {
@@ -52,24 +50,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       }
     }, 2);
 
-    const multibar = new cliProgress.MultiBar(
-      {
-        format: isDebug
-          ? ''
-          : '{step} |' +
-            chalk.green('{bar}') +
-            '| {percentage}% | {value}/{total}',
-      },
-      cliProgress.Presets.rect
-    );
-
-    const runsCounter = multibar.create(context.numberRuns, 0, {
-      step: 'Runs requested\t\t',
-    });
-    const resultsCounter = multibar.create(context.numberRuns, 0, {
-      step: 'Results received\t',
-    });
-
     const checkQueue = async () => {
       return new Promise<void>((resolve, reject) => {
         if (numProcessed + numFailed === context.numberRuns) {
@@ -92,8 +72,9 @@ export class ProfileScenario extends Scenario<ProfileContext> {
             }).then((result: LighthouseResultsWrapper) => {
               resultsArray.push(result);
               numProcessed++;
-              // Update the counter for number of results received
-              resultsCounter.update(numProcessed);
+              logger.info(
+                `Processed result [${numProcessed}/${context.numberRuns}]`
+              );
             }),
           [],
           {
@@ -140,8 +121,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       } catch {
         logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
       }
-      // Update the counter for fetches sent
-      runsCounter.update(i);
+      logger.debug(`Requested run [${i}/${context.numberRuns}]`);
     }
 
     // Wait until all the results have been processed
@@ -149,9 +129,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       retriesMax: 100,
       interval: RETRY_INTERVAL_MS,
     });
-
-    // Stop the progress bar
-    multibar.stop();
 
     // Time to process the results
     resultsArray.forEach(async (result: LighthouseResultsWrapper) => {
