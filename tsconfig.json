@@ -10,6 +10,12 @@
     },
     {
       "path": "./packages/racer"
+    },
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/race-cli"
     }
   ],
   "include": ["src"],

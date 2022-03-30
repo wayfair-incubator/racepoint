@@ -1,50 +1,110 @@
-# OSPO Project Template
+<div id="top"></div>
 
-[![OSS Template Version](https://img.shields.io/badge/OSS%20Template-0.3.5-7f187f.svg)](https://github.com/wayfair-incubator/oss-template/blob/main/CHANGELOG.md)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
+<!-- PROJECT LOGO -->
 
-## Before You Start
+<div align="center">
+  <a href="https://github.com/othneildrew/Best-README-Template">
+    <img src="https://i.imgur.com/zmMj409.png" alt="Logo" >
+  </a>
 
-As much as possible, we have tried to provide enough tooling to get you up and running quickly and with a minimum of effort. This includes sane defaults for documentation; templates for bug reports, feature requests, and pull requests; and [GitHub Actions](https://github.com/features/actions) that will automatically manage stale issues and pull requests. This latter defaults to labeling issues and pull requests as stale after 60 days of inactivity, and closing them after 7 additional days of inactivity. These [defaults](.github/workflows/stale.yml) and more can be configured. For configuration options, please consult the documentation for the [stale action](https://github.com/actions/stale).
+  <h3 align="center">Frontend Benchmarking</h3>
 
-In trying to keep this template as generic and reusable as possible, there are some things that were omitted out of necessity and others that need a little tweaking. Before you begin developing in earnest, there are a few changes that need to be made.
+  <p align="center">
+    <a href="https://github.com/wayfair-incubator/racepoint/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/wayfair-incubator/racepoint/pulls">Request Feature</a>
+  </p>
+</div>
 
-- [ ] Select an appropriate license for your project. This can easily be achieved through the 'Add File' button on the GitHub UI, naming the file `LICENSE`, and selecting your desired license from the provided list.
-- [ ] Update the `<License name>` placeholder in this file to reflect the name of the license you selected above
-- [ ] Replace `[INSERT CONTACT METHOD]` in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) with a suitable communication channel
-- [ ] Change references to `org_name` to the name of the org your repo belongs to (eg. `wayfair-incubator`)
-  - [ ] In [`README.md`](README.md)
-  - [ ] In [`CONTRIBUTING.md`](CONTRIBUTING.md)
-- [ ] Change references to `repo_name` to the name of your new repo
-  - [ ] In [`README.md`](README.md)
-  - [ ] In [`CONTRIBUTING.md`](CONTRIBUTING.md)
-- [ ] Update the link to the contribution guidelines to point to your project
-  - [ ] In [`.github/ISSUE_TEMPLATE/BUG_REPORT.md`](.github/ISSUE_TEMPLATE/BUG_REPORT.md)
-  - [ ] In [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md)
-- [ ] Replace the `<project name>` placeholder with the name of your project
-  - [ ] In [`CONTRIBUTING.md`](CONTRIBUTING.md)
-  - [ ] In [`SECURITY.md`](SECURITY.md)
-- [ ] Add names and contact information for actual project maintainers to [`MAINTAINERS.md`](MAINTAINERS.md)
-- [ ] Delete the content of [`CHANGELOG.md`](CHANGELOG.md). We encourage you to [keep a changelog](https://keepachangelog.com/en/1.0.0/).
-- [ ] Replace the generic content in this file with the relevant details about your project
-- [ ] Delete this section of the README
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#usage">Usage</a>
+      <ul>
+        <li><a href="#commands">Commands</a></li>
+        <li><a href="#debug">Debug</a></li>
+      </ul>
+    </li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+  </ol>
+</details>
+
+<!-- ABOUT THE PROJECT -->
 
 ## About The Project
 
-Provide some information about what the project is/does.
+<div align="center">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Race_Point_Lighthouse_on_Cape_Cod_%2814085501664%29.jpg/640px-Race_Point_Lighthouse_on_Cape_Cod_%2814085501664%29.jpg" alt="Race Point Lighthouse" />
+</div>
+
+> RacePoint takes its name from the
+> [Lighthouse on the 'Knuckles' of Cape Cod](https://www.capecodlighthouses.info/race-point-light/)
+
+This utility provides a mechanism to repeatedly profile web pages. The intention
+is to gain metrics and feedback on your page _before_ it is in production.
+Specifically it captures several [Core Web Vitals](https://web.dev/vitals/) - an
+important set of metrics that Wayfair must meet in order to maintain good SEO
+scores.
+
+The main operation of this tool is the 'Profiler' - given a url on some (e.g.
+your) DevVm, it will execute Lighthouse from the command line repeatedly and
+save various details about the results. After some number of runs is complete,
+the tool will present to the user the mean and standard deviation for the
+following metrics:
+
+- Speed Index
+- First Contentful Paint
+- Largest Contentful Paint
+- Cumulative Layout Shift
+- Max Potential FID
+- Total Blocking Time
+
+### Built With
+
+- [Google Lighthouse](https://developers.google.com/web/tools/lighthouse)
+- [Docker](https://www.docker.com/)
+- [Node JS](https://nodejs.org/)
+- [Typescript](https://www.typescriptlang.org/)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- GETTING STARTED -->
 
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
+To get a Racepoint up and running locally, follow these simple steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
+The following software is required to use Racepoint:
 
-- npm
+- Docker version 4.0.0 or later
+- npm version 16 or later
 
   ```sh
   npm install npm@latest -g
+  ```
+
+- via node version manager
+
+  ```sh
+  nvm install 16
   ```
 
 ### Installation
@@ -52,40 +112,113 @@ This is an example of how to list things you need to use the software and how to
 1. Clone the repo
 
    ```sh
-   git clone https://github.com/org_name/repo_name.git
+   git clone https://github.com/wayfair-incubator/racepoint.git
    ```
 
-2. Install NPM packages
+2. Navigate to the project folder
 
    ```sh
-   npm install
+   cd racepoint
    ```
+
+3. Build the packages
+
+   ```sh
+   npm run build
+   ```
+
+4. Build the images
+
+   ```sh
+   docker compose build
+   ```
+
+5. Run the race command inside a new docker container. Basic usage on an example
+   URL
+
+   ```sh
+   docker compose run racepoint race profile http://your-favorite-site.com/ -n 5
+   ```
+
+6. Perform a single run and save the results HTML to the current working
+   directory
+
+   ```sh
+   docker compose run -v "$(pwd):/rp/results" racepoint race profile http://example.com/ --output-format html
+   ```
+
+7. Shut down containers when finished
+
+   ```sh
+   docker compose down
+   ```
+
+   <p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- USAGE EXAMPLES -->
 
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Please note that all modes make use of port 3000 and 443 on your local machine
+unless otherwise specified. If you have any existing webservers (e.g. nginx)
+this may interfere.
 
-_For more examples, please refer to the [Documentation](https://example.com) or the [Wiki](https://github.com/org_name/repo_name/wiki)_
+Racepoint accepts the following commands and flags:
+
+### Commands
+
+- `profile` - perform a number of Lighthouse runs against a single URL
+
+| <span style="display: inline-block; width:200px">Flag</span> | Description                                              |
+| ------------------------------------------------------------ | -------------------------------------------------------- |
+| --chrome-flags                                               | Additional Chrome flags for the emulated browser.        |
+| -d, --device-type                                            | Device type to emulate (default: "mobile")               |
+| -n, --number-runs                                            | Number of Lighthouse runs per URL (default: 1)           |
+| --output-target                                              | Location to save results (defaults to current directory) |
+| --output-format                                              | Save results as CSV, HTML, or both                       |
+| --raceproxy-port                                             | Port to start the raceproxy container (default: "443")   |
+| --racer-port                                                 | Port to start the racer container (default: "3000")      |
+| --repository-id                                              | Name of the repository file (default: "lighthouse-runs") |
+| -h, --help                                                   | Display help for command                                 |
+
+### Debug
+
+To enable full console logging, run your race command with the environmental
+variable `LOG_LEVEL=debug`
+
+```sh
+LOG_LEVEL=debug race profile http://my-site.com
+```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- ROADMAP -->
 
 ## Roadmap
 
-See the [open issues](https://github.com/org_name/repo_name/issues) for a list of proposed features (and known issues).
+- [ ] CI integration
+
+There are many exciting new features we plan on adding in the future. Stay
+tuned!
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**. For detailed contributing guidelines, please see [CONTRIBUTING.md](CONTRIBUTING.md)
+Contributions are what make the open source community such an amazing place to
+learn, inspire, and create. Any contributions you make are **greatly
+appreciated**.
 
-## License
+If you have a suggestion that would make this better, please fork the repo and
+create a pull request. You can also simply open an issue with the tag
+"enhancement".
 
-Distributed under the `<License name>` License. See `LICENSE` for more information.
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Contact
-
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email
-
-Project Link: [https://github.com/org_name/repo_name](https://github.com/org_name/repo_name)
-
-## Acknowledgements
-
-This template was adapted from
-[https://github.com/othneildrew/Best-README-Template](https://github.com/othneildrew/Best-README-Template).
+<p align="right">(<a href="#top">back to top</a>)</p>

@@ -4,7 +4,9 @@
   "description": "Utility for benchmarking Frontend performance against some URL",
   "workspaces": [
     "packages/proxy",
-    "packages/racer"
+    "packages/racer",
+    "packages/race-cli",
+    "packages/shared"
   ],
   "scripts": {
     "build": "tsc --build --force",
@@ -27,17 +29,14 @@
   "dependencies": {},
   "devDependencies": {
     "@babel/eslint-parser": "^7.15.7",
-    "@types/jest": "^27.0.2",
     "@types/node": "^16.4.0",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^5.4.0",
     "babel-eslint": "^10.1.0",
-    "babel-jest": "^27.2.4",
     "eslint": "^7.32.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jest": "^24.5.2",
     "husky": "^7.0.2",
-    "jest": "^27.1.0",
     "prettier": "2.4.1",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.1.0",
