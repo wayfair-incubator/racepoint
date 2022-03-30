@@ -128,6 +128,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       interval: RETRY_INTERVAL_MS,
     });
 
+    // Time to process the results
     resultsArray.forEach(async (result: LighthouseResultsWrapper) => {
       await resultsReporter.process(result);
     });
