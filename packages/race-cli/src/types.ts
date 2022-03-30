@@ -1,0 +1,88 @@
+import {LighthouseResultsWrapper} from '@racepoint/shared';
+
+export interface ScenarioContext {}
+
+/**
+ * A Scenario defines a mode in which RacePoint can run. It defines the underlying behavior that should be executed,
+ * scopes the various switches that can be used in the mode, and provides help descriptive help text for that Scenario
+ */
+export abstract class Scenario<SC extends ScenarioContext> {
+  /**
+   * What must the user type to activate this scenario?
+   */
+  abstract getCommand(): string;
+
+  /**
+   * The 'main' method that each scenario must execute
+   *
+   * @param userArgs
+   */
+  abstract runScenario(userArgs: any): void;
+
+  /**
+   *
+   * @param userArgs
+   */
+  abstract buildContext(userArgs: any): SC;
+
+  /**
+   * The main entry point that all scenarios need to go through
+   *
+   * @param userArgs
+   */
+  enter(userArgs: any): void {
+    this.runScenario(this.buildContext(userArgs));
+  }
+}
+
+export interface LLReporter {
+  initialize: () => Promise<void>;
+  process: (results: LighthouseResultsWrapper) => Promise<void> | undefined;
+  finalize: () => Promise<void>;
+}
+
+export abstract class BaseRacepointReporter implements LLReporter {
+  initialize(): Promise<void> {
+    return Promise.resolve();
+  }
+  finalize(): Promise<void> {
+    return Promise.resolve();
+  }
+  abstract process: (
+    results: LighthouseResultsWrapper
+  ) => Promise<void> | undefined;
+}
+
+export class ProfileContext implements ScenarioContext {
+  targetUrl: string;
+  deviceType: 'Mobile' | 'Desktop';
+  numberRuns: number;
+  outputFormat: string[];
+  outputTarget: string;
+  overrideChromeFlags: boolean;
+  repositoryId: string;
+  includeIndividual: boolean;
+
+  constructor(userArgs: any) {
+    this.targetUrl = userArgs?.targetUrl || '';
+    this.deviceType = userArgs?.deviceType;
+    this.numberRuns = userArgs?.numberRuns;
+    this.outputFormat = userArgs?.outputFormat;
+    this.outputTarget = userArgs?.outputTarget;
+    this.overrideChromeFlags = userArgs?.overrideChromeFlags;
+    this.repositoryId = userArgs?.repositoryId;
+    this.includeIndividual = userArgs.includeIndividual;
+  }
+}
+
+/**
+ * The keys (among many dozens) in a Lighthouse Report that we wish to look into
+ */
+export enum LightHouseAuditKeys {
+  SI = 'speed-index',
+  FCP = 'first-contentful-paint',
+  LCP = 'largest-contentful-paint',
+  CLS = 'cumulative-layout-shift',
+  MaxFID = 'max-potential-fid',
+  TotalBlocking = 'total-blocking-time',
+}
