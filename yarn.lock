@@ -1564,13 +1564,6 @@ cjs-module-lexer@^1.0.0:
   resolved "https://registry.npmjs.org/cjs-module-lexer/-/cjs-module-lexer-1.2.2.tgz#9f84ba3244a512f3a54e5277e8eef4c489864e40"
   integrity sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==
 
-cli-progress@^3.10.0:
-  version "3.10.0"
-  resolved "https://registry.npmjs.org/cli-progress/-/cli-progress-3.10.0.tgz#63fd9d6343c598c93542fdfa3563a8b59887d78a"
-  integrity sha512-kLORQrhYCAtUPLZxqsAt2YJGOvRdt34+O6jl5cQGb7iF3dM55FQZlTR+rQyIK9JUcO9bBMwZsTlND+3dmFU2Cw==
-  dependencies:
-    string-width "^4.2.0"
-
 cliui@^7.0.2:
   version "7.0.4"
   resolved "https://registry.npmjs.org/cliui/-/cliui-7.0.4.tgz#a0265ee655476fc807aea9df3df8df7783808b4f"
