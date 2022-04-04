@@ -2,7 +2,11 @@ import {std, mean, round} from 'mathjs';
 import fs from 'fs/promises';
 import json2md from 'json2md';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
-import {BaseRacepointReporter, LightHouseAuditKeys, UserConfig} from '../types';
+import {
+  BaseRacepointReporter,
+  LightHouseAuditKeys,
+  ProfileConfig,
+} from '../types';
 import logger from '../logger';
 
 const STD_DEVIATION_KEY = 'Standard Deviation';
@@ -10,7 +14,7 @@ const MEAN_KEY = 'Mean';
 const METRIC_KEY = 'Metric';
 const FORMAT_MD = 'md';
 
-const resultsToMarkdown = (data: any, settings: UserConfig) => {
+const resultsToMarkdown = (data: any, settings: ProfileConfig) => {
   const rows = Array.from(Object.keys(data), (key) => ({
     [METRIC_KEY]: key,
     [MEAN_KEY]: data[key][MEAN_KEY],
@@ -19,6 +23,9 @@ const resultsToMarkdown = (data: any, settings: UserConfig) => {
 
   return json2md([
     {h2: 'Racepoint Aggregated Results'},
+    {p: `Device Type: ${settings.deviceType}`},
+    {p: `Target Url: ${settings.targetUrl}`},
+    {p: `Number of Runs: ${settings.numberRuns}`},
     {
       table: {
         headers: [METRIC_KEY, MEAN_KEY, STD_DEVIATION_KEY],
@@ -32,9 +39,9 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   private collectedData: {[key: string]: number[]} = {};
   private reportPath: string;
   private outputMarkdown: boolean;
-  private settings: UserConfig;
+  private settings: ProfileConfig;
 
-  constructor(options: UserConfig) {
+  constructor(options: ProfileConfig) {
     super();
     Object.values(LightHouseAuditKeys).forEach((value) => {
       this.collectedData[value] = [];

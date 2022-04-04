@@ -4,9 +4,9 @@ import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
 import {HtmlReporter} from './html-reporter';
 import {AggregateConsoleReporter} from './aggregate-console-reporter';
-import {LLReporter, UserConfig} from '../types';
+import {LLReporter, ProfileConfig} from '../types';
 
-export interface ReporterSettings extends UserConfig {
+export interface ReporterSettings extends ProfileConfig {
   outputs: ReportingTypes[];
 }
 

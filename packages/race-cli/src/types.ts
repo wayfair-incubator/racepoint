@@ -59,7 +59,6 @@ export class ProfileContext implements ScenarioContext {
   numberRuns: number;
   outputFormat: string[];
   outputTarget: string;
-  overrideChromeFlags: boolean;
   repositoryId: string;
   includeIndividual: boolean;
 
@@ -69,7 +68,6 @@ export class ProfileContext implements ScenarioContext {
     this.numberRuns = userArgs?.numberRuns;
     this.outputFormat = userArgs?.outputFormat;
     this.outputTarget = userArgs?.outputTarget;
-    this.overrideChromeFlags = userArgs?.overrideChromeFlags;
     this.repositoryId = userArgs?.repositoryId;
     this.includeIndividual = userArgs.includeIndividual;
   }
@@ -87,11 +85,11 @@ export enum LightHouseAuditKeys {
   TotalBlocking = 'total-blocking-time',
 }
 
-export interface UserConfig {
+export interface ProfileConfig {
   targetUrl: string;
-  repositoryId?: string;
+  deviceType: 'Desktop' | 'Mobile';
+  numberRuns: number;
   outputFormat: string[];
   outputTarget: string;
-  numberRuns: number;
-  deviceType: 'Desktop' | 'Mobile';
+  repositoryId?: string;
 }

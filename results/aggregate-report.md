@@ -1,10 +1,14 @@
 ## Racepoint Aggregated Results
 
+Device Type: Mobile
+
+Target Url: https://wayfair.com
+
 | Metric        | Mean       | Standard Deviation |
 | ------------- | ---------- | ------------------ |
-| SI            | 19929.6194 | 1129.3856          |
-| FCP           | 5847.5143  | 105.4897           |
-| LCP           | 23683.0813 | 12417.3461         |
+| SI            | 14908.1084 | 906.7064           |
+| FCP           | 2107.7117  | 1.7724             |
+| LCP           | 5372.4232  | 15.2601            |
 | CLS           | 0          | 0                  |
-| MaxFID        | 6342.6667  | 241.7382           |
-| TotalBlocking | 18032.0544 | 1119.9138          |
+| MaxFID        | 7194       | 1967.8089          |
+| TotalBlocking | 17077.4057 | 4081.0509          |
