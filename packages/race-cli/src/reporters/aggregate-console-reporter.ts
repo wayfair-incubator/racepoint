@@ -2,14 +2,15 @@ import {std, mean, round} from 'mathjs';
 import fs from 'fs/promises';
 import json2md from 'json2md';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
-import {BaseRacepointReporter, LightHouseAuditKeys} from '../types';
+import {BaseRacepointReporter, LightHouseAuditKeys, UserConfig} from '../types';
 import logger from '../logger';
 
 const STD_DEVIATION_KEY = 'Standard Deviation';
 const MEAN_KEY = 'Mean';
 const METRIC_KEY = 'Metric';
+const FORMAT_MD = 'md';
 
-const resultsToMarkdown = (data: any) => {
+const resultsToMarkdown = (data: any, settings: UserConfig) => {
   const rows = Array.from(Object.keys(data), (key) => ({
     [METRIC_KEY]: key,
     [MEAN_KEY]: data[key][MEAN_KEY],
@@ -31,14 +32,16 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   private collectedData: {[key: string]: number[]} = {};
   private reportPath: string;
   private outputMarkdown: boolean;
+  private settings: UserConfig;
 
-  constructor(outputTarget: string, outputMarkdown: boolean) {
+  constructor(options: UserConfig) {
     super();
     Object.values(LightHouseAuditKeys).forEach((value) => {
       this.collectedData[value] = [];
     });
-    this.reportPath = outputTarget || '';
-    this.outputMarkdown = outputMarkdown || false;
+    this.reportPath = options.outputTarget || '';
+    this.outputMarkdown = options.outputFormat.includes(FORMAT_MD) || false;
+    this.settings = options;
   }
 
   process = async (results: LighthouseResultsWrapper) => {
@@ -60,7 +63,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
       ? fs
           .writeFile(
             `${this.reportPath}/aggregate-report.md`,
-            resultsToMarkdown(table),
+            resultsToMarkdown(table, this.settings),
             {
               flag: 'w',
             }

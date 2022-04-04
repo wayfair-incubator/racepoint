@@ -103,9 +103,10 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       ],
       repositoryId: context.repositoryId,
       targetUrl: context.targetUrl,
-      requestedRuns: context.numberRuns,
+      deviceType: context.deviceType,
       outputFormat: context.outputFormat,
       outputTarget: context.outputTarget,
+      numberRuns: context.numberRuns,
     });
 
     await resultsReporter.prepare();

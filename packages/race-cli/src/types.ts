@@ -86,3 +86,12 @@ export enum LightHouseAuditKeys {
   MaxFID = 'max-potential-fid',
   TotalBlocking = 'total-blocking-time',
 }
+
+export interface UserConfig {
+  targetUrl: string;
+  repositoryId?: string;
+  outputFormat: string[];
+  outputTarget: string;
+  numberRuns: number;
+  deviceType: 'Desktop' | 'Mobile';
+}

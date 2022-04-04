@@ -4,17 +4,10 @@ import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
 import {HtmlReporter} from './html-reporter';
 import {AggregateConsoleReporter} from './aggregate-console-reporter';
-import {LLReporter} from '../types';
+import {LLReporter, UserConfig} from '../types';
 
-const FORMAT_MD = 'md';
-
-export interface ReporterSettings {
-  targetUrl: string;
+export interface ReporterSettings extends UserConfig {
   outputs: ReportingTypes[];
-  repositoryId?: string;
-  requestedRuns?: number;
-  outputFormat: string[];
-  outputTarget: string;
 }
 
 export enum ReportingTypes {
@@ -30,21 +23,15 @@ export enum ReportingTypes {
  */
 export class LHResultsReporter {
   // will listen for Lighthouse Results, and begin outputting to both screen and a csv file
-  private _settings: ReporterSettings;
   private _reporters: (LLReporter | undefined)[];
 
   constructor(options: ReporterSettings) {
-    this._settings = options;
-
     // initialize reporters based on options, as we add more reporting types, add them here
     this._reporters = options.outputs.map((type: ReportingTypes) => {
       if (type === ReportingTypes.IndividualRunsReporter) {
         return new IndividualRunsReporter();
       } else if (type === ReportingTypes.Aggregate) {
-        return new AggregateConsoleReporter(
-          options.outputTarget,
-          options.outputFormat.includes(FORMAT_MD)
-        );
+        return new AggregateConsoleReporter(options);
       } else if (type === ReportingTypes.LighthouseHtml) {
         // for now, hardcode the result. We could make it a setting in ReporterSettings but as it stands, it feels weird to add
         // more file path locations there. hmm
