@@ -8,6 +8,7 @@ import {
   ProfileConfig,
 } from '../types';
 import logger from '../logger';
+import {formatFilename} from '../helpers';
 
 const STD_DEVIATION_KEY = 'Standard Deviation';
 const MEAN_KEY = 'Mean';
@@ -23,8 +24,8 @@ const resultsToMarkdown = (data: any, settings: ProfileConfig) => {
 
   return json2md([
     {h2: 'Racepoint Aggregated Results'},
-    {p: `Device Type: ${settings.deviceType}`},
     {p: `Target Url: ${settings.targetUrl}`},
+    {p: `Device Type: ${settings.deviceType}`},
     {p: `Number of Runs: ${settings.numberRuns}`},
     {
       table: {
@@ -69,7 +70,10 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
     return this.outputMarkdown
       ? fs
           .writeFile(
-            `${this.reportPath}/aggregate-report.md`,
+            `${this.reportPath}/${formatFilename({
+              url: this.settings.targetUrl,
+              suffix: 'aggregate-report.md',
+            })}`,
             resultsToMarkdown(table, this.settings),
             {
               flag: 'w',
