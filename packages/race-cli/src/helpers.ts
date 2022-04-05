@@ -43,7 +43,7 @@ export const formatFilename = ({
   date?: string;
 }) => {
   const title = url.replace(/(http(s)?:\/\/)|(\/.*){1}/g, '');
-  // New date from passed in date
+  // New date if string not passed in
   const formattedDate = date ? new Date(date) : new Date();
   const y = formattedDate.getFullYear();
   // Format date values (months, seconds, etc) to always be 2 digits
