@@ -17,7 +17,6 @@ interface RaceContext {
   targetUrl: string;
   deviceType: 'desktop' | 'mobile';
   chromeFlags: string[];
-  overrideChromeFlags?: boolean;
 }
 
 const isValid = (context: RaceContext): boolean => {

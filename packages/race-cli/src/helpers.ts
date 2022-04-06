@@ -28,3 +28,30 @@ export const parseUrlArg = (value: string) => {
     throw new commander.InvalidArgumentError('Not a valid URL.');
   }
 };
+
+/*
+  Helper function to format ISO date and full URL for report files
+  Matches the output from Lighthouse
+*/
+export const formatFilename = ({
+  url,
+  suffix,
+  date,
+}: {
+  url: string;
+  suffix: string;
+  date?: string;
+}) => {
+  const title = url.replace(/(http(s)?:\/\/)|(\/.*){1}/g, '');
+  // New date if string not passed in
+  const formattedDate = date ? new Date(date) : new Date();
+  const y = formattedDate.getFullYear();
+  // Format date values (months, seconds, etc) to always be 2 digits
+  const mo = ('0' + (formattedDate.getMonth() + 1)).slice(-2);
+  const d = ('0' + formattedDate.getDate()).slice(-2);
+  const h = ('0' + formattedDate.getHours()).slice(-2);
+  const mi = ('0' + formattedDate.getMinutes()).slice(-2);
+  const s = ('0' + formattedDate.getSeconds()).slice(-2);
+
+  return `${title}_${y}-${mo}-${d}_${h}-${mi}-${s}.${suffix}`;
+};
