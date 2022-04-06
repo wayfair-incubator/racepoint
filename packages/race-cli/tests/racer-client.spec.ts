@@ -53,7 +53,6 @@ const data: ProfileContext = {
   numberRuns: 1,
   deviceType: 'Desktop',
   outputFormat: ['json'],
-  overrideChromeFlags: false,
   outputTarget: '',
   repositoryId: 'lhruns',
   includeIndividual: false,
