@@ -9,9 +9,10 @@ import {formatFilename} from '../helpers';
  */
 export class HtmlReporter extends BaseRacepointReporter {
   private _reportPath: string;
+
   constructor(outputTarget: string) {
     super();
-    this._reportPath = outputTarget; //`${outputTarget}/results.html`;
+    this._reportPath = outputTarget || '.';
   }
 
   process = (results: LighthouseResultsWrapper): Promise<void> => {

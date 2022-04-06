@@ -15,7 +15,7 @@ const MEAN_KEY = 'Mean';
 const METRIC_KEY = 'Metric';
 const FORMAT_MD = 'md';
 
-const resultsToMarkdown = (data: any, settings: ProfileConfig) => {
+const resultsToMarkdown = (data: any, _settings: ProfileConfig) => {
   const rows = Array.from(Object.keys(data), (key) => ({
     [METRIC_KEY]: key,
     [MEAN_KEY]: data[key][MEAN_KEY],
@@ -24,9 +24,9 @@ const resultsToMarkdown = (data: any, settings: ProfileConfig) => {
 
   return json2md([
     {h2: 'Racepoint Aggregated Results'},
-    {p: `Target Url: ${settings.targetUrl}`},
-    {p: `Device Type: ${settings.deviceType}`},
-    {p: `Number of Runs: ${settings.numberRuns}`},
+    {p: `Target Url: ${_settings.targetUrl}`},
+    {p: `Device Type: ${_settings.deviceType}`},
+    {p: `Number of Runs: ${_settings.numberRuns}`},
     {
       table: {
         headers: [METRIC_KEY, MEAN_KEY, STD_DEVIATION_KEY],
@@ -37,24 +37,24 @@ const resultsToMarkdown = (data: any, settings: ProfileConfig) => {
 };
 
 export class AggregateConsoleReporter extends BaseRacepointReporter {
-  private collectedData: {[key: string]: number[]} = {};
-  private reportPath: string;
-  private outputMarkdown: boolean;
-  private settings: ProfileConfig;
+  private _collectedData: {[key: string]: number[]} = {};
+  private _reportPath: string;
+  private _outputMarkdown: boolean;
+  private _settings: ProfileConfig;
 
   constructor(options: ProfileConfig) {
     super();
     Object.values(LightHouseAuditKeys).forEach((value) => {
-      this.collectedData[value] = [];
+      this._collectedData[value] = [];
     });
-    this.reportPath = options.outputTarget || '';
-    this.outputMarkdown = options.outputFormat.includes(FORMAT_MD) || false;
-    this.settings = options;
+    this._reportPath = options.outputTarget || '';
+    this._outputMarkdown = options.outputFormat.includes(FORMAT_MD) || false;
+    this._settings = options;
   }
 
   process = async (results: LighthouseResultsWrapper) => {
     Object.values(LightHouseAuditKeys).forEach((value) => {
-      this.collectedData[value].push(results.lhr.audits[value].numericValue);
+      this._collectedData[value].push(results.lhr.audits[value].numericValue);
     });
   };
 
@@ -62,19 +62,19 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
     logger.info('Calculating Summary:');
     let table: {[metric: string]: SummaryRow} = {};
     Object.entries(LightHouseAuditKeys).forEach(([key, value]) => {
-      table[key] = this.calculateRow(this.collectedData[value]);
+      table[key] = this.calculateRow(this._collectedData[value]);
     });
 
     console.table(table);
 
-    return this.outputMarkdown
+    return this._outputMarkdown
       ? fs
           .writeFile(
-            `${this.reportPath}/${formatFilename({
-              url: this.settings.targetUrl,
+            `${this._reportPath}/${formatFilename({
+              url: this._settings.targetUrl,
               suffix: 'aggregate-report.md',
             })}`,
-            resultsToMarkdown(table, this.settings),
+            resultsToMarkdown(table, this._settings),
             {
               flag: 'w',
             }
