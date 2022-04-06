@@ -34,7 +34,7 @@ program
   .option(
     '--chrome-flags <string>',
     descriptionHelper(
-      'Chrome flags for the emulated browser. Will be merged with defaults unless --override-chrome-flags parameter is used.'
+      'Chrome flags for the emulated browser. Will be merged with necessary defaults.'
     )
   )
   .option(
@@ -56,14 +56,6 @@ program
   .option(
     '--output-format [string...]',
     descriptionHelper('Save results as CSV, HTML, and/or MD')
-  )
-  // Does this make sense? Most people don't want to override the basics ie. headless, disable-gpu, etc. but they should have a way to do so
-  .option(
-    '--override-chrome-flags <bool>',
-    descriptionHelper(
-      'Override existing default Chrome flags for browser and only use passed in flags'
-    ),
-    false
   )
   .option(
     '--include-individual',
