@@ -46,8 +46,8 @@ open issues to help troubleshoot and fix existing bugs. Here is what you can do:
   _[Reporting Issues](#reporting-issues)_ section, providing feedback to the
   issue's author on what might be missing.
 - Review and update the existing content of our
-  [README](https://github.com/wayfair-incubator/racepoint/blob/main/README.md)
-  with up-to-date instructions and code samples.
+  [Wiki](https://github.com/wayfair-incubator/racepoint/wiki) with up-to-date
+  instructions and code samples.
 - Review existing pull requests, and testing patches against real existing
   applications that use `Racepoint`.
 - Write a test, or add a missing test case to an existing test.
