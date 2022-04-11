@@ -174,9 +174,9 @@ Racepoint accepts the following commands and flags:
 | --chrome-flags                                               | Additional Chrome flags for the emulated browser.          |
 | -d, --device-type                                            | Device type to emulate (default: "mobile")                 |
 | -n, --number-runs                                            | Number of Lighthouse runs per URL (default: 1)             |
+| --include-individual                                         | Will display the results of individual runs to the console |
 | --output-target                                              | Location to save results (defaults to current directory)   |
 | --output-format                                              | Save results as CSV, HTML, or both                         |
-| --include-individual                                         | Will display the results of individual runs to the console |
 | --racer-port                                                 | Port to start the racer container (default: "3000")        |
 | --repository-id                                              | Name of the repository file (default: "lighthouse-runs")   |
 | -h, --help                                                   | Display help for command                                   |

@@ -49,6 +49,13 @@ program
     1
   )
   .option(
+    '--include-individual',
+    descriptionHelper(
+      'Will display the results of individual runs to the console'
+    ),
+    false
+  )
+  .option(
     '--output-target <string>',
     descriptionHelper('Location to save results'),
     'results'
@@ -56,13 +63,6 @@ program
   .option(
     '--output-format [string...]',
     descriptionHelper('Save results as CSV, HTML, and/or MD')
-  )
-  .option(
-    '--include-individual',
-    descriptionHelper(
-      'Will display the results of individual runs to the console'
-    ),
-    false
   )
   .option(
     '--repository-id <string>',
