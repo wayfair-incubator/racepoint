@@ -25,10 +25,10 @@ export class HtmlReporter extends BaseRacepointReporter {
     // Need to use synchronous file save as the promise version often had partial writes
     try {
       fs.writeFileSync(htmlPath, results.report, {flag: 'w'});
+      logger.debug(`Lighthouse HTML results successfully saved`);
     } catch (e) {
       logger.error('Failed to write results', e);
     }
-    logger.debug(`Lighthouse HTML results successfully saved`);
     return;
   };
 }
