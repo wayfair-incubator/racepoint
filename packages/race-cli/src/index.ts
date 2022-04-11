@@ -43,17 +43,17 @@ program
     'Mobile'
   )
   .option(
-    '-n, --number-runs <number>',
-    descriptionHelper('Number of Lighthouse runs per URL'),
-    parseIntArg,
-    1
-  )
-  .option(
     '--include-individual',
     descriptionHelper(
       'Will display the results of individual runs to the console'
     ),
     false
+  )
+  .option(
+    '-n, --number-runs <number>',
+    descriptionHelper('Number of Lighthouse runs per URL'),
+    parseIntArg,
+    1
   )
   .option(
     '--output-target <string>',
