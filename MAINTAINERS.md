@@ -1,4 +1,5 @@
 # Maintainers
 
-- [spember](https://github.com/spember)
-- [JasonPapanicholasWF](https://github.com/JasonPapanicholasWF)
+- Steve Pember spember [at] gmail.com
+- Jason Papanicholas jpapanicholas [at] wayfair.com
+- Jason Papanicholas jaypaps [at] gmail.com
