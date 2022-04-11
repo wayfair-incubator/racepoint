@@ -43,6 +43,13 @@ program
     'Mobile'
   )
   .option(
+    '--include-individual',
+    descriptionHelper(
+      'Will display the results of individual runs to the console'
+    ),
+    false
+  )
+  .option(
     '-n, --number-runs <number>',
     descriptionHelper('Number of Lighthouse runs per URL'),
     parseIntArg,
@@ -56,13 +63,6 @@ program
   .option(
     '--output-format [string...]',
     descriptionHelper('Save results as CSV, HTML, and/or MD')
-  )
-  .option(
-    '--include-individual',
-    descriptionHelper(
-      'Will display the results of individual runs to the console'
-    ),
-    false
   )
   .option(
     '--repository-id <string>',
