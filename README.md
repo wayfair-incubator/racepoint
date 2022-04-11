@@ -113,6 +113,7 @@ The following software is required to use Racepoint:
 
    ```sh
    git clone https://github.com/wayfair-incubator/racepoint.git
+   <<<<<<< HEAD
    ```
 
 2. Navigate to the project folder
@@ -127,11 +128,27 @@ The following software is required to use Racepoint:
    npm run build
    ```
 
-4. Build the images
+=======
+
+````
+
+2. Navigate to the project folder
+
+```sh
+cd racepoint
+````
+
+3. Build the packages
 
    ```sh
-   docker compose build
+   npm run build
    ```
+
+> > > > > > > origin 4. Build the images
+
+```sh
+docker compose build
+```
 
 5. Run the race command inside a new docker container. Basic usage on an example
    URL
