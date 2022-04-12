@@ -27,45 +27,12 @@ export const submitLighthouseRun = async (
 };
 
 const profileWithLighthouse = async (context: RaceContext) => {
-  // const chromeOptions: Options = {
-  //   logLevel: 'verbose',
-  //   chromeFlags: [
-  //     '--headless',
-  //     '--disable-gpu',
-  //     '--no-sandbox',
-  //     '--ignore-certificate-errors',
-  //     '--disable-dev-shm-usage',
-  //     '--disable-setuid-sandbox',
-  //     ...chromeFlags,
-  //   ],
-  // };
-  const chromeOptions = constructChromeOptions(context);
-
-  // const desktopSettings = {
-  //   formFactor: 'desktop',
-  //   screenEmulation: {
-  //     mobile: false,
-  //     width: 1440,
-  //     height: 900,
-  //     deviceScaleFactor: 1,
-  //   },
-  // };
-
   // chrome takes a moment or two to spinup
   console.log('Preparing Chrome');
-  const chrome = await launch(chromeOptions);
+  //todo: debug log the context?
+  const chrome = await launch(constructChromeOptions(context));
+  // setup the Lighthouse flags. This differs from the third argument to lighthouse, which is test or 'pass' information.
   const lighthouseFlags = constructLighthouseFlags(chrome.port, context);
-  // setup the Lighthouse flags. This differs from the third argument, which is test or 'pass' information
-  // const lhFlags = {
-  //   //   chromeOptions.chromeFlags,
-  //   output: 'html',
-  //   port: chrome.port,
-  //   logLevel: 'info',
-  //   // unfortunately, setting a max wait causes the lighthouse run to break. can investigate in the future
-  //   // maxWaitForLoad: 12500
-  //   ...(deviceType === 'desktop' && {...desktopSettings}),
-  // };
-
   // and go
   console.log('Starting Lighthouse');
   const results = await launchLighthouse(context.targetUrl, lighthouseFlags);

@@ -40,7 +40,7 @@ export class RaceContext {
 
 export const constructChromeOptions = (context: RaceContext): Options => {
   return {
-    logLevel: 'verbose',
+    logLevel: 'info',
     chromeFlags: [
       '--headless',
       '--disable-gpu',

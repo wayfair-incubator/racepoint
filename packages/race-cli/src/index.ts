@@ -6,6 +6,7 @@ import {
   raceLogo,
   parseIntArg,
   parseUrlArg,
+  splitChromeArgs,
 } from './helpers';
 import {ProfileScenario, PROFILE_COMMAND} from './scenarios/profile';
 
@@ -34,8 +35,10 @@ program
   .option(
     '--chrome-flags <string>',
     descriptionHelper(
-      'Chrome flags for the emulated browser. Will be merged with necessary defaults.'
-    )
+      'Chrome flags for the emulated browser. Will be merged with necessary defaults. Should be a comma-delimited list of arguments.'
+    ),
+    splitChromeArgs,
+    []
   )
   .option(
     '-d, --device-type <device>',
@@ -48,6 +51,20 @@ program
       'Will display the results of individual runs to the console'
     ),
     false
+  )
+  .option(
+    '--disable-storage-reset',
+    descriptionHelper(
+      'If set, will preserve the browser cache between runs. By default this is false in order to treat the experience as a brand new user each iteration.'
+    ),
+    false
+  )
+  .option(
+    '--extra-headers <JSON string>',
+    descriptionHelper(
+      'A JSON strong of Headers that you wish to be included on each request. e.g. "{\\"Cookie\\":\\"monster=blue\\", \\"x-men\\":\\"wolverine\\"}"'
+    ),
+    JSON.parse
   )
   .option(
     '-n, --number-runs <number>',

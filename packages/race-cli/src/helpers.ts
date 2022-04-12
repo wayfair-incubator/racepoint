@@ -29,6 +29,21 @@ export const parseUrlArg = (value: string) => {
   }
 };
 
+/**
+ * Parses input from the user regarding chrome strings
+ *
+ * @param value the comma-delimted string provided by the user
+ */
+export const splitChromeArgs = (value: string): string[] => {
+  const segments = value.split(',');
+  segments.forEach((flag) => {
+    if (!flag.startsWith('--')) {
+      throw new commander.InvalidArgumentError('flags must start with "--"');
+    }
+  });
+  return segments;
+};
+
 /*
   Helper function to format ISO date and full URL for report files
   Matches the output from Lighthouse
