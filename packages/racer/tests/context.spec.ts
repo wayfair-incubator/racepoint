@@ -42,7 +42,7 @@ describe('Chrome Options construction', () => {
     });
 
     const options = constructChromeOptions(bare);
-    expect(options.logLevel).to.be.equal('verbose');
+    expect(options.logLevel).to.be.equal('info');
     expect(options.chromeFlags).to.not.be.empty;
     expect(options.chromeFlags!!.length).to.be.equal(6);
   });
@@ -54,7 +54,7 @@ describe('Chrome Options construction', () => {
         chromeFlags: ['--crash-on-failure', '--disable-notifications'],
       })
     );
-    expect(options.logLevel).to.be.equal('verbose');
+    expect(options.logLevel).to.be.equal('info');
     expect(options.chromeFlags!!.length).to.be.equal(8);
     expect(options.chromeFlags!!).to.contain('--crash-on-failure');
     expect(options.chromeFlags!!).to.contain('--disable-notifications');
