@@ -1,94 +1,83 @@
 import lighthouse from 'lighthouse';
-import {launch, Options} from 'chrome-launcher';
+import {launch} from 'chrome-launcher';
+import {Flags} from 'lighthouse/types/externs';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {
+  RaceProfileCommand,
+  RaceContext,
+  constructChromeOptions,
+  constructLighthouseFlags,
+} from './config';
 
 /**
  * Starts a lighthouse run asynchronously, returning a job id immediately.
  *
- * @param targetUrl string of the url to profile
+ * @param command the  RaceProfileCommand dictating the instruction of the profiling to do.
  */
-export const submitLighthouseRun = async ({
-  targetUrl,
-  deviceType = 'desktop',
-  chromeFlags = [],
-}: {
-  targetUrl: string;
-  deviceType?: 'desktop' | 'mobile';
-  chromeFlags: string[];
-}): Promise<number> => {
+export const submitLighthouseRun = async (
+  command: RaceProfileCommand
+): Promise<number> => {
   const jobId = await LighthouseResultsRepository.getNextId();
-  // todo: need a better name for this function; take a pass on this when updating Lighthouse runs to receive configuration
-  doLighthouse({
-    assignedJobId: jobId,
-    targetUrl,
-    chromeFlags,
-    deviceType,
-  });
+  const context = new RaceContext(jobId, command);
+  // execute a Lighthouse run. This is an async function and as such the jobId is returned immediately.
+  profileWithLighthouse(context);
   return jobId;
 };
 
-const doLighthouse = async ({
-  assignedJobId,
-  targetUrl,
-  chromeFlags = [],
-  deviceType,
-}: {
-  assignedJobId: number;
-  targetUrl: string;
-  deviceType?: 'desktop' | 'mobile';
-  chromeFlags?: string[];
-}) => {
-  const chromeOptions: Options = {
-    logLevel: 'verbose',
-    chromeFlags: [
-      '--headless',
-      '--disable-gpu',
-      '--no-sandbox',
-      '--ignore-certificate-errors',
-      '--disable-dev-shm-usage',
-      '--disable-setuid-sandbox',
-      ...chromeFlags,
-    ],
-  };
+const profileWithLighthouse = async (context: RaceContext) => {
+  // const chromeOptions: Options = {
+  //   logLevel: 'verbose',
+  //   chromeFlags: [
+  //     '--headless',
+  //     '--disable-gpu',
+  //     '--no-sandbox',
+  //     '--ignore-certificate-errors',
+  //     '--disable-dev-shm-usage',
+  //     '--disable-setuid-sandbox',
+  //     ...chromeFlags,
+  //   ],
+  // };
+  const chromeOptions = constructChromeOptions(context);
 
-  const desktopSettings = {
-    formFactor: 'desktop',
-    screenEmulation: {
-      mobile: false,
-      width: 1440,
-      height: 900,
-      deviceScaleFactor: 1,
-    },
-  };
+  // const desktopSettings = {
+  //   formFactor: 'desktop',
+  //   screenEmulation: {
+  //     mobile: false,
+  //     width: 1440,
+  //     height: 900,
+  //     deviceScaleFactor: 1,
+  //   },
+  // };
 
   // chrome takes a moment or two to spinup
   console.log('Preparing Chrome');
   const chrome = await launch(chromeOptions);
+  const lighthouseFlags = constructLighthouseFlags(chrome.port, context);
   // setup the Lighthouse flags. This differs from the third argument, which is test or 'pass' information
-  const lhFlags = {
-    //   chromeOptions.chromeFlags,
-    output: 'html',
-    port: chrome.port,
-    logLevel: 'info',
-    // unfortunately, setting a max wait causes the lighthouse run to break. can investigate in the future
-    // maxWaitForLoad: 12500
-    ...(deviceType === 'desktop' && {...desktopSettings}),
-  };
+  // const lhFlags = {
+  //   //   chromeOptions.chromeFlags,
+  //   output: 'html',
+  //   port: chrome.port,
+  //   logLevel: 'info',
+  //   // unfortunately, setting a max wait causes the lighthouse run to break. can investigate in the future
+  //   // maxWaitForLoad: 12500
+  //   ...(deviceType === 'desktop' && {...desktopSettings}),
+  // };
 
   // and go
   console.log('Starting Lighthouse');
-  const results = await launchLighthouse(targetUrl, lhFlags);
+  const results = await launchLighthouse(context.targetUrl, lighthouseFlags);
   // don't forget the cleanup
   await chrome.kill();
-  await LighthouseResultsRepository.write(assignedJobId, results);
+  await LighthouseResultsRepository.write(context.jobId, results);
   await UsageLock.getInstance().release();
 };
 
 const launchLighthouse = async (
   targetUrl: string,
-  lighthouseFlags: object
+  lighthouseFlags: Flags
 ): Promise<LighthouseResultsWrapper> => {
   // extracting the actual lighthouse execution into this wrapped Promise.
   // in general, we'd like to follow async/await patterns instead of chaining Promises. However, because the lighthouse package does not have TS types,
