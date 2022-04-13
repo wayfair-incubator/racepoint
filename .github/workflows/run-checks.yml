@@ -35,7 +35,7 @@ jobs:
       - name: Run tests
         run: yarn workspaces run test
 
-      - - uses: del-systems/check-if-version-bumped@v1
+      - uses: del-systems/check-if-version-bumped@v1
 
         # with:
         #   github-token: ${{ secrets.GITHUB_TOKEN }}
