@@ -8,7 +8,8 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v3
-      ref: ${{ github.event.pull_request.head.sha }}
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
 
     - name: Lint Markdown files
       uses: avto-dev/markdown-lint@v1
