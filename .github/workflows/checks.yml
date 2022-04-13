@@ -17,10 +17,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: npm install -g yarn-workspaces
-      - run: yarn && yarn build
-      - run: yarn lint
-      - run: yarn workspaces run test
+      - name: Install dependencies
+        run: npm install -g yarn-workspaces
+      - name: Install modules
+        run: yarn && yarn build
+      - name: Lint
+        run: yarn lint
+      - name: Run tests
+        run: yarn workspaces run test
 
     # steps:
     #   - name: 'Checkout' # Download code from the repository
