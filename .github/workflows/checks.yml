@@ -37,8 +37,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 'Checkout' # Download code from the repository
-        uses: actions/checkout@v2 # Public action
+      # - name: 'Checkout' # Download code from the repository
+      #   uses: actions/checkout@v2 # Public action
 
       - name: 'Changelog checker'
       - uses: dangoslen/changelog-enforcer@v3
