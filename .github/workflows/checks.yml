@@ -27,8 +27,10 @@ jobs:
           node-version: '16'
 
       - name: Install dependencies
-        # run: npm install -g yarn-workspaces
-        run: npm i && npm i lerna && npx lerna bootstrap
+        # run: npm install -g yarn-workspaces lerna
+        run: |
+          npm i lerna
+          npx lerna test
 
       # - name: Install modules
       #   run: yarn && yarn run build
