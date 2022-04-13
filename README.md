@@ -169,17 +169,19 @@ Racepoint accepts the following commands and flags:
 
 - `profile` - perform a number of Lighthouse runs against a single URL
 
-| <span style="display: inline-block; width:200px">Flag</span> | Description                                                |
-| ------------------------------------------------------------ | ---------------------------------------------------------- |
-| --chrome-flags                                               | Additional Chrome flags for the emulated browser.          |
-| -d, --device-type                                            | Device type to emulate (default: "mobile")                 |
-| --include-individual                                         | Will display the results of individual runs to the console |
-| -n, --number-runs                                            | Number of Lighthouse runs per URL (default: 1)             |
-| --output-target                                              | Location to save results (defaults to current directory)   |
-| --output-format                                              | Save results as CSV, HTML, or both                         |
-| --racer-port                                                 | Port to start the racer container (default: "3000")        |
-| --repository-id                                              | Name of the repository file (default: "lighthouse-runs")   |
-| -h, --help                                                   | Display help for command                                   |
+| <span style="display: inline-block; width:200px">Flag</span> | Description                                                               |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| --chrome-flags                                               | Additional comma-delimeted list of Chrome flags for the emulated browser. |
+| -d, --device-type                                            | Device type to emulate (default: "mobile")                                |
+| --disable-storage-reset                                      | If set, will preserve the browser cache between runs.                     |
+| --extra-headers                                              | A JSON-encoded string of additional headers to use on during profiling.   |
+| --include-individual                                         | Will display the results of individual runs to the console                |
+| -n, --number-runs                                            | Number of Lighthouse runs per URL (default: 1)                            |
+| --output-target                                              | Location to save results (defaults to current directory)                  |
+| --output-format                                              | Save results as CSV, HTML, or both                                        |
+| --racer-port                                                 | Port to start the racer container (default: "3000")                       |
+| --repository-id                                              | Name of the repository file (default: "lighthouse-runs")                  |
+| -h, --help                                                   | Display help for command                                                  |
 
 ### Debug
 

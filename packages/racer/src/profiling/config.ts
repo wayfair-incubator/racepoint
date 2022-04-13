@@ -80,6 +80,7 @@ export const constructLighthouseFlags = (
 
   const lhFlags: Flags = {
     output: 'html' as OutputMode,
+    disableStorageReset: context.disableStorageReset,
     port: chromePort,
     logLevel: 'info',
     extraHeaders: context.extraHeaders,
