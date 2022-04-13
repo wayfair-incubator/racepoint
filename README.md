@@ -56,8 +56,7 @@
 > RacePoint takes its name from the
 > [Lighthouse on the 'Knuckles' of Cape Cod](https://www.capecodlighthouses.info/race-point-light/)
 
-This utility provides a mechanism to repeatedly profile web pages. The intention
-is to gain metrics and feedback on your page _before_ it is in production.
+This utility provides a mechanism to repeatedly profile web pages. The intention is to gain metrics and feedback on your page _before_ it is in production.
 Specifically it captures several [Core Web Vitals](https://web.dev/vitals/) - an
 important set of metrics that Wayfair must meet in order to maintain good SEO
 scores.
