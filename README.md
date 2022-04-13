@@ -187,7 +187,7 @@ variable `LOG_LEVEL=debug`
 
 ```sh
 LOG_LEVEL=debug race profile http://my-site.com
-```
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
