@@ -1,0 +1,65 @@
+# This pipeline needs to do these things:
+# 1. Checkout package
+# 2. Install NPM & dependencies
+# 3. Check versions
+# 4. Check for changelog
+# 5. Run tests
+
+name: Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: npm install -g yarn-workspaces
+
+      - name: Install modules
+        run: yarn && yarn build
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Run tests
+        run: yarn workspaces run test
+
+      - uses: thepassle/changelog-enforcer@0.0.6
+        # with:
+        #   github-token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Check for Changelog
+      #   uses: dangoslen/changelog-enforcer@v3
+
+      # - name: Check if version has been updated
+      #   id: check
+      #   uses: EndBug/version-check@v1
+
+    # steps:
+    #   - name: 'Checkout' # Download code from the repository
+    #     uses: actions/checkout@v2 # Public action
+
+    #   - name: 'Use NodeJS 16' # Setup node using version 16
+    #     uses: actions/setup-node@v2 # Public action
+    #     with:
+    #       node-version: '16'
+
+    #   - name: Install dependencies
+    #     run: npm install -g yarn-workspaces
+
+    #   - name: Install modules
+    #     run: yarn && yarn run build
+
+    #   - name: Lint
+    #     run: yarn lint
+
+    #   - name: Run tests # Run tests of all packages
+    #     run: yarn workspaces run test
