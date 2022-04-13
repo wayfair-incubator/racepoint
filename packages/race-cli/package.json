@@ -1,6 +1,6 @@
 {
   "name": "race-cli",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "Racepoint CLI",
   "main": "bin/index.js",
   "author": "Jason Papanicholas",
