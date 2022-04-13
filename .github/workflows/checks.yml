@@ -30,7 +30,7 @@ jobs:
         # run: npm install -g yarn-workspaces lerna
         run: |
           npm i lerna
-          npx lerna test
+          npx lerna run test
 
       # - name: Install modules
       #   run: yarn && yarn run build
