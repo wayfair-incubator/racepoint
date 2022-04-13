@@ -30,6 +30,10 @@ jobs:
       - name: Install modules
         run: yarn && yarn run build
 
+      - name: Lint
+        run: yarn lint
+        uses: actions/checkout@v2 # Public action
+
       - name: Run tests # Run tests of all packages
         run: yarn workspaces run test
 
