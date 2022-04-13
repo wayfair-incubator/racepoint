@@ -28,10 +28,10 @@ jobs:
 
       - name: Install dependencies
         # run: npm install -g yarn-workspaces
-        run: npm i lerna && npx lerna bootstrap
+        run: npm install -g lerna && npx lerna bootstrap
 
-      # - name: Install modules
-      #   run: yarn && yarn run build
+      - name: Install modules
+        run: yarn && yarn run build
 
       # - name: Run tests # Run tests of all packages
       #   run: yarn workspaces run test
