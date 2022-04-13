@@ -1,6 +1,6 @@
 {
   "name": "racepoint",
-  "version": "0.3.0",
+  "version": "0.1.0",
   "description": "Utility for benchmarking Frontend performance against some URL",
   "workspaces": [
     "packages/proxy",
