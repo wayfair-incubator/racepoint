@@ -18,8 +18,6 @@ jobs:
     steps:
       - name: 'Checkout' # Download code from the repository
         uses: actions/checkout@v2 # Public action
-        with:
-          fetch-depth: 0 # Checkout all branches and tags
 
       - name: 'Use NodeJS 16' # Setup node using version 16
         uses: actions/setup-node@v2 # Public action
@@ -27,11 +25,6 @@ jobs:
           node-version: '16'
 
       - name: Install dependencies
-        #   # run: npm install -g yarn-workspaces lerna
-        #   run: |
-        #     npm i lerna
-        #     npx lerna run test
-        #       - name: Install dependencies
         run: npm install -g yarn-workspaces
 
       - name: Install modules
@@ -40,14 +33,12 @@ jobs:
       - name: Run tests # Run tests of all packages
         run: yarn workspaces run test
 
-  # checkVersion:
-  #   name: Check package version
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
+  changelog:
+    runs-on: ubuntu-latest
 
-  #     # Use this GitHub Action
-  #     - name: Check package version
-  #       uses: technote-space/package-version-check-action@v1
-  #       with:
-  #         BRANCH_PREFIX: release/
+    steps:
+      - name: 'Checkout' # Download code from the repository
+        uses: actions/checkout@v2 # Public action
+
+      - name: 'Changelog checker'
+      - uses: dangoslen/changelog-enforcer@v3
