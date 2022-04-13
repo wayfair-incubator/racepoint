@@ -27,12 +27,13 @@ jobs:
           node-version: '16'
 
       - name: Install dependencies
-        run: | # Install and link dependencies
-          npm ci
-          npx lerna bootstrap
+        run: npm install -g yarn-workspaces
+
+      - name: Install modules
+        run: yarn && yarn run build
 
       - name: Run tests # Run tests of all packages
-        run: npx lerna exec npm run test
+        run: yarn workspaces run test
 
   # checkVersion:
   #   name: Check package version
