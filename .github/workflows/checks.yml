@@ -18,8 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm install -g yarn-workspaces
-      - run: yarn && yarn run build
-      - run: yarn-workspaces test
+      - run: yarn && yarn build
+      - run: yarn lint
+      - run: yarn workspaces run test
 
     # steps:
     #   - name: 'Checkout' # Download code from the repository
