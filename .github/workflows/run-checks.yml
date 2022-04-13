@@ -16,8 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out codegit add .
-
+      - name: Check out code
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -32,17 +31,16 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Run tests
-        run: yarn workspaces run test
-
-      - uses: del-systems/check-if-version-bumped@v1
+      - name: Check for version bump
+        uses: del-systems/check-if-version-bumped@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-        # with:
-        #   github-token: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Check for Changelog
-      #   uses: dangoslen/changelog-enforcer@v3
+      - name: Check for Changelog
+        uses: dangoslen/changelog-enforcer@v3
+
+      - name: Run tests
+        run: yarn workspaces run test
 
       # - name: Check if version has been updated
       #   id: check
