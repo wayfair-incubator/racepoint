@@ -18,6 +18,7 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        run: git config --global init.defaultBranch development
       - name: Install dependencies
         run: npm install -g yarn-workspaces
       - name: Install modules
