@@ -35,7 +35,7 @@ jobs:
       - name: Run tests
         run: yarn workspaces run test
 
-      - uses: thepassle/changelog-enforcer@0.0.6
+      - uses: EndBug/version-check@v1
         # with:
         #   github-token: ${{ secrets.GITHUB_TOKEN }}
       # - name: Check for Changelog
