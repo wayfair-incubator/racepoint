@@ -39,7 +39,7 @@ export const ProfileEndpoint: RegisteredEndpoint<object> = {
   method: 'POST',
   handler: async (req, res, parsedUrl) => {
     return maybeRunLighthouse(
-      // we parse the instruction from the cli as a context object pulled from the 'lower level'; we're reachign across a boundary here
+      // we parse the instruction from the cli as a context object pulled from the 'lower level'; we're reaching across a boundary here
       // it may be wise to create a specific API object and add some mapping code later to separate what we
       // expect callers to send to us versus what the internal operations work on
       (await extractBodyFromRequest(req)) as RaceProfileCommand
