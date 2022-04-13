@@ -36,6 +36,10 @@ jobs:
       - name: Check for Changelog
         uses: dangoslen/changelog-enforcer@v3
 
+      - name: Check if version has been updated
+        id: check
+        uses: EndBug/version-check@v1
+
     # steps:
     #   - name: 'Checkout' # Download code from the repository
     #     uses: actions/checkout@v2 # Public action
