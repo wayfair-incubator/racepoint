@@ -13,10 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 'Checkout' # Download code from the repository
-        uses: actions/checkout@v2 # Public action
+      - name: Check out code
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Checkout all branches and tags
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - name: 'Use NodeJS 16' # Setup node using version 16
         uses: actions/setup-node@v2 # Public action
