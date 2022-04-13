@@ -36,7 +36,5 @@ jobs:
       - name: Run tests # Run tests of all packages
         run: yarn workspaces run test
 
-      - name: 'Changelog checker'
+      - name: Check for Changelog
         uses: dangoslen/changelog-enforcer@v3
-
-      -
