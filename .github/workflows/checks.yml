@@ -26,6 +26,14 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Install dependencies
+        run: | # Install and link dependencies
+          npm ci
+          npx lerna bootstrap
+
+      - name: Run tests # Run tests of all packages
+        run: npx lerna exec npm run test
+
   # checkVersion:
   #   name: Check package version
   #   runs-on: ubuntu-latest
