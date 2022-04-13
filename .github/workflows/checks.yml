@@ -23,6 +23,7 @@ jobs:
         run: yarn && yarn build
       - name: Lint
         run: yarn lint
+        uses: actions/checkout@v3
       - name: Run tests
         run: yarn workspaces run test
 
