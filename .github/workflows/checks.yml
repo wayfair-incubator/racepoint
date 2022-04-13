@@ -16,26 +16,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 'Checkout' # Download code from the repository
-        uses: actions/checkout@v2 # Public action
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npm run build --if-present
+      - run: npm test --if-present
 
-      - name: 'Use NodeJS 16' # Setup node using version 16
-        uses: actions/setup-node@v2 # Public action
-        with:
-          node-version: '16'
+    # steps:
+    #   - name: 'Checkout' # Download code from the repository
+    #     uses: actions/checkout@v2 # Public action
 
-      - name: Install dependencies
-        run: npm install -g yarn-workspaces
+    #   - name: 'Use NodeJS 16' # Setup node using version 16
+    #     uses: actions/setup-node@v2 # Public action
+    #     with:
+    #       node-version: '16'
 
-      - name: Install modules
-        run: yarn && yarn run build
+    #   - name: Install dependencies
+    #     run: npm install -g yarn-workspaces
 
-      - name: Lint
-        run: yarn lint
-        uses: actions/checkout@v2 # Public action
+    #   - name: Install modules
+    #     run: yarn && yarn run build
 
-      - name: Run tests # Run tests of all packages
-        run: yarn workspaces run test
+    #   - name: Lint
+    #     run: yarn lint
 
-      - name: 'Changelog checker'
-        uses: dangoslen/changelog-enforcer@v3
+    #   - name: Run tests # Run tests of all packages
+    #     run: yarn workspaces run test
+
+    #   - name: 'Changelog checker'
+    #     uses: dangoslen/changelog-enforcer@v3
