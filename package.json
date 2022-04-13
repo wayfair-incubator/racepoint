@@ -1,6 +1,6 @@
 {
-  "name": "race-point",
-  "version": "0.2.0",
+  "name": "racepoint",
+  "version": "0.1.0",
   "description": "Utility for benchmarking Frontend performance against some URL",
   "workspaces": [
     "packages/proxy",
@@ -24,9 +24,11 @@
     "profile"
   ],
   "author": "spember@wayfair.com",
-  "license": "ISC",
+  "license": "MIT",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "lerna": "^4.0.0"
+  },
   "devDependencies": {
     "@babel/eslint-parser": "^7.15.7",
     "@types/node": "^16.4.0",
