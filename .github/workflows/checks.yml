@@ -16,14 +16,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: npm install -g yarn-workspaces
       - name: Install modules
         run: yarn && yarn build
       - name: Lint
         run: yarn lint
-        # uses: actions/checkout@v3
       - name: Run tests
         run: yarn workspaces run test
 
