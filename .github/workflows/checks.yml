@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies
         # run: npm install -g yarn-workspaces
-        run: npm ci -g lerna && npx lerna bootstrap
+        run: npm ci lerna && npx lerna bootstrap
 
       # - name: Install modules
       #   run: yarn && yarn run build
