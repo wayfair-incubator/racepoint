@@ -37,9 +37,9 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-          git branch -a
-
-          git checkout remotes/origin/jp_test_github_release_actions_2
+          git fetch origin +refs/heads/master:refs/remotes/origin/master;
+          git checkout master;
+          git reset --hard "$CI_COMMIT_ID";
 
           npx lerna version --conventional-commits --conventional-graduate --yes
           npx lerna publish from-git --yes
