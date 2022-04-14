@@ -37,7 +37,7 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-          git fetch origin +refs/heads/master:refs/remotes/origin/master;
+          git fetch origin +refs/heads/master:refs/remotes/origin/main;
           git checkout main;
           git reset --hard "$CI_COMMIT_ID";
 
