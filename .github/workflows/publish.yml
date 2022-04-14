@@ -38,7 +38,7 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
           git fetch origin +refs/heads/master:refs/remotes/origin/master;
-          git checkout master;
+          git checkout main;
           git reset --hard "$CI_COMMIT_ID";
 
           npx lerna version --conventional-commits --conventional-graduate --yes
