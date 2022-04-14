@@ -41,6 +41,7 @@ jobs:
         uses: EndBug/version-check@v1 # You can choose the version/branch you prefer.
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: trues
 
       - name: Check for Changelog
         uses: dangoslen/changelog-enforcer@v3
