@@ -17,11 +17,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          # ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Install dependencies
-        run: npm install lerna
+        run: npm install lerna && npx lerna bootstrap
 
       # - name: Install modules
       #   run: yarn && yarn build
