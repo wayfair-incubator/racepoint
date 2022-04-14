@@ -7,9 +7,9 @@
 
 name: Run Checks
 
-on:
-  pull_request:
-    types: [opened, synchronize]
+# on:
+#   pull_request:
+#     types: [opened, synchronize]
 
 jobs:
   build:

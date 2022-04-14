@@ -39,7 +39,7 @@ jobs:
 
           git branch -a
 
-          git checkout jp_test_github_release_actions_2
+          git checkout remotes/origin/jp_test_github_release_actions_2
 
           npx lerna version --conventional-commits --conventional-graduate --yes
           npx lerna publish from-git --yes
