@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - development
+      # - development
       - main
 
 jobs:
@@ -25,10 +25,10 @@ jobs:
       # - name: Install modules
       #   run: yarn && yarn build
 
-      - name: 'Use NodeJS 14'
+      - name: 'Use NodeJS 16'
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: 'Version and publish' # Interesting step
         env:
