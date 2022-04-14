@@ -38,4 +38,5 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
           git stash 
+          git fetch --tags
           npx lerna publish from-git --yes
