@@ -1,0 +1,11 @@
+{
+  "packages": [
+    "packages/proxy",
+    "packages/racer",
+    "packages/race-cli",
+    "packages/shared"
+  ],
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "version": "0.1.0"
+}
