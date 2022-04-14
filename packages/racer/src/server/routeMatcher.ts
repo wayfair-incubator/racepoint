@@ -59,7 +59,7 @@ export class RouteMatcher {
     const symbols = this.extractSymbols(endpoint.path);
     let replaced = endpoint.path;
     symbols.forEach(
-      (symbol) => (replaced = replaced.replace(`{${symbol}}`, '([^\\/]*?)'))
+      (symbol) => (replaced = replaced.replace(`\{${symbol}\}`, '([^\\/]*?)'))
     );
     return {
       symbols,
