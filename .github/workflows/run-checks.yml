@@ -1,0 +1,49 @@
+# This pipeline needs to do these things:
+# 1. Checkout package
+# 2. Install NPM & dependencies
+# 3. Check versions
+# 4. Check for changelog
+# 5. Run tests
+
+name: Run Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: npm install -g yarn-workspaces
+
+      - name: Install modules
+        run: yarn && yarn build
+
+      - name: Lint
+        run: yarn lint
+
+      # - name: Check for version bump
+      #   uses: del-systems/check-if-version-bumped@v1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for version
+        id: check # This will be the reference for getting the outputs.
+        uses: EndBug/version-check@v1 # You can choose the version/branch you prefer.
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for Changelog
+        uses: dangoslen/changelog-enforcer@v3
+
+      - name: Run tests
+        run: yarn workspaces run test
