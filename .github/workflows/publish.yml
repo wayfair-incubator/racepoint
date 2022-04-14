@@ -39,4 +39,7 @@ jobs:
 
           git stash 
           git fetch --tags
+          npx lerna changed
+
+
           npx lerna publish from-git --yes
