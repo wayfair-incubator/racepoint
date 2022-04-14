@@ -38,9 +38,7 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
           git stash
-          git fetch origin +refs/heads/main:refs/remotes/origin/main;
-          git checkout main;
-          git reset --hard "$CI_COMMIT_ID";
+          git checkout development
 
           npx lerna version --conventional-commits --conventional-graduate --yes
           npx lerna publish from-git --yes
