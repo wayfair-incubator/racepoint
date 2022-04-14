@@ -2,10 +2,11 @@ name: Publish
 
 on:
   pull_request:
-    types: [closed]
-    branches:
-      # - development
-      - main
+    # types: [closed]
+    types: [opened, synchronize]
+    # branches:
+    #   - development-test
+    #   # - main
 
 jobs:
   publish:
@@ -16,11 +17,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          # ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Install dependencies
-        run: npm install -g yarn-workspaces
+        run: npm install lerna
 
       # - name: Install modules
       #   run: yarn && yarn build
@@ -30,7 +31,7 @@ jobs:
         with:
           node-version: '16'
 
-      - name: 'Version and publish' # Interesting step
+      - name: 'Version and publish'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
