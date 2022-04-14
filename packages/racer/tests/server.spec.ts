@@ -36,7 +36,7 @@ describe('Route Parsing', () => {
 
   it('should match urls with no vars', () => {
     const result = router.match('/foo', 'GET');
-    expect(result).to.not.be.undefined;
+    expect(result).to.be.undefined;
     expect(result!!.endpoint.path).to.be.equal('/foo');
   });
 
