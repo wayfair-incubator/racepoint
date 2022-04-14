@@ -28,54 +28,54 @@ jobs:
       - name: Install modules
         run: yarn && yarn build
 
-      - name: 'Use NodeJS 16'
-        uses: actions/setup-node@v2
+      # - name: 'Use NodeJS 16'
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: '16'
+
+      # - name: 'Version and publish' # Interesting step
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     echo "${{ github.actor }}"
+      #     npx lerna help
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Check for version bump
+        id: check-main
+        uses: EndBug/version-check@v1
         with:
-          node-version: '16'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
 
-      - name: 'Version and publish' # Interesting step
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${{ github.actor }}"
-          npx lerna help
+      - name: Check for racer version bump
+        id: check-racer
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/racer/package.json
 
-      # - name: Lint
-      #   run: yarn lint
+      - name: Check for proxy version bump
+        id: check-proxy
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/proxy/package.json
 
-      # - name: Check for version bump
-      #   id: check-main
-      #   uses: EndBug/version-check@v1
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     diff-search: true
+      - name: Check for CLI version bump
+        id: check-cli
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/race-cli/package.json
 
-      # - name: Check for racer version bump
-      #   id: check-racer
-      #   uses: EndBug/version-check@v1
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     diff-search: true
-      #     file-name: ./packages/racer/package.json
+      - name: Check for Changelog
+        uses: dangoslen/changelog-enforcer@v3
 
-      # - name: Check for proxy version bump
-      #   id: check-proxy
-      #   uses: EndBug/version-check@v1
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     diff-search: true
-      #     file-name: ./packages/proxy/package.json
-
-      # - name: Check for CLI version bump
-      #   id: check-cli
-      #   uses: EndBug/version-check@v1
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     diff-search: true
-      #     file-name: ./packages/race-cli/package.json
-
-      # - name: Check for Changelog
-      #   uses: dangoslen/changelog-enforcer@v3
-
-      # - name: Run tests
-      #   run: yarn workspaces run test
+      - name: Run tests
+        run: yarn workspaces run test
