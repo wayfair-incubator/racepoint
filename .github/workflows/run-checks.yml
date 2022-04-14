@@ -44,7 +44,7 @@ jobs:
           diff-search: true
 
       - name: Check for racer version
-        id: check # This will be the reference for getting the outputs.
+        id: check2 # This will be the reference for getting the outputs.
         uses: EndBug/version-check@v1 # You can choose the version/branch you prefer.
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
