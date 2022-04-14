@@ -43,6 +43,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           diff-search: true
 
+      - name: Check for racer version
+        id: check # This will be the reference for getting the outputs.
+        uses: EndBug/version-check@v1 # You can choose the version/branch you prefer.
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/racer/package.json
+
       - name: Check for Changelog
         uses: dangoslen/changelog-enforcer@v3
 
