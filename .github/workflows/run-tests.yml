@@ -4,22 +4,13 @@ jobs:
   run-javascript-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Node
-        uses: actions/setup-node@v3.1.0
+      - uses: actions/setup-node@v3.1.0
         with:
           node-version: '16'
-
-      - name: Checkout files
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Install dependencies
         run: npm install -g yarn-workspaces
-
       - name: Install modules
         run: yarn && yarn run build
-
-      - name: Link
-        run: yarn lint
-
       - name: Run tests
         run: yarn workspaces run test

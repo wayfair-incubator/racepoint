@@ -1,6 +1,8 @@
-import {expect} from 'chai';
+import chai, {expect} from 'chai';
+import exp from 'constants';
 import {
   RaceContext,
+  RaceProfileCommand,
   constructChromeOptions,
   constructLighthouseFlags,
 } from '../src/profiling/config';
