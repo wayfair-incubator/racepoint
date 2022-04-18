@@ -32,5 +32,10 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
+          git show
+
+          echo "============ JASON here 1 ======="
           yarn lerna changed
+
+          echo "============ JASON here 2 ======="
           yarn lerna publish from-git --yes
