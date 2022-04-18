@@ -1,5 +1,5 @@
 import {LighthouseResultsRepository} from '../src/profiling/repository';
-import {expect} from 'chai';
+import chai, {expect} from 'chai';
 
 describe('Empty LighthouseResults Repository', () => {
   it('should generate a next Id', async () => {

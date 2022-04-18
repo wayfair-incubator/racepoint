@@ -1,6 +1,6 @@
-import {expect} from 'chai';
+import chai, {expect} from 'chai';
 import {RouteMatcher} from '../src/server/routeMatcher';
-import {EndpointResponse} from '../src/server/utils';
+import {RegisteredEndpoint, EndpointResponse} from '../src/server/utils';
 
 describe('Route Parsing', () => {
   const router = new RouteMatcher([
