@@ -22,8 +22,8 @@ jobs:
       - name: Checkout files
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm install lerna && npx lerna bootstrap
+      - name: Install modules
+        run: yarn && yarn run build
 
       - name: 'Version and publish'
         env:
@@ -32,5 +32,5 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-          npx lerna changed
-          npx lerna publish from-git --yes
+          yarn lerna changed
+          yarn lerna publish from-git --yes
