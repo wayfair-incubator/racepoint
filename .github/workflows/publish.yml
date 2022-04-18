@@ -25,21 +25,27 @@ jobs:
       - name: Install modules
         run: yarn && yarn run build
 
-      - name: 'Version and publish'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
+      - name: Get version and version code
+        uses: xom9ikk/version-by-tag@v1
+        id: version_by_tag
+        # with:
+        #   path: custom_path_to_repo
+        #   isUseGithubRunNumber: false
+        #   offset: 77
 
-          git log -1
-          git fetch --tags
-          git tag
+      # - name: 'Version and publish'
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     git config user.name "${{ github.actor }}"
+      #     git config user.email "${{ github.actor }}@users.noreply.github.com"
 
+      #     git log -1
+      #     git fetch --tags
+      #     git tag
 
+      #     echo "============ JASON here 1 ======="
+      #     yarn lerna changed
 
-          echo "============ JASON here 1 ======="
-          yarn lerna changed
-
-          echo "============ JASON here 2 ======="
-          yarn lerna publish --force-publish from-git --yes
+      #     echo "============ JASON here 2 ======="
+      #     yarn lerna publish --force-publish from-git --yes
