@@ -1,6 +1,6 @@
 {
-  "name": "racepoint",
-  "version": "0.0.0",
+  "name": "race-point",
+  "version": "0.2.0",
   "description": "Utility for benchmarking Frontend performance against some URL",
   "workspaces": [
     "packages/proxy",
@@ -36,7 +36,6 @@
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jest": "^24.5.2",
     "husky": "^7.0.2",
-    "lerna": "^4.0.0",
     "prettier": "2.4.1",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.1.0",
