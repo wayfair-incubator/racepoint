@@ -13,7 +13,8 @@
     "test": "jest",
     "setup": "yarn install && yarn run build",
     "prepare": "husky install",
-    "lint": "eslint '**/*.{js,jsx,ts,tsx}' --quiet"
+    "lint": "eslint '**/*.{js,jsx,ts,tsx}' --quiet",
+    "version!": "lerna version --no-push"
   },
   "files": [
     "packages/**/*"
@@ -43,5 +44,8 @@
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
+  },
+  "dependencies": {
+    "lerna": "^4.0.0"
   }
 }

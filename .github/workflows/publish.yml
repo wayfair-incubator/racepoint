@@ -64,3 +64,4 @@ jobs:
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: 'v${{ steps.extract_version.outputs.version }}'
+          prerelease: false
