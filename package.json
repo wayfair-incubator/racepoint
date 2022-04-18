@@ -25,6 +25,7 @@
   ],
   "author": "spember@wayfair.com",
   "license": "MIT",
+  "private": true,
   "dependencies": {
     "lerna": "^4.0.0"
   },
