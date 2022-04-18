@@ -1,6 +1,6 @@
 {
   "name": "race-point",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "Utility for benchmarking Frontend performance against some URL",
   "workspaces": [
     "packages/proxy",
@@ -9,11 +9,12 @@
     "packages/shared"
   ],
   "scripts": {
-    "build": "tsc --build --force",
+    "build": "tsc --build",
     "test": "jest",
     "setup": "yarn install && yarn run build",
     "prepare": "husky install",
-    "lint": "eslint '**/*.{js,jsx,ts,tsx}' --quiet"
+    "lint": "eslint '**/*.{js,jsx,ts,tsx}' --quiet",
+    "version!": "lerna version --no-push --no-git-tag-version"
   },
   "files": [
     "packages/**/*"
@@ -24,13 +25,12 @@
     "profile"
   ],
   "author": "spember@wayfair.com",
-  "license": "ISC",
+  "license": "MIT",
   "private": true,
-  "dependencies": {},
   "devDependencies": {
     "@babel/eslint-parser": "^7.15.7",
     "@types/node": "^16.4.0",
-    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.4.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
@@ -44,5 +44,8 @@
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
+  },
+  "dependencies": {
+    "lerna": "^4.0.0"
   }
 }
