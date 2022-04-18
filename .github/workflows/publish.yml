@@ -25,10 +25,14 @@ jobs:
       - name: Install modules
         run: yarn && yarn run build
 
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.0.6
+
       - uses: 'marvinpinto/action-automatic-releases@latest'
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          # automatic_release_tag: 'latest'
+          automatic_release_tag: 'v${{ steps.extract_version.outputs.version }}'
           # prerelease: true
           # title: "Development Build"
           files: |
