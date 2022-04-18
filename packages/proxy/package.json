@@ -1,6 +1,6 @@
 {
   "name": "proxy",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "The proxy for racepoint",
   "author": "spember@wayfair.com",
   "license": "ISC",
