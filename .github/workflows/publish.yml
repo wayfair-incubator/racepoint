@@ -2,15 +2,15 @@ name: Publish
 
 on:
   pull_request:
-    # types: [closed]
-    types: [opened, synchronize]
-    # branches:
-    #   - development-test
-    #   # - main
+    types: [closed]
+    branches:
+      - development-test
+      # - development
+      # - main
 
 jobs:
   publish:
-    # if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -25,6 +25,37 @@ jobs:
       - name: Install modules
         run: yarn && yarn run build
 
+      - name: Check for version bump
+        id: check-main
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+
+      - name: Check for racer version bump
+        id: check-racer
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/racer/package.json
+
+      - name: Check for proxy version bump
+        id: check-proxy
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/proxy/package.json
+
+      - name: Check for CLI version bump
+        id: check-cli
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/race-cli/package.json
+
       - name: Extract version
         id: extract_version
         uses: Saionaro/extract-package-version@v1.0.6
@@ -33,29 +64,3 @@ jobs:
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: 'v${{ steps.extract_version.outputs.version }}'
-          # prerelease: true
-          # title: "Development Build"
-          files: |
-            LICENSE.txt
-            *.jar
-        # with:
-        #   path: custom_path_to_repo
-        #   isUseGithubRunNumber: false
-        #   offset: 77
-
-      # - name: 'Version and publish'
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     git config user.name "${{ github.actor }}"
-      #     git config user.email "${{ github.actor }}@users.noreply.github.com"
-
-      #     git log -1
-      #     git fetch --tags
-      #     git tag
-
-      #     echo "============ JASON here 1 ======="
-      #     yarn lerna changed
-
-      #     echo "============ JASON here 2 ======="
-      #     yarn lerna publish --force-publish from-git --yes
