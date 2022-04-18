@@ -32,7 +32,7 @@ jobs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-          git show
+          git log -1
 
           echo "============ JASON here 1 ======="
           yarn lerna changed
