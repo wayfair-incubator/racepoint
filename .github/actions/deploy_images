@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd ./packages/race-cli
+echo "Building Racepoint CLI Docker image..."
+docker build -t race-cli .
+docker tag race-cli wayfairossdev/racepoint-cli:${RELEASE_VERSION}
+echo "Pushing Racepoint CLI Docker image to Docker Hub..."
+docker push wayfairossdev/racepoint-cli:${RELEASE_VERSION}
+
+cd ../racer
+echo "Building Racepoint racer Docker image..."
+docker build -t racer .
+docker tag racer wayfairossdev/racepoint-racer:${RELEASE_VERSION}
+echo "Pushing Racepoint racer Docker image to Docker Hub..."
+docker push wayfairossdev/racepoint-racer:${RELEASE_VERSION}
+
+cd ../proxy
+echo "Building Racepoint proxy Docker image..."
+docker build -t proxy .
+docker tag proxy wayfairossdev/racepoint-proxy:${RELEASE_VERSION}
+echo "Pushing Racepoint proxy Docker image to Docker Hub..."
+docker push wayfairossdev/racepoint-proxy:${RELEASE_VERSION}
