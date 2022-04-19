@@ -1,0 +1,89 @@
+name: Publish
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Node
+        uses: actions/setup-node@v3.1.0
+        with:
+          node-version: '16'
+
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Install modules
+        run: yarn && yarn run build
+
+      - name: Check for racer version bump
+        id: check-racer
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/racer/package.json
+
+      - name: Check for proxy version bump
+        id: check-proxy
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/proxy/package.json
+
+      - name: Check for CLI version bump
+        id: check-cli
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/race-cli/package.json
+
+      - name: Check for main version bump
+        id: check-main
+        # Check for all three bumps before running this check. If any fail, the workflow won't proceed
+        if:
+          steps.check-racer.outputs.changed == 'true' &&
+          steps.check-proxy.outputs.changed == 'true' &&
+          steps.check-cli.outputs.changed == 'true'
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+
+      - name: Extract package version
+        id: extract-version
+        if: steps.check-main.outputs.changed == 'true'
+        uses: Saionaro/extract-package-version@v1.0.6
+
+      - name: Release Latest
+        id: release-version
+        if: steps.extract-version.outcome == 'success'
+        uses: 'marvinpinto/action-automatic-releases@latest'
+        with:
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
+          automatic_release_tag: 'v${{ steps.extract-version.outputs.version }}'
+          prerelease: false
+
+      - name: Login to Docker Hub
+        id: docker-login
+        if: steps.release-version.outcome == 'success'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Deploy Images
+        if: steps.docker-login.outcome == 'success'
+        run: bash ./.github/actions/deploy_images
+        env:
+          RELEASE_VERSION: ${{ steps.extract-version.outputs.version }}

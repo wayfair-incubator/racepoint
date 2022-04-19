@@ -61,6 +61,9 @@ export class ProfileContext implements ScenarioContext {
   outputTarget: string;
   repositoryId: string;
   includeIndividual: boolean;
+  chromeFlags?: string[];
+  extraHeaders?: Record<string, string>;
+  disableStorageReset?: boolean;
 
   constructor(userArgs: any) {
     this.targetUrl = userArgs?.targetUrl || '';
@@ -70,6 +73,9 @@ export class ProfileContext implements ScenarioContext {
     this.outputTarget = userArgs?.outputTarget;
     this.repositoryId = userArgs?.repositoryId;
     this.includeIndividual = userArgs.includeIndividual;
+    this.chromeFlags = userArgs?.chromeFlags;
+    this.extraHeaders = userArgs?.extraHeaders;
+    this.disableStorageReset = userArgs?.disableStorageReset;
   }
 }
 

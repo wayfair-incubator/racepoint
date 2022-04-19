@@ -9,48 +9,40 @@ import {
 } from '../server/utils';
 import {UsageLock} from '../usageLock';
 import {submitLighthouseRun} from '../profiling/index';
+import {RaceProfileCommand} from '../profiling/config';
 
-/**
- * Defines the configuration and properties we expect for a given Lighthouse run
- */
-interface RaceContext {
-  targetUrl: string;
-  deviceType: 'desktop' | 'mobile';
-  chromeFlags: string[];
-}
-
-const isValid = (context: RaceContext): boolean => {
+const isValid = (context: RaceProfileCommand): boolean => {
   //trivial validation for now
   return context != undefined && context.targetUrl != undefined;
 };
 
 const maybeRunLighthouse = async (
-  context: RaceContext
+  context: RaceProfileCommand
 ): Promise<EndpointResponse<object>> => {
-  // try to get a lock; if LH is currently in use, send back a 503!
-  if (await UsageLock.getInstance().tryAcquire()) {
-    return new EndpointResponse({
-      // submit lighthouse run; it will return nearly immediately but then run an additional async process
-      jobId: await submitLighthouseRun(context),
-    });
-  } else {
-    return new EndpointResponse({
-      error: 'Racer is currently in use',
-    }).withStatusCode(503);
+  const response = new EndpointResponse<object>({});
+  // first check validity. Currently this is a trivial operation
+  if (!isValid(context)) {
+    response.withBody({error: 'Payload is not valid'}).withStatusCode(400);
   }
+  // try to get a lock; if LH is currently in use, send back a 503!
+  else if (await UsageLock.getInstance().tryAcquire()) {
+    const jobId = await submitLighthouseRun(context);
+    response.withBody({jobId}).withStatusCode(200);
+  } else {
+    response.withBody({error: 'Racer is currently in use'}).withStatusCode(503);
+  }
+  return response;
 };
 
 export const ProfileEndpoint: RegisteredEndpoint<object> = {
   path: '/race',
   method: 'POST',
   handler: async (req, res, parsedUrl) => {
-    const payload = (await extractBodyFromRequest(req)) as RaceContext;
-    if (isValid(payload)) {
-      return maybeRunLighthouse(payload);
-    } else {
-      return new EndpointResponse({
-        error: 'Payload is not valid',
-      }).withStatusCode(400);
-    }
+    return maybeRunLighthouse(
+      // we parse the instruction from the cli as a context object pulled from the 'lower level'; we're reaching across a boundary here
+      // it may be wise to create a specific API object and add some mapping code later to separate what we
+      // expect callers to send to us versus what the internal operations work on
+      (await extractBodyFromRequest(req)) as RaceProfileCommand
+    );
   },
 };

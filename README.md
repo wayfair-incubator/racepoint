@@ -169,17 +169,19 @@ Racepoint accepts the following commands and flags:
 
 - `profile` - perform a number of Lighthouse runs against a single URL
 
-| <span style="display: inline-block; width:200px">Flag</span> | Description                                              |
-| ------------------------------------------------------------ | -------------------------------------------------------- |
-| --chrome-flags                                               | Additional Chrome flags for the emulated browser.        |
-| -d, --device-type                                            | Device type to emulate (default: "mobile")               |
-| -n, --number-runs                                            | Number of Lighthouse runs per URL (default: 1)           |
-| --output-target                                              | Location to save results (defaults to current directory) |
-| --output-format                                              | Save results as CSV, HTML, or both                       |
-| --raceproxy-port                                             | Port to start the raceproxy container (default: "443")   |
-| --racer-port                                                 | Port to start the racer container (default: "3000")      |
-| --repository-id                                              | Name of the repository file (default: "lighthouse-runs") |
-| -h, --help                                                   | Display help for command                                 |
+| <span style="display: inline-block; width:200px">Flag</span> | Description                                                               |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| --chrome-flags                                               | Additional comma-delimeted list of Chrome flags for the emulated browser. |
+| -d, --device-type                                            | Device type to emulate (default: "mobile")                                |
+| --disable-storage-reset                                      | If set, will preserve the browser cache between runs.                     |
+| --extra-headers                                              | A JSON-encoded string of additional headers to use on during profiling.   |
+| --include-individual                                         | Will display the results of individual runs to the console                |
+| -n, --number-runs                                            | Number of Lighthouse runs per URL (default: 1)                            |
+| --output-target                                              | Location to save results (defaults to current directory)                  |
+| --output-format                                              | Save results as CSV, HTML, or both                                        |
+| --racer-port                                                 | Port to start the racer container (default: "3000")                       |
+| --repository-id                                              | Name of the repository file (default: "lighthouse-runs")                  |
+| -h, --help                                                   | Display help for command                                                  |
 
 ### Debug
 
@@ -207,18 +209,8 @@ tuned!
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to
-learn, inspire, and create. Any contributions you make are **greatly
-appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and
-create a pull request. You can also simply open an issue with the tag
-"enhancement".
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Please see our
+[CONTRIBUTING.md](https://github.com/wayfair-incubator/racepoint/blob/main/CONTRIBUTING.md)
+for more information about making contributions.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
