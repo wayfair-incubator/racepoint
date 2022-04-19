@@ -50,7 +50,7 @@ jobs:
 
       - name: Check for main version bump
         id: check-main
-        # Check for all three bumps before running this check. If any fail, the workflow will stop
+        # Check for all three bumps before running this check. If any fail, the workflow won't proceed
         if:
           steps.check-racer.outputs.changed == 'true' &&
           steps.check-proxy.outputs.changed == 'true' &&
@@ -60,26 +60,30 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           diff-search: true
 
-      - name: Extract version
-        id: extract_version
+      - name: Extract package version
+        id: extract-version
+        if: steps.check-main.outputs.changed == 'true'
         uses: Saionaro/extract-package-version@v1.0.6
 
-      - uses: 'marvinpinto/action-automatic-releases@latest'
-        if: steps.check-main.outputs.changed == 'true'
+      - name: Release Latest
+        id: release-version
+        if: steps.extract-version.outcome == 'success'
+        uses: 'marvinpinto/action-automatic-releases@latest'
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          automatic_release_tag: 'v${{ steps.extract_version.outputs.version }}'
+          automatic_release_tag: 'v${{ steps.extract-version.outputs.version }}'
           prerelease: false
 
       - name: Login to Docker Hub
+        id: docker-login
+        if: steps.release-version.outcome == 'success'
         uses: docker/login-action@v1
-        if: steps.check-main.outputs.changed == 'true'
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Deploy Images
-        if: steps.check-main.outputs.changed == 'true'
+        if: steps.docker-login.outcome == 'success'
         run: bash ./.github/actions/deploy_images
         env:
-          RELEASE_VERSION: ${{ steps.extract_version.outputs.version }}
+          RELEASE_VERSION: ${{ steps.extract-version.outputs.version }}
