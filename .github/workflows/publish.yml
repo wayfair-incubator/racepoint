@@ -26,7 +26,7 @@ jobs:
 
       - name: Check for racer version bump
         id: check-racer
-        uses: EndBug/version-check@v1
+        uses: EndBug/version-check@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           diff-search: true
@@ -34,7 +34,7 @@ jobs:
 
       - name: Check for proxy version bump
         id: check-proxy
-        uses: EndBug/version-check@v1
+        uses: EndBug/version-check@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           diff-search: true
@@ -42,7 +42,7 @@ jobs:
 
       - name: Check for CLI version bump
         id: check-cli
-        uses: EndBug/version-check@v1
+        uses: EndBug/version-check@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           diff-search: true
@@ -55,7 +55,7 @@ jobs:
           steps.check-racer.outputs.changed == 'true' &&
           steps.check-proxy.outputs.changed == 'true' &&
           steps.check-cli.outputs.changed == 'true'
-        uses: EndBug/version-check@v1
+        uses: EndBug/version-check@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           diff-search: true
