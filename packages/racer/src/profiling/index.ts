@@ -66,12 +66,10 @@ const launchLighthouse = async (
         {
           passName: 'defaultPass',
           recordTrace: true,
-          useThrottling: false,
           pauseAfterFcpMs: 1000,
           pauseAfterLoadMs: 1000,
           networkQuietThresholdMs: 5000,
           cpuQuietThresholdMs: 5000,
-          // todo: bring these blocked URL patterns in via some config
           blockedUrlPatterns,
           gatherers: [
             'trace',
@@ -111,6 +109,16 @@ const launchLighthouse = async (
       ],
       settings: {
         onlyCategories: ['performance'],
+        throttlingMethod: 'provided',
+        // Config for throttliing settings if necessary
+        // throttling: {
+        //   rttMs: 0,
+        //   throughputKbps: 0,
+        //   requestLatencyMs: 0,
+        //   downloadThroughputKbps: 0,
+        //   uploadThroughputKbps: 0,
+        //   cpuSlowdownMultiplier: 1
+        // }
       },
     }).then((lighthouseResults: LighthouseResultsWrapper) =>
       resolve(lighthouseResults)
