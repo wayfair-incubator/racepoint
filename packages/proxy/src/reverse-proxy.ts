@@ -41,7 +41,7 @@ export const handleIncomingRequest = async ({
   } else {
     console.log(
       `✅ Key created - ${trimKey(cacheKey)}`,
-      request.method === 'POST' && `\nPOST Data - ${requestData.toString()}`
+      request.method === 'POST' ? `\nPOST Data - ${requestData.toString()}` : ''
     );
     // If we don't have it, we need to get it and cache it
     const url = request.url || '';

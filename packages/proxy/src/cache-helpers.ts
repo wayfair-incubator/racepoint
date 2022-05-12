@@ -1,5 +1,4 @@
 import {IncomingMessage} from 'http';
-import md5 from 'md5';
 import {ProxyCache} from './proxy-cache';
 import {StatusCodes} from 'http-status-codes';
 import hash from 'object-hash';
@@ -35,21 +34,18 @@ export const calculateCacheKey = (
   request: IncomingMessage,
   requestBody: Buffer
 ): string => {
-  let key = '';
-
   const payload = {
     headers: request.headers,
     url: request.url,
   };
 
   if (request.method === 'POST') {
-    key = `${request?.url?.split(/[?#]/)[0]}?hash=${md5(
-      requestBody.toString()
+    return `${request?.headers['host']}${request?.url}_${hash(
+      requestBody.toJSON()
     )}`;
   } else {
-    key = `${request?.headers['host']}${request?.url}_${hash(payload)}`;
+    return `${request?.headers['host']}${request?.url}_${hash(payload)}`;
   }
-  return key;
 };
 
 /**
@@ -58,8 +54,8 @@ export const calculateCacheKey = (
  * @param key
  */
 export const trimKey = (key: string = '') =>
-  key.length > 75
-    ? key.slice(0, 70).concat('...', key.slice(key.length - 5, key.length))
+  key.length > 100
+    ? key.slice(0, 50).concat('...', key.slice(key.length - 50, key.length))
     : key;
 
 /**
