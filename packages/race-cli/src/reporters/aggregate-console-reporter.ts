@@ -89,11 +89,8 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   }
 
   private calculateRow(data: number[]): SummaryRow {
-    console.log('Calculating row', data);
-
     let realMean = 0;
     let stdDeviation = 0;
-
     try {
       (realMean = round(mean(data), 4)),
         (stdDeviation = round(std(data, 'unbiased'), 4));

@@ -51,7 +51,6 @@ const launchLighthouse = async (
   lighthouseFlags: Flags,
   blockedUrlPatterns: string[]
 ): Promise<LighthouseResultsWrapper> => {
-  console.log(blockedUrlPatterns);
   // extracting the actual lighthouse execution into this wrapped Promise.
   // in general, we'd like to follow async/await patterns instead of chaining Promises. However, because the lighthouse package does not have TS types,
   // Typescript is upset that our lighthouse function is not async (or rather, it cannot tell)
