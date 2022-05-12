@@ -35,7 +35,11 @@ const profileWithLighthouse = async (context: RaceContext) => {
   const lighthouseFlags = constructLighthouseFlags(chrome.port, context);
   // and go
   console.log('Starting Lighthouse');
-  const results = await launchLighthouse(context.targetUrl, lighthouseFlags);
+  const results = await launchLighthouse(
+    context.targetUrl,
+    lighthouseFlags,
+    context.blockedUrlPatterns
+  );
   // don't forget the cleanup
   await chrome.kill();
   await LighthouseResultsRepository.write(context.jobId, results);
@@ -44,8 +48,10 @@ const profileWithLighthouse = async (context: RaceContext) => {
 
 const launchLighthouse = async (
   targetUrl: string,
-  lighthouseFlags: Flags
+  lighthouseFlags: Flags,
+  blockedUrlPatterns: string[]
 ): Promise<LighthouseResultsWrapper> => {
+  console.log(blockedUrlPatterns);
   // extracting the actual lighthouse execution into this wrapped Promise.
   // in general, we'd like to follow async/await patterns instead of chaining Promises. However, because the lighthouse package does not have TS types,
   // Typescript is upset that our lighthouse function is not async (or rather, it cannot tell)
@@ -67,7 +73,7 @@ const launchLighthouse = async (
           networkQuietThresholdMs: 5000,
           cpuQuietThresholdMs: 5000,
           // todo: bring these blocked URL patterns in via some config
-          // blockedUrlPatterns: [],
+          blockedUrlPatterns,
           gatherers: [
             'trace',
             'trace-compat',

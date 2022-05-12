@@ -3,7 +3,6 @@ import md5 from 'md5';
 import {ProxyCache} from './proxy-cache';
 import {StatusCodes} from 'http-status-codes';
 import hash from 'object-hash';
-
 export const CACHE_KEY_HEADER = 'll-cache-key';
 
 /**
@@ -42,14 +41,20 @@ export const calculateCacheKey = (
     url: request.url,
   };
 
-  // for now we only differentiate between graphql and non graphql requests, but we can improve
-  if (request.url?.startsWith('/graphql')) {
-    key = `/graphql?hash=${md5(requestBody.toString())}`;
+  if (request.method === 'POST') {
+    key = `${request?.url?.split(/[?#]/)[0]}?hash=${md5(
+      requestBody.toString()
+    )}`;
   } else {
     key = `${request?.headers['host']}${request?.url}_${hash(payload)}`;
   }
   return key;
 };
+
+export const trimKey = (key: string = '') =>
+  key.length > 75
+    ? key.slice(0, 70).concat('...', key.slice(key.length - 5, key.length))
+    : key;
 
 /**
  * Takes a request and writes it to cache if not present
@@ -71,7 +76,7 @@ export const cacheExtractedProxyResponse = async (
     const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
     if (key && !cacheInstance.contains(key)) {
-      console.log('💾 Writing to cache...');
+      console.log(`💾 Writing data to cache - ${trimKey(key)}`);
       cacheInstance.write(key, {
         headers: {
           ...proxyResponse.headers,
@@ -86,3 +91,32 @@ export const cacheExtractedProxyResponse = async (
 
     resolve(proxyBodyData);
   });
+
+/**
+ * Takes a request and writes it to cache if not present
+ * along with the original request
+ *
+ * @param cacheInstance
+ * @param proxyBodyData
+ * @param proxyResponse
+ * @param originalRequest
+ * @returns
+ */
+export const cacheEmptyResponse = (
+  cacheInstance: ProxyCache,
+  originalRequest: IncomingMessage
+) => {
+  const buffer = Buffer.from('');
+  const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
+
+  if (key && !cacheInstance.contains(key)) {
+    console.log(`💾 Caching empty data for failed request - ${trimKey(key)}`);
+    cacheInstance.write(key, {
+      headers: {
+        [CACHE_KEY_HEADER]: key,
+      },
+      status: StatusCodes.NOT_FOUND,
+      data: buffer,
+    });
+  }
+};

@@ -33,6 +33,12 @@ program
   .showHelpAfterError()
   // Keep these alphabetical
   .option(
+    '--blocked-url-patterns [string...]',
+    descriptionHelper(
+      'URLs of requests to block while loading the page. Basic wildcard support using *.'
+    )
+  )
+  .option(
     '--chrome-flags <string>',
     descriptionHelper(
       'Chrome flags for the emulated browser. Will be merged with necessary defaults. Should be a comma-delimited list of arguments.'
@@ -46,13 +52,6 @@ program
     'Mobile'
   )
   .option(
-    '--include-individual',
-    descriptionHelper(
-      'Will display the results of individual runs to the console'
-    ),
-    false
-  )
-  .option(
     '--disable-storage-reset',
     descriptionHelper(
       'If set, will preserve the browser cache between runs. By default this is false in order to treat the experience as a brand new user each iteration.'
@@ -62,9 +61,16 @@ program
   .option(
     '--extra-headers <JSON string>',
     descriptionHelper(
-      'A JSON strong of Headers that you wish to be included on each request. e.g. "{\\"Cookie\\":\\"monster=blue\\", \\"x-men\\":\\"wolverine\\"}"'
+      'A JSON string of Headers that you wish to be included on each request. e.g. "{\\"Cookie\\":\\"monster=blue\\", \\"x-men\\":\\"wolverine\\"}"'
     ),
     JSON.parse
+  )
+  .option(
+    '--include-individual',
+    descriptionHelper(
+      'Will display the results of individual runs to the console'
+    ),
+    false
   )
   .option(
     '-n, --number-runs <number>',

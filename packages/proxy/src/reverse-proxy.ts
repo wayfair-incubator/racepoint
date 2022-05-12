@@ -9,6 +9,7 @@ import {
   CACHE_KEY_HEADER,
   extractBody,
   calculateCacheKey,
+  trimKey,
 } from './cache-helpers';
 import {buildProxyWorker} from './proxy-worker';
 import {generateCACertificate} from './tls';
@@ -26,22 +27,22 @@ export const handleIncomingRequest = async ({
   proxy: Server;
   handleUncached: Function;
 }) => {
-  console.log('📫 Incoming request!');
-
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
 
   // Check if the resource is in the cache
   if (cache.contains(cacheKey)) {
-    console.log(`🔑 Key found - ${cacheKey.slice(0, 150)}`);
+    console.log(`🔑 Key found - ${trimKey(cacheKey)}`);
     const cachedResponse = cache.read(cacheKey)!!;
 
     response.writeHead(cachedResponse.status, cachedResponse.headers);
     response.write(cachedResponse.data);
     response.end();
   } else {
-    console.log(`🆕 Key created - ${cacheKey.slice(0, 150)}`);
-
+    console.log(
+      `✅ Key created - ${trimKey(cacheKey)}`,
+      request.method === 'POST' && `\nPOST Data - ${requestData.toString()}`
+    );
     // If we don't have it, we need to get it and cache it
     const url = request.url || '';
 
@@ -74,13 +75,10 @@ const proxyTrueDestination = ({
   proxy: Server;
   target: string;
 }) => {
+  console.log(`🌐 Proxying for URL - ${trimKey(request?.url || '')}`);
   // Have the proxy get that URL
   proxy.web(request, response, {
     target,
-    autoRewrite: true,
-    changeOrigin: true,
-    followRedirects: true,
-    ignorePath: true,
   });
 };
 
