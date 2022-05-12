@@ -3,6 +3,7 @@ import md5 from 'md5';
 import {ProxyCache} from './proxy-cache';
 import {StatusCodes} from 'http-status-codes';
 import hash from 'object-hash';
+
 export const CACHE_KEY_HEADER = 'll-cache-key';
 
 /**
@@ -51,6 +52,11 @@ export const calculateCacheKey = (
   return key;
 };
 
+/**
+ * Helper function to make long keys (URLs) more readable
+ *
+ * @param key
+ */
 export const trimKey = (key: string = '') =>
   key.length > 75
     ? key.slice(0, 70).concat('...', key.slice(key.length - 5, key.length))
