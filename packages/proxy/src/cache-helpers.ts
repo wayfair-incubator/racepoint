@@ -39,7 +39,8 @@ export const calculateCacheKey = (
     url: request.url,
   };
 
-  if (request.method === 'POST') {
+  // If there's any request body from POST/GET/etc. include it in the key
+  if (requestBody.toString().length > 0) {
     return `${request?.headers['host']}${request?.url}_${hash(
       requestBody.toJSON()
     )}`;
