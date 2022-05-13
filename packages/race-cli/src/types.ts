@@ -64,6 +64,7 @@ export class ProfileContext implements ScenarioContext {
   chromeFlags?: string[];
   extraHeaders?: Record<string, string>;
   disableStorageReset?: boolean;
+  blockedUrlPatterns?: string[];
 
   constructor(userArgs: any) {
     this.targetUrl = userArgs?.targetUrl || '';
@@ -76,6 +77,7 @@ export class ProfileContext implements ScenarioContext {
     this.chromeFlags = userArgs?.chromeFlags;
     this.extraHeaders = userArgs?.extraHeaders;
     this.disableStorageReset = userArgs?.disableStorageReset;
+    this.blockedUrlPatterns = userArgs?.blockedUrlPatterns;
   }
 }
 
