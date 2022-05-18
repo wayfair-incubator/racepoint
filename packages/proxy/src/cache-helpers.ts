@@ -1,4 +1,5 @@
 import {IncomingMessage} from 'http';
+import {Http2ServerRequest} from 'http2';
 import {ProxyCache} from './proxy-cache';
 import {StatusCodes} from 'http-status-codes';
 import hash from 'object-hash';
@@ -11,7 +12,7 @@ export const CACHE_KEY_HEADER = 'll-cache-key';
  * @param httpMessage
  */
 export const extractBody = async (
-  httpMessage: IncomingMessage
+  httpMessage: IncomingMessage | Http2ServerRequest
 ): Promise<Buffer> =>
   new Promise((resolve) => {
     const bodyData: Buffer[] = [];
@@ -78,20 +79,24 @@ export const cacheExtractedProxyResponse = async (
   new Promise((resolve) => {
     const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
-    if (key && !cacheInstance.contains(key)) {
-      console.log(`💾 Writing data to cache - ${trimKey(key)}`);
-      cacheInstance.write(key, {
-        headers: {
-          ...proxyResponse.headers,
-          [CACHE_KEY_HEADER]: key,
-        },
-        status: proxyResponse.statusCode
-          ? proxyResponse.statusCode
-          : StatusCodes.OK,
-        data: proxyBodyData,
-      });
-    }
-
+    // if (key && !cacheInstance.contains(key)) {
+    //   console.log(`💾 Writing data to cache - ${trimKey(key)}`);
+    //   cacheInstance.write(key, {
+    //     headers: {
+    //       ...proxyResponse.headers,
+    //       [CACHE_KEY_HEADER]: key,
+    //     },
+    //     status: proxyResponse.statusCode
+    //       ? proxyResponse.statusCode
+    //       : StatusCodes.OK,
+    //     data: proxyBodyData,
+    //   });
+    // }
+    console.log(
+      '💽 Data to cache is:',
+      proxyBodyData.slice(0, 50),
+      proxyBodyData.slice(proxyBodyData.length - 50, proxyBodyData.length)
+    );
     resolve(proxyBodyData);
   });
 

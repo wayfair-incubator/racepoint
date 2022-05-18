@@ -17,6 +17,7 @@ import {buildProxyWorker, handleProxyResponse} from './proxy-worker';
 import {generateCACertificate} from './tls';
 import {http as redirectHttps, RedirectableRequest} from 'follow-redirects';
 import {keys} from 'object-hash';
+import tls from 'tls';
 
 const {HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS} = http2.constants;
 
@@ -26,13 +27,16 @@ export const handleIncomingRequest = async ({
   cache,
   proxy,
   handleUncached,
+  isHttp2,
 }: {
-  request: IncomingMessage;
-  response: ServerResponse;
+  request: IncomingMessage | Http2ServerRequest;
+  response: ServerResponse | Http2ServerResponse;
   cache: ProxyCache;
   proxy: Server;
   handleUncached: Function;
+  isHttp2: boolean;
 }) => {
+  console.log('Request', request.scheme);
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
 
@@ -45,137 +49,92 @@ export const handleIncomingRequest = async ({
     response.write(cachedResponse.data);
     response.end();
   } else {
-    console.log(
-      `✅ Key created - ${trimKey(cacheKey)}`,
-      requestData.toString().length > 0
-        ? `\nWith data - ${requestData.toString()}`
-        : ''
-    );
-    // If we don't have it, we need to get it and cache it
-    const url = request.url || '';
+    if (isHttp2) {
+      console.log(
+        `📡 New request for https://${request.authority}${request.url}`
+      );
 
-    // @TODO why do some request URLs include the hostname, but not others?
-    const destinationUrl = url.startsWith('http')
-      ? url
-      : `https://${request.headers.host}${url}`;
+      const client = http2.connect(`${request.scheme}://${request.authority}`);
 
-    // Add this key for correlation
-    request.headers[CACHE_KEY_HEADER] = cacheKey;
+      client.on('error', (err) => console.error(err));
 
-    // Handle the response if it's not cached
-    await handleUncached({request, response, proxy, target: destinationUrl});
-  }
-};
-
-// const createSession(request)
-
-export const handleIncomingRequest2 = async ({
-  request,
-  response,
-  cache,
-  // proxy,
-  handleUncached,
-}: {
-  request: Http2ServerRequest;
-  response: Http2ServerResponse;
-  cache: ProxyCache;
-  // proxy: Server;
-  handleUncached: Function;
-}) => {
-  console.log(`📡 New request for https://${request.authority}${request.url}`);
-  console.log('Request headers', request.headers);
-
-  // // Build a HTTP/1.1 CONNECT request for a tunnel:
-  const hello = http.request({
-    method: 'CONNECT',
-    host: request.authority,
-    // port: 8888,
-    // path: 'cypher.codes'
-  });
-  hello.end(); // Send it
-
-  hello.on('connect', (res, socket) => {
-    console.log('Connection has been made');
-    // When you get a successful response, use the tunnelled socket
-    // to make your new request.
-    const client = http2.connecthttp2.connect(`https://${request.authority}`, {
-      // Use your existing socket, wrapped with TLS for HTTPS:
-      createConnection: () =>
-        tls.connect({
-          socket: socket,
-          ALPNProtocols: ['h2'],
-        }),
-    });
-
-    // From here, use 'client' to do HTTP/2 as normal through the tunnel
-
-    // const client = http2.connect(`https://${request.authority}`);
-
-    // client.on('error', (err) => console.error(err));
-
-    const req = client.request({
-      [HTTP2_HEADER_PATH]: request?.url,
-      ':method': request.headers[':method'],
-      ':authority': request.headers[':authority'],
-      ':scheme': 'https',
-      ':path': request.url,
-    });
-
-    // To fetch the response body, we set the encoding
-    // we want and initialize an empty data string
-    req.setEncoding('utf8');
-
-    // since we don't have any more data to send as
-    // part of the request, we can end it
-    req.end();
-
-    let data = '';
-    const headersToWrite = {};
-    let statusCode = 200;
-
-    // This callback is fired once we receive a response
-    // from the server
-    req.on('response', (headers) => {
-      // we can log each response header here
-      for (const name in headers) {
-        if (!name.startsWith(':')) {
-          headersToWrite[name] = headers[name];
-        }
-        if (name === HTTP2_HEADER_STATUS) {
-          statusCode = headers[name];
-        }
-      }
-
-      // append response data to the data string every time
-      // we receive new data chunks in the response
-      req.on('data', (chunk) => {
-        data += chunk;
+      // From here, use 'client' to do HTTP/2 as normal through the tunnel
+      const req = client.request({
+        [HTTP2_HEADER_PATH]: request?.url,
+        ':method': request.headers[':method'],
+        ':authority': request.headers[':authority'],
+        ':scheme': 'https',
+        ':path': request.url,
+        ...request.headers,
       });
 
-      req.on('push', (headers) => {
-        console.log('🗿 Pushed these headers', headers);
-      });
+      // To fetch the response body, we set the encoding
+      // we want and initialize an empty data string
+      // req.setEncoding('utf8');
 
-      // Once the response is finished, log the entire data
-      // that we received
-      req.on('end', () => {
-        // In this case, we don't want to make any more
-        // requests, so we can close the session
-        client.close();
-        console.log(
-          'Data is ',
-          data.slice(0, 50),
-          data.slice(data.length - 50, data.length)
-        );
+      // since we don't have any more data to send as
+      // part of the request, we can end it
+      req.end();
 
-        response.writeHead(statusCode, headersToWrite);
-        response.write(data);
-        response.end();
+      const headersToWrite = {};
+      let statusCode = 200;
+
+      // This callback is fired once we receive a response
+      // from the server
+      req.on('response', (headers) => {
+        // we can log each response header here
+        for (const name in headers) {
+          if (!name.startsWith(':')) {
+            headersToWrite[name] = headers[name];
+          }
+          if (name === HTTP2_HEADER_STATUS) {
+            statusCode = headers[name];
+          }
+        }
+
+        const bodyData: Buffer[] = [];
+
+        req.on('data', (chunk: Buffer) => {
+          bodyData.push(chunk);
+        });
+
+        // Once the response is finished, log the entire data
+        // that we received
+        req.on('end', () => {
+          // In this case, we don't want to make any more
+          // requests, so we can close the session
+          client.close();
+          // console.log('📀 Data is ', bodyData);
+
+          response.writeHead(statusCode, headersToWrite);
+          response.write(Buffer.concat(bodyData));
+          response.end();
+        });
       });
 
       req.on('error', (err) => console.error('Request error', err));
-    });
-  });
+    } else {
+      console.log(
+        `✅ Key created - ${trimKey(cacheKey)}`,
+        requestData.toString().length > 0
+          ? `\nWith data - ${requestData.toString()}`
+          : ''
+      );
+      // If we don't have it, we need to get it and cache it
+      const url = request.url || '';
+
+      // @TODO why do some request URLs include the hostname, but not others?
+      const destinationUrl = url.startsWith('http')
+        ? url
+        : `https://${request.headers.host}${url}`;
+
+      // Add this key for correlation
+      request.headers[CACHE_KEY_HEADER] = cacheKey;
+
+      // Handle the response if it's not cached
+      await handleUncached({request, response, proxy, target: destinationUrl});
+    }
+  }
 };
 
 /*
@@ -208,13 +167,13 @@ export const buildHttpReverseProxy = async (cache: ProxyCache) => {
   const proxy = buildProxyWorker({cache});
 
   const requestListener = async function (request: any, response: any) {
-    console.log('Request received http!');
     handleIncomingRequest({
       cache,
       proxy,
       request,
       response,
       handleUncached: proxyTrueDestination,
+      isHttp2: false,
     });
   };
 
@@ -266,36 +225,42 @@ export const buildHttp2ReverseProxy = async (cache: ProxyCache) => {
     cert,
     allowHTTP1: true,
     rejectUnauthorized: false,
+    // enableTrace: true
   });
 
   server.on('request', async (request, response) => {
-    await handleIncomingRequest2({
+    await handleIncomingRequest({
       cache,
       // proxy,
       request,
       response,
       handleUncached: proxyTrueDestination,
+      isHttp2: true,
     });
   });
 
   server.on('steam', (stream) => {
-    console.log('Im streaming!', stream);
+    console.log('🍅 Im streaming!', stream);
   });
 
   server.on('error', (err) => {
-    console.log('Error!', err);
+    console.log('🍅 Error!', err);
   });
 
   server.on('session', (a) => {
-    console.log('New session!');
+    console.log('🌵 New session!');
   });
 
   server.on('timeout', (a) => {
-    console.log('Timeout!', a);
+    console.log('🍅 Timeout!', a);
   });
 
   server.on('sessionError', (a) => {
-    console.log('Error in session!', a);
+    console.log('🍅 Error in session!', a);
+  });
+
+  server.on('unknownProtocol', (a) => {
+    console.log('🍅 Unknown protocol!', a);
   });
 
   return server;

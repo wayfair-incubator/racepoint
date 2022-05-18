@@ -17,8 +17,8 @@ const runProxy = async () => {
   console.log(`Starting HTTP server on port: ${HTTP_DEFAULT_PORT}`);
 
   // const HttpsProxyServer = await buildHttpsReverseProxy(cache);
-  // console.log(`Starting HTTPS server on port: ${450}`);
-  // HttpsProxyServer.listen(450);
+  // console.log(`Starting HTTPS server on port: ${HTTPS_DEFAULT_PORT}`);
+  // HttpsProxyServer.listen(HTTPS_DEFAULT_PORT);
 
   const Http2ProxyServer = await buildHttp2ReverseProxy(cache);
   console.log(`Starting HTTP2 server on port: ${HTTPS_DEFAULT_PORT}`);
