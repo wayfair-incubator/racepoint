@@ -1,7 +1,6 @@
 /*
   Functions for initializing servers
 */
-
 import http2, {Http2ServerRequest, Http2ServerResponse} from 'http2';
 import http, {IncomingMessage, ServerResponse} from 'http';
 import {ProxyCache} from './proxy-cache';
@@ -115,19 +114,7 @@ export const buildHttp2ReverseProxy = async (cache: ProxyCache) => {
   });
 
   server.on('error', (err) => {
-    console.log('🍅 Error!', err);
-  });
-
-  server.on('timeout', (err: any) => {
-    console.log('🍅 Timeout!', err);
-  });
-
-  server.on('sessionError', (err) => {
-    console.log('🍅 Error in session!', err);
-  });
-
-  server.on('unknownProtocol', (err) => {
-    console.log('🍅 Unknown protocol!', err);
+    console.error('Server error:', err);
   });
 
   return server;
