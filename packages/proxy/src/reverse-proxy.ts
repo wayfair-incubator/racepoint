@@ -97,7 +97,6 @@ export const buildHttp2ReverseProxy = async (cache: ProxyCache) => {
     cert,
     allowHTTP1: true,
     rejectUnauthorized: false,
-    // enableTrace: true
   });
 
   server.on('request', (request, response) => {
