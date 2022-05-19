@@ -1,23 +1,24 @@
-import http2, {Http2ServerRequest, Http2ServerResponse} from 'http2';
-import http, {IncomingMessage, ServerResponse} from 'http';
+import {
+  Http2ServerRequest,
+  Http2ServerResponse,
+  ClientHttp2Stream,
+} from 'http2';
+import {IncomingMessage, ServerResponse} from 'http';
 import {ProxyCache} from './proxy-cache';
 import {StatusCodes} from 'http-status-codes';
 import hash from 'object-hash';
 
 export const CACHE_KEY_HEADER = 'll-cache-key';
 
-const {HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS} = http2.constants;
-
-type RequestType = IncomingMessage | Http2ServerRequest;
-type ResponseType = ServerResponse | Http2ServerResponse;
-
-const isHttpRequest = (obj: RequestType): obj is IncomingMessage => {
+export const isHttpRequest = (
+  obj: IncomingMessage | Http2ServerRequest
+): obj is IncomingMessage => {
   return (obj as IncomingMessage).httpVersion.startsWith('1');
 };
 
-const isHttpResponse = (obj: ResponseType): obj is ServerResponse => {
-  return (obj as ServerResponse).hasOwnProperty('shouldKeepAlive');
-};
+// export const isHttpResponse = (obj: ServerResponse | Http2ServerResponse): obj is ServerResponse => {
+//   return (obj as ServerResponse).hasOwnProperty('shouldKeepAlive');
+// };
 
 /**
  * Extract the body from a request or response
@@ -25,7 +26,7 @@ const isHttpResponse = (obj: ResponseType): obj is ServerResponse => {
  * @param httpMessage
  */
 export const extractBody = async (
-  httpMessage: IncomingMessage | Http2ServerRequest
+  httpMessage: IncomingMessage | Http2ServerRequest | ClientHttp2Stream
 ): Promise<Buffer> =>
   new Promise((resolve) => {
     const bodyData: Buffer[] = [];
@@ -80,16 +81,24 @@ export const trimKey = (key: string = '') =>
  *
  * @param cacheInstance
  * @param proxyBodyData
- * @param proxyResponse
+ * @param responseHeaders
+ * @param statusCode
  * @param originalRequest
  * @returns
  */
-export const cacheExtractedProxyResponse = async (
-  cacheInstance: ProxyCache,
-  proxyBodyData: Buffer,
-  proxyResponse: IncomingMessage,
-  originalRequest: IncomingMessage
-): Promise<Buffer> =>
+export const cacheExtractedProxyResponse = async ({
+  cacheInstance,
+  proxyBodyData,
+  responseHeaders,
+  statusCode,
+  originalRequest,
+}: {
+  cacheInstance: ProxyCache;
+  proxyBodyData: Buffer;
+  responseHeaders: any;
+  statusCode?: number;
+  originalRequest: Http2ServerRequest | IncomingMessage;
+}): Promise<Buffer> =>
   new Promise((resolve) => {
     const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
@@ -97,12 +106,10 @@ export const cacheExtractedProxyResponse = async (
       console.log(`💾 Writing data to cache - ${trimKey(key)}`);
       cacheInstance.write(key, {
         headers: {
-          ...proxyResponse.headers,
+          ...responseHeaders,
           [CACHE_KEY_HEADER]: key,
         },
-        status: proxyResponse.statusCode
-          ? proxyResponse.statusCode
-          : StatusCodes.OK,
+        status: statusCode ? statusCode : StatusCodes.OK,
         data: proxyBodyData,
       });
     }
