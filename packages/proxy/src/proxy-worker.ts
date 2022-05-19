@@ -60,16 +60,26 @@ export const handleProxyResponse = async ({
 };
 
 const handleErrorResponse = async ({
+  error,
   cacheInstance,
   originalRequest,
   responseToBrowser,
 }: {
+  error: Error;
   cacheInstance: ProxyCache;
-  originalRequest: IncomingMessage;
-  responseToBrowser: ServerResponse | net.Socket;
+  originalRequest: IncomingMessage | Http2ServerRequest;
+  responseToBrowser: ServerResponse | Http2ServerResponse | net.Socket;
 }) => {
+  console.log(
+    `⛑ Error found requesting ${trimKey(originalRequest?.url)} - ${
+      error.message
+    }`
+  );
   cacheEmptyResponse(cacheInstance, originalRequest);
-  if (responseToBrowser instanceof ServerResponse) {
+  if (
+    responseToBrowser instanceof ServerResponse ||
+    responseToBrowser instanceof Http2ServerResponse
+  ) {
     responseToBrowser.writeHead(StatusCodes.NOT_FOUND);
     responseToBrowser.end();
   }
@@ -96,12 +106,8 @@ export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
   });
 
   proxy.on('econnreset', (error, originalRequest, responseToBrowser) => {
-    console.log(
-      `🏓 Ecconreset requesting ${trimKey(originalRequest?.url)} - ${
-        error.message
-      }`
-    );
     handleErrorResponse({
+      error,
       cacheInstance: cache,
       originalRequest,
       responseToBrowser,
@@ -109,12 +115,8 @@ export const buildProxyWorker = ({cache}: {cache: ProxyCache}) => {
   });
 
   proxy.on('error', (error, originalRequest, responseToBrowser) => {
-    console.log(
-      `⛑ Error found requesting ${trimKey(originalRequest?.url)} - ${
-        error.message
-      }`
-    );
     handleErrorResponse({
+      error,
       cacheInstance: cache,
       originalRequest,
       responseToBrowser,
@@ -175,5 +177,12 @@ export const http2Proxy = ({
     });
   });
 
-  req.on('error', (err) => console.error('Request error', err));
+  req.on('error', (error) => {
+    handleErrorResponse({
+      error,
+      cacheInstance: cache,
+      originalRequest: request,
+      responseToBrowser: response,
+    });
+  });
 };

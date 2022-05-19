@@ -1,9 +1,5 @@
-import {
-  Http2ServerRequest,
-  Http2ServerResponse,
-  ClientHttp2Stream,
-} from 'http2';
-import {IncomingMessage, ServerResponse} from 'http';
+import {Http2ServerRequest, ClientHttp2Stream} from 'http2';
+import {IncomingMessage} from 'http';
 import {ProxyCache} from './proxy-cache';
 import {StatusCodes} from 'http-status-codes';
 import hash from 'object-hash';
@@ -15,10 +11,6 @@ export const isHttpRequest = (
 ): obj is IncomingMessage => {
   return (obj as IncomingMessage).httpVersion.startsWith('1');
 };
-
-// export const isHttpResponse = (obj: ServerResponse | Http2ServerResponse): obj is ServerResponse => {
-//   return (obj as ServerResponse).hasOwnProperty('shouldKeepAlive');
-// };
 
 /**
  * Extract the body from a request or response
@@ -129,7 +121,7 @@ export const cacheExtractedProxyResponse = async ({
  */
 export const cacheEmptyResponse = (
   cacheInstance: ProxyCache,
-  originalRequest: IncomingMessage
+  originalRequest: IncomingMessage | Http2ServerRequest
 ) => {
   const buffer = Buffer.from('');
   const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
