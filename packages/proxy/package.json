@@ -1,6 +1,6 @@
 {
   "name": "proxy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The proxy for racepoint",
   "author": "spember@wayfair.com",
   "license": "ISC",
@@ -10,7 +10,6 @@
   "dependencies": {
     "http-mock": "^0.1.0",
     "http-proxy": "^1.18.1",
-    "md5": "^2.3.0",
     "mock-http": "^1.1.0",
     "node-cache": "^5.1.2",
     "node-forge": "^0.10.0",

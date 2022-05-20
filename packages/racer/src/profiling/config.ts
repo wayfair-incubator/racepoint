@@ -11,6 +11,7 @@ export interface RaceProfileCommand {
   chromeFlags?: string[];
   extraHeaders?: Record<string, string>;
   disableStorageReset?: boolean;
+  blockedUrlPatterns?: string[];
 }
 
 /**
@@ -24,6 +25,7 @@ export class RaceContext {
   chromeFlags: string[] = [];
   disableStorageReset = false;
   extraHeaders: Record<string, string> = {};
+  blockedUrlPatterns: string[] = [];
 
   constructor(requestedJobId: number, command: RaceProfileCommand) {
     this.jobId = requestedJobId;
@@ -33,7 +35,7 @@ export class RaceContext {
       command.disableStorageReset || this.disableStorageReset;
     // equivalent of java '.addAll()'
     this.chromeFlags.push(...(command.chromeFlags || []));
-
+    this.blockedUrlPatterns.push(...(command.blockedUrlPatterns || []));
     this.extraHeaders = command.extraHeaders || this.extraHeaders;
   }
 }

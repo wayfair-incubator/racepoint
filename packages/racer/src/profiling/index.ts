@@ -35,7 +35,11 @@ const profileWithLighthouse = async (context: RaceContext) => {
   const lighthouseFlags = constructLighthouseFlags(chrome.port, context);
   // and go
   console.log('Starting Lighthouse');
-  const results = await launchLighthouse(context.targetUrl, lighthouseFlags);
+  const results = await launchLighthouse(
+    context.targetUrl,
+    lighthouseFlags,
+    context.blockedUrlPatterns
+  );
   // don't forget the cleanup
   await chrome.kill();
   await LighthouseResultsRepository.write(context.jobId, results);
@@ -44,7 +48,8 @@ const profileWithLighthouse = async (context: RaceContext) => {
 
 const launchLighthouse = async (
   targetUrl: string,
-  lighthouseFlags: Flags
+  lighthouseFlags: Flags,
+  blockedUrlPatterns: string[]
 ): Promise<LighthouseResultsWrapper> => {
   // extracting the actual lighthouse execution into this wrapped Promise.
   // in general, we'd like to follow async/await patterns instead of chaining Promises. However, because the lighthouse package does not have TS types,
@@ -61,13 +66,11 @@ const launchLighthouse = async (
         {
           passName: 'defaultPass',
           recordTrace: true,
-          useThrottling: false,
           pauseAfterFcpMs: 1000,
           pauseAfterLoadMs: 1000,
           networkQuietThresholdMs: 5000,
           cpuQuietThresholdMs: 5000,
-          // todo: bring these blocked URL patterns in via some config
-          // blockedUrlPatterns: [],
+          blockedUrlPatterns,
           gatherers: [
             'trace',
             'trace-compat',
@@ -106,6 +109,16 @@ const launchLighthouse = async (
       ],
       settings: {
         onlyCategories: ['performance'],
+        throttlingMethod: 'provided',
+        // Config for throttliing settings if necessary
+        // throttling: {
+        //   rttMs: 0,
+        //   throughputKbps: 0,
+        //   requestLatencyMs: 0,
+        //   downloadThroughputKbps: 0,
+        //   uploadThroughputKbps: 0,
+        //   cpuSlowdownMultiplier: 1
+        // }
       },
     }).then((lighthouseResults: LighthouseResultsWrapper) =>
       resolve(lighthouseResults)

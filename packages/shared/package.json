@@ -1,6 +1,6 @@
 {
   "name": "@racepoint/shared",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Common types to be used between Racepoint packages",
   "author": "spember@wayfair.com",
   "license": "ISC",
@@ -9,8 +9,6 @@
   "scripts": {
     "test": "echo OK"
   },
-  "dependencies": {},
-  "devDependencies": {},
   "mocha": {
     "reporter": "nyan"
   }

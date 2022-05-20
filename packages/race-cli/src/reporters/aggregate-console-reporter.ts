@@ -89,10 +89,18 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   }
 
   private calculateRow(data: number[]): SummaryRow {
-    std;
+    let realMean = 0;
+    let stdDeviation = 0;
+    try {
+      (realMean = round(mean(data), 4)),
+        (stdDeviation = round(std(data, 'unbiased'), 4));
+    } catch (e) {
+      logger.error('Error in math', e);
+    }
+
     return {
-      [MEAN_KEY]: round(mean(data), 4),
-      [STD_DEVIATION_KEY]: round(std(data, 'unbiased'), 4),
+      [MEAN_KEY]: realMean,
+      [STD_DEVIATION_KEY]: stdDeviation,
     };
   }
 }

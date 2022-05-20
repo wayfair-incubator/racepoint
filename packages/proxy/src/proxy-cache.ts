@@ -48,6 +48,10 @@ export class ProxyCache extends EventEmitter {
     return this._cache.has(key);
   }
 
+  getKeys() {
+    return this._cache.keys();
+  }
+
   read(key: string): ProxyCacheItem | undefined {
     if (this.contains(key)) {
       this.emit(CacheEvents.CacheHit, key);
