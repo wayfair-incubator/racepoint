@@ -4,7 +4,6 @@
 import mockHttp from 'mock-http';
 import {handleIncomingRequest} from '../src/reverse-proxy';
 import {ProxyCache} from '../src/proxy-cache';
-import {buildProxyWorker} from '../src/proxy-worker';
 import {calculateCacheKey, extractBody} from '../src/cache-helpers';
 import {handleProxyResponse} from '../src/proxy-worker';
 import {CACHE_KEY_HEADER} from '../src/cache-helpers';
@@ -20,7 +19,6 @@ const requestConfig = {
 
 describe('Cache mechanism', () => {
   const testCache = new ProxyCache();
-  const proxy = buildProxyWorker({cache: testCache});
 
   it('should proxy an incoming request', async () => {
     const req = new mockHttp.Request(requestConfig);
@@ -29,7 +27,6 @@ describe('Cache mechanism', () => {
 
     await handleIncomingRequest({
       cache: testCache,
-      proxy,
       request: req,
       response: res,
       handleUncached: mockProxyHandler,
@@ -45,7 +42,6 @@ describe('Cache mechanism', () => {
 
     await handleIncomingRequest({
       cache: testCache,
-      proxy,
       request: req,
       response: res,
       handleUncached: async () => {
@@ -53,6 +49,8 @@ describe('Cache mechanism', () => {
         await handleProxyResponse({
           cacheInstance: testCache,
           proxyRes,
+          responseHeaders: {},
+          statusCode: 200,
           originalRequest: req,
           responseToBrowser: res,
         });
@@ -70,7 +68,6 @@ describe('Cache mechanism', () => {
 
     await handleIncomingRequest({
       cache: testCache,
-      proxy,
       request: req,
       response: res,
       handleUncached: uncalledProxyHandler,

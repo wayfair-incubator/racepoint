@@ -1,9 +1,8 @@
 /*
   Functions for initializing servers
 */
-import https from 'https';
+import http2, {Http2ServerRequest, Http2ServerResponse} from 'http2';
 import http, {IncomingMessage, ServerResponse} from 'http';
-import Server from 'http-proxy';
 import {ProxyCache} from './proxy-cache';
 import {
   CACHE_KEY_HEADER,
@@ -11,20 +10,18 @@ import {
   calculateCacheKey,
   trimKey,
 } from './cache-helpers';
-import {buildProxyWorker} from './proxy-worker';
+import {buildProxyWorker, http2Proxy} from './proxy-worker';
 import {generateCACertificate} from './tls';
 
 export const handleIncomingRequest = async ({
   request,
   response,
   cache,
-  proxy,
   handleUncached,
 }: {
-  request: IncomingMessage;
-  response: ServerResponse;
+  request: IncomingMessage | Http2ServerRequest;
+  response: ServerResponse | Http2ServerResponse;
   cache: ProxyCache;
-  proxy: Server;
   handleUncached: Function;
 }) => {
   const requestData = await extractBody(request);
@@ -36,6 +33,7 @@ export const handleIncomingRequest = async ({
     const cachedResponse = cache.read(cacheKey)!!;
 
     response.writeHead(cachedResponse.status, cachedResponse.headers);
+    // @ts-ignore
     response.write(cachedResponse.data);
     response.end();
   } else {
@@ -45,58 +43,40 @@ export const handleIncomingRequest = async ({
         ? `\nWith data - ${requestData.toString()}`
         : ''
     );
-    // If we don't have it, we need to get it and cache it
-    const url = request.url || '';
-
-    // @TODO why do some request URLs include the hostname, but not others?
-    const destinationUrl = url.startsWith('http')
-      ? url
-      : `https://${request.headers.host}${url}`;
-
     // Add this key for correlation
     request.headers[CACHE_KEY_HEADER] = cacheKey;
 
     // Handle the response if it's not cached
-    await handleUncached({request, response, proxy, target: destinationUrl});
+    await handleUncached({request, response});
   }
-};
-
-/*
-  Proxy a URL target
-
-  Isolated for testing purposes
-*/
-const proxyTrueDestination = ({
-  request,
-  response,
-  proxy,
-  target,
-}: {
-  request: IncomingMessage;
-  response: ServerResponse;
-  proxy: Server;
-  target: string;
-}) => {
-  console.log(`🌐 Proxying for URL - ${trimKey(request?.url || '')}`);
-  // Have the proxy get that URL
-  proxy.web(request, response, {
-    target,
-  });
 };
 
 /*
   Build a HTTP reverse proxy server instance
 */
-export const buildHttpReverseProxy = async (cache: ProxyCache) => {
+export const buildHttpReverseProxy = (cache: ProxyCache) => {
   const proxy = buildProxyWorker({cache});
 
-  const requestListener = async function (request: any, response: any) {
+  const requestListener = function (request: any, response: any) {
+    // Should this ever be http?
+    const target = `https://${request.headers.host}${request.url}`;
+
     handleIncomingRequest({
       cache,
-      proxy,
       request,
       response,
-      handleUncached: proxyTrueDestination,
+      handleUncached: (
+        {
+          request,
+          response,
+        }: {
+          request: IncomingMessage;
+          response: ServerResponse;
+        } // Have the proxy get that URL
+      ) =>
+        proxy.web(request, response, {
+          target,
+        }),
     });
   };
 
@@ -106,30 +86,35 @@ export const buildHttpReverseProxy = async (cache: ProxyCache) => {
 };
 
 /*
-  Build a HTTPS reverse proxy server instance
+  Build a HTTP2 reverse proxy server instance
 */
-export const buildHttpsReverseProxy = async (cache: ProxyCache) => {
-  const proxy = buildProxyWorker({cache});
+export const buildHttp2ReverseProxy = async (cache: ProxyCache) => {
   const {key, cert} = await generateCACertificate();
 
-  const server = https.createServer({
+  const server = http2.createSecureServer({
     key,
     cert,
+    allowHTTP1: true,
     rejectUnauthorized: false,
   });
 
-  server.on('request', async (request, response) => {
-    await handleIncomingRequest({
+  server.on('request', (request, response) => {
+    handleIncomingRequest({
       cache,
-      proxy,
       request,
       response,
-      handleUncached: proxyTrueDestination,
+      handleUncached: ({
+        request,
+        response,
+      }: {
+        request: Http2ServerRequest;
+        response: Http2ServerResponse;
+      }) => http2Proxy({request, response, cache}),
     });
   });
 
   server.on('error', (err) => {
-    console.log('Error!', err);
+    console.error('Server error:', err);
   });
 
   return server;
