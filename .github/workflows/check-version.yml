@@ -8,6 +8,7 @@ on:
     paths-ignore:
       - '**.md'
 
+jobs:
   check-version-bump:
     runs-on: ubuntu-latest
     steps:
