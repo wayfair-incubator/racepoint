@@ -47,12 +47,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           diff-search: true
 
-      - name: Check for main version bump
-        id: check-main
-        # Check for all 4 bumps before running this check. If any fail, the workflow will fail
-        if:
-          steps.check-racer.outputs.changed == 'false' ||
-          steps.check-proxy.outputs.changed == 'false' ||
-          steps.check-cli.outputs.changed == 'false' ||
-          stesp.check-main.outputs.changed == 'false'
-        run: exit 1
+      # - name: Check for main version bump
+      #   id: check-main
+      #   # Check for all 4 bumps before running this check. If any fail, the workflow will fail
+      #   if:
+      #     steps.check-racer.outputs.changed == 'false' ||
+      #     steps.check-proxy.outputs.changed == 'false' ||
+      #     steps.check-cli.outputs.changed == 'false' ||
+      #     stesp.check-main.outputs.changed == 'false'
+      #   run: exit 1
