@@ -26,8 +26,8 @@ jobs:
 
   check-version-bump:
     runs-on: ubuntu-latest
-    branches:
-      - main
+    # branches:
+    #   - main
     paths-ignore:
       - '**.md'
     steps:
