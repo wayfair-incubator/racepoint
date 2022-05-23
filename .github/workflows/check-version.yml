@@ -1,0 +1,56 @@
+name: Check Version Bump
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  check-version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+
+      - name: Check for racer version bump
+        id: check-racer
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/racer/package.json
+
+      - name: Check for proxy version bump
+        id: check-proxy
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/proxy/package.json
+
+      - name: Check for CLI version bump
+        id: check-cli
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+          file-name: ./packages/race-cli/package.json
+
+      - name: Check for main version bump
+        id: check-main
+        uses: EndBug/version-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+
+      - name: Exit on failure
+        # Check for all 4 bumps before running this check. If any fail, the workflow will fail
+        if: steps.check-cli.outputs.changed != 'true'
+        #   steps.check-proxy.outputs.changed == 'false' ||
+        #   steps.check-cli.outputs.changed == 'false' ||
+        #   steps.check-main.outputs.changed == 'false'
+        run: exit 1
