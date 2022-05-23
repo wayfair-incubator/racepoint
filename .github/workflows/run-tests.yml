@@ -1,5 +1,7 @@
 name: Run Javascript Tests
-on: [push, synchronize]
+
+on: [push, synchronize, pull_request]
+
 jobs:
   run-javascript-tests:
     runs-on: ubuntu-latest
