@@ -1,10 +1,6 @@
 name: Run Javascript Tests
 
-on:
-  pull_request:
-    types: [opened, synchronize]
-    paths-ignore:
-      - '**.md'
+on: [push]
 
 jobs:
   run-javascript-tests:
