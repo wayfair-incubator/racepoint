@@ -1,6 +1,6 @@
 name: Run Javascript Tests
 
-on: [push]
+on: [push, synchronize]
 
 jobs:
   run-javascript-tests:
