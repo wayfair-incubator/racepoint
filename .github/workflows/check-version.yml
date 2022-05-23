@@ -49,9 +49,9 @@ jobs:
 
       - name: Check for main version bump
         # Check for all 4 bumps before running this check. If any fail, the workflow will fail
-        if:
-          steps.check-racer.outputs.changed == 'false' ||
-          steps.check-proxy.outputs.changed == 'false' ||
-          steps.check-cli.outputs.changed == 'false' ||
-          steps.check-main.outputs.changed == 'false'
+        # if:
+        #   steps.check-racer.outputs.changed == 'false' ||
+        #   steps.check-proxy.outputs.changed == 'false' ||
+        #   steps.check-cli.outputs.changed == 'false' ||
+        #   steps.check-main.outputs.changed == 'false'
         run: exit 1
