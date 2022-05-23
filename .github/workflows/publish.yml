@@ -2,7 +2,7 @@ name: Publish
 
 on:
   pull_request:
-    types: ['opened']
+    types: [closed]
     branches:
       - main
     paths-ignore:
