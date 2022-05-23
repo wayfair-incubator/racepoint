@@ -2,10 +2,10 @@ name: Publish
 
 on:
   pull_request:
-    types: ['synchronize']
-    branches:
-      - main
-      - development
+    types: ['opened', 'synchronize']
+    # branches:
+    #   - main
+    #   - development
     paths-ignore:
       - '**.md'
 jobs:
