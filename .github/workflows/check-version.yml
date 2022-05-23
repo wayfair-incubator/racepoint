@@ -49,7 +49,7 @@ jobs:
 
       - name: Exit
         # Check for all 4 bumps before running this check. If any fail, the workflow will fail
-        # if: steps.check-cli.outputs.changed == 'false'
+        if: steps.check-cli.outputs
         #   steps.check-proxy.outputs.changed == 'false' ||
         #   steps.check-cli.outputs.changed == 'false' ||
         #   steps.check-main.outputs.changed == 'false'
