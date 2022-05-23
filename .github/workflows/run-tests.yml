@@ -1,7 +1,5 @@
 name: Run Javascript Tests
-
 on: [push]
-
 jobs:
   run-javascript-tests:
     runs-on: ubuntu-latest
