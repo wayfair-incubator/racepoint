@@ -3,8 +3,6 @@ name: Run Javascript Tests
 on:
   pull_request:
     types: [opened, synchronize]
-    # branches:
-    #   - main
     paths-ignore:
       - '**.md'
 
@@ -31,15 +29,3 @@ jobs:
 
       - name: Run tests
         run: yarn workspaces run test
-
-  check-version-bump:
-    runs-on: ubuntu-latest
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
-    steps:
-      - name: Check for version bump
-        uses: del-systems/check-if-version-bumped@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
