@@ -128,7 +128,7 @@ export const buildHttp2ReverseProxy = async (cache: ProxyCache) => {
       http2Proxy({request, response, cache});
     } else {
       cacheEmptyResponse(cache, request);
-      response.writeHead(StatusCodes.OK);
+      response.writeHead(StatusCodes.NO_CONTENT);
       response.end();
     }
     // If this has the request header to disable it, do so after the initial proxy/caching
