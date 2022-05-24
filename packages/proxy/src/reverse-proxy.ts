@@ -1,17 +1,39 @@
 /*
-  Functions for initializing servers
+  The 'Main' entry point for wiring up the underlying proxies, configures both an HTTP and HTTP/2 
+  server, to be used by the main index.ts file.
 */
 import http2, {Http2ServerRequest, Http2ServerResponse} from 'http2';
 import http, {IncomingMessage, ServerResponse} from 'http';
+import url from 'url';
 import {ProxyCache} from './proxy-cache';
 import {
   CACHE_KEY_HEADER,
   extractBody,
   calculateCacheKey,
   trimKey,
+  parseIntQueryParam,
 } from './cache-helpers';
 import {buildProxyWorker, http2Proxy} from './proxy-worker';
 import {generateCACertificate} from './tls';
+import {getProxyMetrics} from './proxy-metrics';
+import {getProxyEventObservable, CommonEvents} from './proxy-observable';
+
+// a hopefully unique url to signal to the proxy that this particular incoming request
+// should be treated differently
+const CACHE_INFO_URL = '/rp-cache-info';
+
+const respondWithMetrics = (
+  request: IncomingMessage | Http2ServerRequest,
+  response: ServerResponse | Http2ServerResponse,
+  cache: ProxyCache
+) => {
+  console.log('Received cache request4');
+  // support a query param to expand the top 'n' urls that have been missed
+  const topN = parseIntQueryParam(url.parse(request.url!!, true), 'n');
+  response.writeHead(200);
+  // the stats of the cache itself were note sufficient
+  response.end(JSON.stringify(getProxyMetrics().report(cache, topN)));
+};
 
 export const handleIncomingRequest = async ({
   request,
@@ -24,19 +46,28 @@ export const handleIncomingRequest = async ({
   cache: ProxyCache;
   handleUncached: Function;
 }) => {
+  if (request.url?.startsWith(CACHE_INFO_URL)) {
+    console.log('Received cache request4');
+    response.writeHead(200);
+    // the stats of the cache itself were note sufficient
+    response.end(JSON.stringify(getProxyMetrics().report(cache)));
+    return;
+  }
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
 
+  getProxyEventObservable().emit(CommonEvents.requestReceived);
   // Check if the resource is in the cache
-  if (cache.contains(cacheKey)) {
+  const cachedResponse = cache.read(cacheKey);
+  // in order to register a cache miss, we need to actually grab it
+  if (cachedResponse) {
     console.log(`🔑 Key found - ${trimKey(cacheKey)}`);
-    const cachedResponse = cache.read(cacheKey)!!;
-
     response.writeHead(cachedResponse.status, cachedResponse.headers);
     // @ts-ignore
     response.write(cachedResponse.data);
     response.end();
   } else {
+    getProxyEventObservable().emit(CommonEvents.requestUrlNotInCache, request);
     console.log(
       `✅ Key created - ${trimKey(cacheKey)}`,
       requestData.toString().length > 0
@@ -60,7 +91,6 @@ export const buildHttpReverseProxy = (cache: ProxyCache) => {
   const requestListener = function (request: any, response: any) {
     // Should this ever be http?
     const target = `https://${request.headers.host}${request.url}`;
-
     handleIncomingRequest({
       cache,
       request,
