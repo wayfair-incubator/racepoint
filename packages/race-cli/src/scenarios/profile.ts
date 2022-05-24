@@ -38,15 +38,13 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       process.exit(0);
     });
 
-    const blockAfterWarming = true;
-
     logger.info('Executing warming run...');
     await executeWarmingRun({
       data: {
         ...context,
         extraHeaders: {
           ...context?.extraHeaders,
-          ...(blockAfterWarming && {[RP_CACHE_POLICY_HEADER]: 'enable'}),
+          [RP_CACHE_POLICY_HEADER]: 'enable',
         },
       },
     });
@@ -70,6 +68,8 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         }
       });
     };
+    // Do we want a flag for this?
+    const blockAfterWarming = true;
 
     const raceUrlAndProcess = async () =>
       handleStartRacer({
@@ -77,7 +77,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
           ...context,
           extraHeaders: {
             ...context?.extraHeaders,
-            [RP_CACHE_POLICY_HEADER]: 'disable',
+            ...(blockAfterWarming && {[RP_CACHE_POLICY_HEADER]: 'disable'}),
           },
         },
       }).then((jobId: number) => {
