@@ -47,11 +47,7 @@ export const handleIncomingRequest = async ({
   handleUncached: Function;
 }) => {
   if (request.url?.startsWith(CACHE_INFO_URL)) {
-    console.log('Received cache request4');
-    response.writeHead(200);
-    // the stats of the cache itself were note sufficient
-    response.end(JSON.stringify(getProxyMetrics().report(cache)));
-    return;
+    return respondWithMetrics(request, response, cache);
   }
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
