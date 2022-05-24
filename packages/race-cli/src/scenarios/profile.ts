@@ -15,6 +15,8 @@ const RETRY_INTERVAL_MS = 3000;
 const FORMAT_CSV = 'csv';
 const FORMAT_HTML = 'html';
 
+const RP_CACHE_POLICY_HEADER = 'rp-cache-policy';
+
 export const PROFILE_COMMAND = 'profile';
 
 export class ProfileScenario extends Scenario<ProfileContext> {
@@ -36,9 +38,20 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       process.exit(0);
     });
 
+    const blockAfterWarming = true;
+
     logger.info('Executing warming run...');
-    await executeWarmingRun({data: context});
-    logger.info('Warming run complete!');
+    await executeWarmingRun({
+      data: {
+        ...context,
+        extraHeaders: {
+          ...context?.extraHeaders,
+          ...(blockAfterWarming && {[RP_CACHE_POLICY_HEADER]: 'enable'}),
+        },
+      },
+    });
+
+    logger.info('Warming runs complete!');
 
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.
@@ -60,7 +73,13 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     const raceUrlAndProcess = async () =>
       handleStartRacer({
-        data: context,
+        data: {
+          ...context,
+          extraHeaders: {
+            ...context?.extraHeaders,
+            [RP_CACHE_POLICY_HEADER]: 'disable',
+          },
+        },
       }).then((jobId: number) => {
         const tryGetResults = retry(
           () =>

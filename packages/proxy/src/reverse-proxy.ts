@@ -3,12 +3,15 @@
 */
 import http2, {Http2ServerRequest, Http2ServerResponse} from 'http2';
 import http, {IncomingMessage, ServerResponse} from 'http';
+import {StatusCodes} from 'http-status-codes';
 import {ProxyCache} from './proxy-cache';
 import {
   CACHE_KEY_HEADER,
+  RP_CACHE_POLICY_HEADER,
   extractBody,
   calculateCacheKey,
   trimKey,
+  cacheEmptyResponse,
 } from './cache-helpers';
 import {buildProxyWorker, http2Proxy} from './proxy-worker';
 import {generateCACertificate} from './tls';
@@ -24,6 +27,16 @@ export const handleIncomingRequest = async ({
   cache: ProxyCache;
   handleUncached: Function;
 }) => {
+  // Remove the cache policy header as this could change between requests
+  // Thereby creating a new cache key
+  const cachePolicyAction = request.headers[RP_CACHE_POLICY_HEADER];
+
+  console.log('cachePolicyAction', cachePolicyAction);
+
+  delete request.headers[RP_CACHE_POLICY_HEADER];
+
+  console.log('cachePolicyAction', cachePolicyAction);
+
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
 
@@ -47,7 +60,7 @@ export const handleIncomingRequest = async ({
     request.headers[CACHE_KEY_HEADER] = cacheKey;
 
     // Handle the response if it's not cached
-    await handleUncached({request, response});
+    await handleUncached({request, response, cachePolicyAction});
   }
 };
 
@@ -98,18 +111,45 @@ export const buildHttp2ReverseProxy = async (cache: ProxyCache) => {
     rejectUnauthorized: false,
   });
 
+  let enableNewRequestCache = true;
+
+  const setCachePolicy = (status: boolean) => {
+    if (status !== enableNewRequestCache) {
+      console.log(`🔁 ${status ? 'Enabling' : 'Disabling'} outbound requests`);
+      enableNewRequestCache = status;
+    }
+  };
+
+  const handleUncached = ({
+    request,
+    response,
+    cachePolicyAction,
+  }: {
+    request: Http2ServerRequest;
+    response: Http2ServerResponse;
+    cachePolicyAction: string;
+  }) => {
+    if (enableNewRequestCache) {
+      http2Proxy({request, response, cache});
+    } else {
+      cacheEmptyResponse(cache, request);
+      response.writeHead(StatusCodes.OK);
+      response.end();
+    }
+    // If this has the request header to disable it, do so after the initial proxy/cacheing
+    if (cachePolicyAction === 'disable') {
+      setCachePolicy(false);
+    } else if (cachePolicyAction === 'enable') {
+      setCachePolicy(true);
+    }
+  };
+
   server.on('request', (request, response) => {
     handleIncomingRequest({
       cache,
       request,
       response,
-      handleUncached: ({
-        request,
-        response,
-      }: {
-        request: Http2ServerRequest;
-        response: Http2ServerResponse;
-      }) => http2Proxy({request, response, cache}),
+      handleUncached,
     });
   });
 

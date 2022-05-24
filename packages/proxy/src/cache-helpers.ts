@@ -5,6 +5,7 @@ import {StatusCodes} from 'http-status-codes';
 import hash from 'object-hash';
 
 export const CACHE_KEY_HEADER = 'll-cache-key';
+export const RP_CACHE_POLICY_HEADER = 'rp-cache-policy';
 
 export const isHttpRequest = (
   obj: IncomingMessage | Http2ServerRequest
@@ -110,8 +111,7 @@ export const cacheExtractedProxyResponse = async ({
   });
 
 /**
- * Takes a request and writes it to cache if not present
- * along with the original request
+ * Takes a request and writes empty data to cache
  *
  * @param cacheInstance
  * @param proxyBodyData
@@ -126,13 +126,17 @@ export const cacheEmptyResponse = (
   const buffer = Buffer.from('');
   const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
+  const baseUrl = isHttpRequest(originalRequest)
+    ? `${originalRequest.headers.host}${originalRequest.url}`
+    : `${originalRequest.authority}${originalRequest.url}`;
+
   if (key && !cacheInstance.contains(key)) {
-    console.log(`💾 Caching empty data for failed request - ${trimKey(key)}`);
+    console.log(`💾 Caching empty data for request - ${trimKey(key)}`, baseUrl);
     cacheInstance.write(key, {
       headers: {
         [CACHE_KEY_HEADER]: key,
       },
-      status: StatusCodes.NOT_FOUND,
+      status: StatusCodes.OK,
       data: buffer,
     });
   }
