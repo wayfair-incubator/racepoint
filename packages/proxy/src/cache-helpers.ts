@@ -13,6 +13,10 @@ export const isHttpRequest = (
   return (obj as IncomingMessage).httpVersion.startsWith('1');
 };
 
+const getBaseUrl = (request: IncomingMessage | Http2ServerRequest) =>
+  isHttpRequest(request)
+    ? `${request.headers.host}${request.url}`
+    : `${request.authority}${request.url}`;
 /**
  * Extract the body from a request or response
  *
@@ -46,10 +50,7 @@ export const calculateCacheKey = (
     headers: request.headers,
     url: request.url,
   };
-  const baseUrl = isHttpRequest(request)
-    ? `${request.headers.host}${request.url}`
-    : `${request.authority}${request.url}`;
-
+  const baseUrl = getBaseUrl(request);
   // If there's any request body from POST/GET/etc. include it in the key
   if (requestData.toString().length > 0) {
     return `${baseUrl}_${hash(requestData.toJSON())}`;
@@ -96,7 +97,9 @@ export const cacheExtractedProxyResponse = async ({
     const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
     if (key && !cacheInstance.contains(key)) {
-      console.log(`💾 Writing data to cache - ${trimKey(key)}`);
+      console.log(
+        `💾 Writing data to cache -  ${trimKey(getBaseUrl(originalRequest))}`
+      );
       cacheInstance.write(key, {
         headers: {
           ...responseHeaders,
@@ -126,12 +129,12 @@ export const cacheEmptyResponse = (
   const buffer = Buffer.from('');
   const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
-  const baseUrl = isHttpRequest(originalRequest)
-    ? `${originalRequest.headers.host}${originalRequest.url}`
-    : `${originalRequest.authority}${originalRequest.url}`;
-
   if (key && !cacheInstance.contains(key)) {
-    console.log(`💾 Caching empty data for request - ${trimKey(key)}`, baseUrl);
+    console.log(
+      `💾 Caching empty data for request - ${trimKey(
+        getBaseUrl(originalRequest)
+      )}`
+    );
     cacheInstance.write(key, {
       headers: {
         [CACHE_KEY_HEADER]: key,

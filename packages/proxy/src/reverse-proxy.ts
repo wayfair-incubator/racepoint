@@ -30,12 +30,7 @@ export const handleIncomingRequest = async ({
   // Remove the cache policy header as this could change between requests
   // Thereby creating a new cache key
   const cachePolicyAction = request.headers[RP_CACHE_POLICY_HEADER];
-
-  console.log('cachePolicyAction', cachePolicyAction);
-
   delete request.headers[RP_CACHE_POLICY_HEADER];
-
-  console.log('cachePolicyAction', cachePolicyAction);
 
   const requestData = await extractBody(request);
   const cacheKey = calculateCacheKey(request, requestData);
@@ -136,7 +131,7 @@ export const buildHttp2ReverseProxy = async (cache: ProxyCache) => {
       response.writeHead(StatusCodes.OK);
       response.end();
     }
-    // If this has the request header to disable it, do so after the initial proxy/cacheing
+    // If this has the request header to disable it, do so after the initial proxy/caching
     if (cachePolicyAction === 'disable') {
       setCachePolicy(false);
     } else if (cachePolicyAction === 'enable') {
