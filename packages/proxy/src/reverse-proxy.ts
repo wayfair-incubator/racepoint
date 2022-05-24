@@ -27,7 +27,6 @@ const respondWithMetrics = (
   response: ServerResponse | Http2ServerResponse,
   cache: ProxyCache
 ) => {
-  console.log('Received cache request4');
   // support a query param to expand the top 'n' urls that have been missed
   const topN = parseIntQueryParam(url.parse(request.url!!, true), 'n');
   response.writeHead(200);
@@ -55,7 +54,7 @@ export const handleIncomingRequest = async ({
   getProxyEventObservable().emit(CommonEvents.requestReceived);
   // Check if the resource is in the cache
   const cachedResponse = cache.read(cacheKey);
-  // in order to register a cache miss, we need to actually grab it
+  // in order to register a cache miss, we should attempt to actually grab it
   if (cachedResponse) {
     console.log(`🔑 Key found - ${trimKey(cacheKey)}`);
     response.writeHead(cachedResponse.status, cachedResponse.headers);
