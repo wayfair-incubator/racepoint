@@ -46,13 +46,15 @@ class ProxyMetricsObserver {
       (request: IncomingMessage | Http2ServerRequest) => {
         const parsedUrl = url.parse(request.url!!, true);
         const path = parsedUrl.pathname!!;
-        // const url = request.url!!;
         if (parsedUrl === undefined) {
           console.warn(
             'Received an event for a requested url, but not url found in the request'
           );
           return;
         }
+        // track as a hash the paths (not including query params) long with the individual
+        // counts. We could use the full url, but the idea here is that if there's a miss
+        // it's likely due to non-determinism in the URL (e.g. timestamp in a query param).
         if (this.trackedMissedUrls[path] === undefined) {
           this.trackedMissedUrls[path] = 0;
         }
@@ -68,6 +70,7 @@ class ProxyMetricsObserver {
     this.data.keys = cache.stats().count;
     this.data.hits = cache.stats().hits;
     this.data.misses = cache.stats().misses;
+    // find the top N cache misses by miss count
     this.data.topMissCounts = Object.entries(this.trackedMissedUrls)
       .sort((a, b) => b[1] - a[1])
       .slice(0, topN)
