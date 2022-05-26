@@ -9,11 +9,15 @@ import {
 } from './racer-client';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
+import axios, {AxiosError, AxiosResponse} from 'axios';
 
 const MAX_RETRIES = 100;
 const RETRY_INTERVAL_MS = 3000;
 const FORMAT_CSV = 'csv';
 const FORMAT_HTML = 'html';
+
+const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
+const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
 
 export const PROFILE_COMMAND = 'profile';
 
@@ -37,8 +41,24 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     logger.info('Executing warming run...');
-    await executeWarmingRun({data: context});
-    logger.info('Warming run complete!');
+    await executeWarmingRun({
+      data: context,
+    });
+    logger.info('Warming runs complete!');
+
+    // Do something here to turn off cache
+    await axios
+      .post(`http://${raceProxyServer}${CACHE_CONTROL_ENDPOINT}`, {
+        enableOutboundRequests: false,
+      })
+      .then((response: AxiosResponse) => {
+        console.log('🐞 Cache disabled after warmup', response.status);
+      })
+      .catch((error: Error | AxiosError) => {
+        console.log('👹', error);
+      });
+
+    console.log('Moving onward');
 
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.
@@ -57,10 +77,18 @@ export class ProfileScenario extends Scenario<ProfileContext> {
         }
       });
     };
+    // Do we want a flag for this?
+    const blockAfterWarming = true;
 
     const raceUrlAndProcess = async () =>
       handleStartRacer({
-        data: context,
+        data: {
+          ...context,
+          extraHeaders: {
+            ...context?.extraHeaders,
+            //...(blockAfterWarming && {[RP_CACHE_POLICY_HEADER]: 'disable'}),
+          },
+        },
       }).then((jobId: number) => {
         const tryGetResults = retry(
           () =>
