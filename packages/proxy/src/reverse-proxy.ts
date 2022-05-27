@@ -80,8 +80,8 @@ const handleLockControlRequest = async ({
   lock: RequestLock;
 }) => {
   const requestData: any = await extractBodyFromRequest(request);
-  const hasValidProperty = requestData.hasOwnProperty('enableOutboundRequests');
-  if (hasValidProperty) {
+  const hasValidProperty = 'enableOutboundRequests' in requestData;
+  if (requestData.enableOutboundRequests) {
     lock.setStatus(requestData.enableOutboundRequests);
   }
   response.writeHead(hasValidProperty ? StatusCodes.OK : StatusCodes.ACCEPTED);
