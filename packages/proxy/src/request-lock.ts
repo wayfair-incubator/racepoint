@@ -1,3 +1,6 @@
+/*
+  Request Lock
+*/
 export class RequestLock {
   private _allowOutgoing: boolean;
 
@@ -6,7 +9,9 @@ export class RequestLock {
   }
 
   setStatus(status: boolean) {
-    console.log(`Lock status is now ${status}`);
+    console.log(
+      `🔏 Outgoing request lock is now ${status ? 'enabled' : 'disabled'}`
+    );
     this._allowOutgoing = status;
   }
 

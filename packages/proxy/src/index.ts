@@ -1,6 +1,6 @@
 import {ProxyCache} from './proxy-cache';
 import {buildHttpReverseProxy, buildHttp2ReverseProxy} from './reverse-proxy';
-import {RequestLock} from './lock';
+import {RequestLock} from './request-lock';
 
 const HTTP_DEFAULT_PORT = 80;
 const HTTPS_DEFAULT_PORT = 443;

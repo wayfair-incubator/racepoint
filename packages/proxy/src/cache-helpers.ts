@@ -158,7 +158,7 @@ export const cacheEmptyResponse = (
   const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
   if (key && !cacheInstance.contains(key)) {
-    console.log(`💾 Caching empty data for failed request - ${trimKey(key)}`);
+    console.log(`💾 Caching empty data for request - ${trimKey(key)}`);
     cacheInstance.write(key, {
       headers: {
         [CACHE_KEY_HEADER]: key,

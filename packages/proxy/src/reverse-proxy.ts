@@ -15,52 +15,25 @@ import {
 } from './cache-helpers';
 import {buildProxyWorker, http2Proxy} from './proxy-worker';
 import {generateCACertificate} from './tls';
-import {RequestLock} from './lock';
+import {RequestLock} from './request-lock';
 
 const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
 const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
 
-export const handleIncomingRequest = async ({
+/*
+  Handler for proxying an external request or fetching it from cache
+*/
+const handleProxyRequest = async ({
   request,
   response,
   cache,
   handleUncached,
-  lock,
 }: {
   request: IncomingMessage | Http2ServerRequest;
   response: ServerResponse | Http2ServerResponse;
   cache: ProxyCache;
   handleUncached: Function;
-  lock: RequestLock;
 }) => {
-  const extractBodyFromRequest = (
-    request: IncomingMessage | Http2ServerRequest,
-    parser: (data: string) => any = JSON.parse
-  ): Promise<object> =>
-    new Promise((resolve, reject) => {
-      let payload = '';
-      request.on('data', (chunk) => {
-        payload += chunk;
-      });
-      request.on('end', () => {
-        resolve(parser(payload));
-      });
-    });
-
-  if (
-    request.url === CACHE_CONTROL_ENDPOINT &&
-    request.headers.host === raceProxyServer
-  ) {
-    console.log('📍 Ping ping ping!');
-    const requestData = await extractBodyFromRequest(request);
-    // Add verify
-    console.log(requestData);
-    lock.setStatus(false);
-    response.writeHead(StatusCodes.OK);
-    response.end();
-    return;
-  }
-
   const requestData = await extractBodyBuffer(request);
   const cacheKey = calculateCacheKey(request, requestData);
 
@@ -71,10 +44,8 @@ export const handleIncomingRequest = async ({
     const cachedResponse = cache.read(cacheKey)!!;
 
     if (cachedResponse.url !== request.url) {
-      console.log(
-        `Key paths do not match! ${cacheKey}`,
-        cachedResponse.url,
-        request.url
+      console.warn(
+        `Warning: URL for key does not match cache. Consider adding it to the blocked URL patterns.\nOriginal Request: ${cachedResponse.url}\nIncoming Request: ${request.url}`
       );
     }
 
@@ -94,6 +65,62 @@ export const handleIncomingRequest = async ({
 
     // Handle the response if it's not cached
     await handleUncached({request, response});
+  }
+};
+
+/*
+  Handler for controlling the outgoing request lock
+*/
+const handleLockControlRequest = async ({
+  request,
+  response,
+  lock,
+}: {
+  request: IncomingMessage | Http2ServerRequest;
+  response: ServerResponse | Http2ServerResponse;
+  lock: RequestLock;
+}) => {
+  const requestData: any = await extractBodyFromRequest(request);
+  const hasValidProperty = requestData.hasOwnProperty('enableOutboundRequests');
+  if (hasValidProperty) {
+    lock.setStatus(requestData.enableOutboundRequests);
+  }
+  response.writeHead(hasValidProperty ? StatusCodes.OK : StatusCodes.ACCEPTED);
+  response.end();
+};
+
+/*
+  Handles the incoming request and decides if it's to a server endpoint or external request  
+*/
+export const handleIncomingRequest = async ({
+  request,
+  response,
+  cache,
+  handleUncached,
+  lock,
+}: {
+  request: IncomingMessage | Http2ServerRequest;
+  response: ServerResponse | Http2ServerResponse;
+  cache: ProxyCache;
+  handleUncached: Function;
+  lock: RequestLock;
+}) => {
+  if (
+    request.url === CACHE_CONTROL_ENDPOINT &&
+    request.headers.host === raceProxyServer
+  ) {
+    handleLockControlRequest({
+      request,
+      response,
+      lock,
+    });
+  } else {
+    handleProxyRequest({
+      request,
+      response,
+      cache,
+      handleUncached,
+    });
   }
 };
 

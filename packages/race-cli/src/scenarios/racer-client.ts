@@ -11,6 +11,9 @@ import {ProfileContext} from '../types';
 const racerServer = process.env?.RACER_SERVER || 'localhost';
 const racerPort = process.env?.RACER_PORT || 3000;
 
+const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
+const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
+
 /*
   Handler for the different error responses from the Racer
 */
@@ -201,3 +204,15 @@ export const executeWarmingRun = async ({data}: {data: ProfileContext}) => {
 
   return deleteResult({jobId});
 };
+
+export const disableOutboundRequests = async () =>
+  axios
+    .post(`http://${raceProxyServer}${CACHE_CONTROL_ENDPOINT}`, {
+      enableOutboundRequests: false,
+    })
+    .then((response: AxiosResponse) => {
+      console.info(`Cache disabled after warmup with code: ${response.status}`);
+    })
+    .catch((error: Error | AxiosError) => {
+      console.error(error);
+    });
