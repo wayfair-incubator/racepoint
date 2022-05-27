@@ -6,6 +6,7 @@ import {
   handleStartRacer,
   collectAndPruneResults,
   executeWarmingRun,
+  disableOutboundRequests,
 } from './racer-client';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
@@ -37,8 +38,12 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     logger.info('Executing warming run...');
-    await executeWarmingRun({data: context});
-    logger.info('Warming run complete!');
+    await executeWarmingRun({
+      data: context,
+    });
+    logger.info('Warming runs complete!');
+
+    await disableOutboundRequests();
 
     const processingQueue = async.queue(() => {
       // Number of elements to be processed.

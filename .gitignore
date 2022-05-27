@@ -4,4 +4,5 @@ build/
 *.html
 *.tsbuildinfo
 *.log
+*.aggregate-report.md
 .DS_Store

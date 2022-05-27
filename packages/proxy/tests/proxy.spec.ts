@@ -4,7 +4,7 @@
 import mockHttp from 'mock-http';
 import {handleIncomingRequest} from '../src/reverse-proxy';
 import {ProxyCache} from '../src/proxy-cache';
-import {calculateCacheKey, extractBody} from '../src/cache-helpers';
+import {calculateCacheKey, extractBodyBuffer} from '../src/cache-helpers';
 import {handleProxyResponse} from '../src/proxy-worker';
 import {CACHE_KEY_HEADER} from '../src/cache-helpers';
 
@@ -78,7 +78,7 @@ describe('Cache mechanism', () => {
 
   it('should return the correct cached data', async () => {
     const req = new mockHttp.Request(requestConfig);
-    const requestData = await extractBody(req);
+    const requestData = await extractBodyBuffer(req);
     const cacheKey = calculateCacheKey(req, requestData);
 
     expect(testCache.contains(cacheKey)).toBe(true);

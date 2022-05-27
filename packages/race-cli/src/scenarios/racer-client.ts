@@ -8,8 +8,11 @@ import {StatusCodes} from 'http-status-codes';
 import logger from '../logger';
 import {ProfileContext} from '../types';
 
-const racerServer = process.env?.RACER_SERVER || 'http://localhost';
+const racerServer = process.env?.RACER_SERVER || 'localhost';
 const racerPort = process.env?.RACER_PORT || 3000;
+
+const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
+const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
 
 /*
   Handler for the different error responses from the Racer
@@ -40,7 +43,7 @@ export const handleStartRacer = async ({
   data: ProfileContext;
 }): Promise<number> =>
   axios
-    .post(`${racerServer}:${racerPort}/race`, data)
+    .post(`http://${racerServer}:${racerPort}/race`, data)
     .then(async (response: AxiosResponse) => {
       const jobId = response.data?.jobId;
       if (jobId) {
@@ -86,7 +89,7 @@ export const fetchResult = async ({
     : {};
 
   return axios
-    .get(`${racerServer}:${racerPort}/results/${jobId}`, options)
+    .get(`http://${racerServer}:${racerPort}/results/${jobId}`, options)
     .then((response: AxiosResponse) => {
       logger.debug(`Success fetching job #${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
       if (validateResponseData(response.data)) {
@@ -130,7 +133,7 @@ export const fetchAndAppendHtml = async ({
 */
 export const deleteResult = async ({jobId}: {jobId: number}) =>
   axios
-    .delete(`${racerServer}:${racerPort}/results/${jobId}`)
+    .delete(`http://${racerServer}:${racerPort}/results/${jobId}`)
     .then((response: AxiosResponse) => {
       if (response.status === StatusCodes.NO_CONTENT) {
         logger.debug(`Success deleting ${jobId}`);
@@ -201,3 +204,15 @@ export const executeWarmingRun = async ({data}: {data: ProfileContext}) => {
 
   return deleteResult({jobId});
 };
+
+export const disableOutboundRequests = async () =>
+  axios
+    .post(`http://${raceProxyServer}${CACHE_CONTROL_ENDPOINT}`, {
+      enableOutboundRequests: false,
+    })
+    .then((response: AxiosResponse) => {
+      console.info(`Cache disabled after warmup with code: ${response.status}`);
+    })
+    .catch((error: Error | AxiosError) => {
+      console.error(error);
+    });
