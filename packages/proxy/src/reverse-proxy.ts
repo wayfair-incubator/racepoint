@@ -1,9 +1,11 @@
 /*
-  Functions for initializing servers
+  The 'Main' entry point for wiring up the underlying proxies, configures both an HTTP and HTTP/2 
+  server, to be used by the main index.ts file.
 */
 import http2, {Http2ServerRequest, Http2ServerResponse} from 'http2';
 import http, {IncomingMessage, ServerResponse} from 'http';
 import {StatusCodes} from 'http-status-codes';
+import url from 'url';
 import {ProxyCache} from './proxy-cache';
 import {
   CACHE_KEY_HEADER,
@@ -12,13 +14,19 @@ import {
   calculateCacheKey,
   trimKey,
   cacheEmptyResponse,
+  parseIntQueryParam,
 } from './cache-helpers';
 import {buildProxyWorker, http2Proxy} from './proxy-worker';
 import {generateCACertificate} from './tls';
 import {RequestLock} from './request-lock';
+import {getProxyMetrics} from './proxy-metrics';
+import {getProxyEventObservable, CommonEvents} from './proxy-observable';
 
 const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
 const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
+// a hopefully unique url to signal to the proxy that this particular incoming request
+// should be treated differently
+const CACHE_INFO_URL = '/rp-cache-info';
 
 /*
   Handler for proxying an external request or fetching it from cache
@@ -37,8 +45,11 @@ const handleProxyRequest = async ({
   const requestData = await extractBodyBuffer(request);
   const cacheKey = calculateCacheKey(request, requestData);
 
+  getProxyEventObservable().emit(CommonEvents.requestReceived);
   // Check if the resource is in the cache
-  if (cache.contains(cacheKey)) {
+  const cachedResponse = cache.read(cacheKey);
+  // in order to register a cache miss, we should attempt to actually grab it
+  if (cachedResponse) {
     console.log(`🔑 Key found - ${trimKey(cacheKey)}`);
     const cachedResponse = cache.read(cacheKey)!!;
 
@@ -53,6 +64,7 @@ const handleProxyRequest = async ({
     response.write(cachedResponse.data);
     response.end();
   } else {
+    getProxyEventObservable().emit(CommonEvents.requestUrlNotInCache, request);
     console.log(
       `✅ Key created - ${trimKey(cacheKey)}`,
       requestData.toString().length > 0
@@ -65,6 +77,21 @@ const handleProxyRequest = async ({
     // Handle the response if it's not cached
     await handleUncached({request, response});
   }
+};
+
+/*
+  Handler to respond with cache metrics
+*/
+const respondWithMetrics = (
+  request: IncomingMessage | Http2ServerRequest,
+  response: ServerResponse | Http2ServerResponse,
+  cache: ProxyCache
+) => {
+  // support a query param to expand the top 'n' urls that have been missed
+  const topN = parseIntQueryParam(url.parse(request.url!!, true), 'n');
+  response.writeHead(200);
+  // the stats of the cache itself were note sufficient
+  response.end(JSON.stringify(getProxyMetrics().report(cache, topN)));
 };
 
 /*
@@ -108,13 +135,15 @@ export const handleIncomingRequest = async ({
     request.url === CACHE_CONTROL_ENDPOINT &&
     request.headers.host === raceProxyServer
   ) {
-    handleLockControlRequest({
+    return handleLockControlRequest({
       request,
       response,
       lock,
     });
+  } else if (request.url?.startsWith(CACHE_INFO_URL)) {
+    return respondWithMetrics(request, response, cache);
   } else {
-    handleProxyRequest({
+    return handleProxyRequest({
       request,
       response,
       cache,
