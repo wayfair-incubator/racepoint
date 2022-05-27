@@ -3,6 +3,7 @@ import {IncomingMessage} from 'http';
 import {ProxyCache} from './proxy-cache';
 import {StatusCodes} from 'http-status-codes';
 import hash from 'object-hash';
+import {UrlWithParsedQuery} from 'url';
 
 export const CACHE_KEY_HEADER = 'll-cache-key';
 
@@ -66,6 +67,29 @@ export const trimKey = (key: string = '') =>
   key.length > 100
     ? key.slice(0, 50).concat('...', key.slice(key.length - 50, key.length))
     : key;
+
+/**
+ * Extracts an integer from a query param, or undefined
+ *
+ *
+ * @param url
+ * @param paramName
+ * @returns
+ */
+export const parseIntQueryParam = (
+  url: UrlWithParsedQuery,
+  paramName: string
+): number | undefined => {
+  if (url.query[paramName] === undefined) {
+    return undefined;
+  }
+
+  const parsed = parseInt(url.query[paramName]?.toString()!!);
+  if (isNaN(parsed)) {
+    return undefined;
+  }
+  return parsed;
+};
 
 /**
  * Takes a request and writes it to cache if not present
