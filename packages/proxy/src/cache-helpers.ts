@@ -14,7 +14,7 @@ export const isHttpRequest = (
 };
 
 /**
- * Extract the body from a request or response
+ * Extract the body buffer from a request or response
  *
  * @param httpMessage
  */
@@ -37,8 +37,7 @@ export const extractBodyBuffer = async (
  * @param httpMessage
  */
 export const extractBodyFromRequest = (
-  request: IncomingMessage | Http2ServerRequest,
-  parser: (data: string) => any = JSON.parse
+  request: IncomingMessage | Http2ServerRequest
 ): Promise<object> =>
   new Promise((resolve) => {
     let payload = '';
@@ -46,7 +45,13 @@ export const extractBodyFromRequest = (
       payload += chunk;
     });
     request.on('end', () => {
-      resolve(parser(payload));
+      resolve(() => {
+        try {
+          JSON.parse(payload);
+        } catch (e) {
+          console.error('Invalid JSON');
+        }
+      });
     });
   });
 

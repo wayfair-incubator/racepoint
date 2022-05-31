@@ -6,12 +6,14 @@ import retry from 'async-await-retry';
 import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
 import {StatusCodes} from 'http-status-codes';
 import logger from '../logger';
-import {ProfileContext} from '../types';
+import {CacheStats, ProfileContext} from '../types';
+import {resolve} from 'path';
 
 const racerServer = process.env?.RACER_SERVER || 'localhost';
 const racerPort = process.env?.RACER_PORT || 3000;
 
 const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
+const CACHE_INFO_URL = '/rp-cache-info';
 const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
 
 /*
@@ -211,8 +213,20 @@ export const disableOutboundRequests = async () =>
       enableOutboundRequests: false,
     })
     .then((response: AxiosResponse) => {
-      console.info(`Cache disabled after warmup with code: ${response.status}`);
+      logger.debug(`Cache disabled after warmup with code: ${response.status}`);
     })
     .catch((error: Error | AxiosError) => {
-      console.error(error);
+      logger.error(error);
+    });
+
+export const retrieveCacheStatistics = async (): Promise<
+  CacheStats | undefined
+> =>
+  axios
+    .get(`http://${raceProxyServer}${CACHE_INFO_URL}`)
+    .then((response: AxiosResponse): any => {
+      return response?.data;
+    })
+    .catch((error: Error | AxiosError) => {
+      logger.error(error);
     });

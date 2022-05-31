@@ -4,6 +4,7 @@ import json2md from 'json2md';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import {
   BaseRacepointReporter,
+  CacheStats,
   LightHouseAuditKeys,
   ProfileConfig,
 } from '../types';
@@ -15,7 +16,11 @@ const MEAN_KEY = 'Mean';
 const METRIC_KEY = 'Metric';
 const FORMAT_MD = 'md';
 
-const resultsToMarkdown = (data: any, _settings: ProfileConfig) => {
+const resultsToMarkdown = (
+  data: any,
+  _settings: ProfileConfig,
+  cacheStats?: CacheStats
+) => {
   const rows = Array.from(Object.keys(data), (key) => ({
     [METRIC_KEY]: key,
     [MEAN_KEY]: data[key][MEAN_KEY],
@@ -33,6 +38,21 @@ const resultsToMarkdown = (data: any, _settings: ProfileConfig) => {
         rows,
       },
     },
+    ...(cacheStats
+      ? [
+          {h3: 'Cache Stats'},
+          {p: `Total requests: ${cacheStats.totalRequests}`},
+          {p: `Keys cached: ${cacheStats.keys}`},
+          {p: `Cache hits: ${cacheStats.hits}`},
+          {p: `Cache misses: ${cacheStats.misses}`},
+          {p: `Top missed items:`},
+          {
+            ol: cacheStats.topMissCounts.map((missedItem: any) => {
+              return `URL: ${missedItem.url}<br />Misses: ${missedItem.misses}`;
+            }),
+          },
+        ]
+      : []),
   ]);
 };
 
@@ -58,8 +78,8 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
     });
   };
 
-  async finalize(): Promise<void> {
-    logger.info('Calculating Summary:');
+  async finalize(cacheStats?: CacheStats): Promise<void> {
+    logger.info('Calculating Summary:', cacheStats);
     let table: {[metric: string]: SummaryRow} = {};
     Object.entries(LightHouseAuditKeys).forEach(([key, value]) => {
       table[key] = this.calculateRow(this._collectedData[value]);
@@ -74,7 +94,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
               url: this._settings.targetUrl,
               suffix: 'aggregate-report.md',
             })}`,
-            resultsToMarkdown(table, this._settings),
+            resultsToMarkdown(table, this._settings, cacheStats),
             {
               flag: 'w',
             }

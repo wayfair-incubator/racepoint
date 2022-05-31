@@ -4,7 +4,7 @@ import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
 import {HtmlReporter} from './html-reporter';
 import {AggregateConsoleReporter} from './aggregate-console-reporter';
-import {LLReporter, ProfileConfig} from '../types';
+import {LLReporter, ProfileConfig, CacheStats} from '../types';
 
 export interface ReporterSettings extends ProfileConfig {
   outputs: ReportingTypes[];
@@ -64,7 +64,9 @@ export class LHResultsReporter {
     );
   }
 
-  async finalize(): Promise<any> {
-    return Promise.all(this._reporters.map((reporter) => reporter?.finalize()));
+  async finalize(cacheStats?: CacheStats): Promise<any> {
+    return Promise.all(
+      this._reporters.map((reporter) => reporter?.finalize(cacheStats))
+    );
   }
 }

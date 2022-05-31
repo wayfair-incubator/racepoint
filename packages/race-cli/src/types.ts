@@ -38,14 +38,14 @@ export abstract class Scenario<SC extends ScenarioContext> {
 export interface LLReporter {
   initialize: () => Promise<void>;
   process: (results: LighthouseResultsWrapper) => Promise<void> | undefined;
-  finalize: () => Promise<void>;
+  finalize: (cacheStats?: CacheStats) => Promise<void>;
 }
 
 export abstract class BaseRacepointReporter implements LLReporter {
   initialize(): Promise<void> {
     return Promise.resolve();
   }
-  finalize(): Promise<void> {
+  finalize(cacheStats?: CacheStats): Promise<void> {
     return Promise.resolve();
   }
   abstract process: (
@@ -100,4 +100,17 @@ export interface ProfileConfig {
   outputFormat: string[];
   outputTarget: string;
   repositoryId?: string;
+}
+
+export interface CacheStats {
+  totalRequests: number;
+  keys: number;
+  hits: number;
+  misses: number;
+  topMissCounts: MissCountType[];
+}
+
+interface MissCountType {
+  url: string;
+  misses: number;
 }

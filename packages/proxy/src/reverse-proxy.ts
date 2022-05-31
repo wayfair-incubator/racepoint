@@ -87,8 +87,10 @@ const respondWithMetrics = (
   response: ServerResponse | Http2ServerResponse,
   cache: ProxyCache
 ) => {
+  console.log('📊 Responding with metrics!');
   // support a query param to expand the top 'n' urls that have been missed
   const topN = parseIntQueryParam(url.parse(request.url!!, true), 'n');
+  console.log(topN, JSON.stringify(getProxyMetrics().report(cache, topN)));
   response.writeHead(200);
   // the stats of the cache itself were note sufficient
   response.end(JSON.stringify(getProxyMetrics().report(cache, topN)));
@@ -141,6 +143,7 @@ export const handleIncomingRequest = async ({
       lock,
     });
   } else if (request.url?.startsWith(CACHE_INFO_URL)) {
+    console.log('🆒 This is working effectively!');
     return respondWithMetrics(request, response, cache);
   } else {
     return handleProxyRequest({
