@@ -4,9 +4,10 @@ import json2md from 'json2md';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import {
   BaseRacepointReporter,
-  CacheStats,
   LightHouseAuditKeys,
   ProfileConfig,
+  CacheStats,
+  MissCountType,
 } from '../types';
 import logger from '../logger';
 import {formatFilename} from '../helpers';
@@ -47,7 +48,7 @@ const resultsToMarkdown = (
           {p: `Cache misses: ${cacheStats.misses}`},
           {p: `Top missed items:`},
           {
-            ol: cacheStats.topMissCounts.map((missedItem: any) => {
+            ol: cacheStats.topMissCounts.map((missedItem: MissCountType) => {
               return `URL: ${missedItem.url}<br />Misses: ${missedItem.misses}`;
             }),
           },

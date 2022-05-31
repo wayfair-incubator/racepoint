@@ -110,7 +110,7 @@ export interface CacheStats {
   topMissCounts: MissCountType[];
 }
 
-interface MissCountType {
+export interface MissCountType {
   url: string;
   misses: number;
 }
