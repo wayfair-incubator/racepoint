@@ -2,7 +2,10 @@
   Proxy Mocha Test
 */
 import mockHttp from 'mock-http';
-import {handleIncomingRequest} from '../src/reverse-proxy';
+import {
+  handleIncomingRequest,
+  CACHE_CONTROL_ENDPOINT,
+} from '../src/reverse-proxy';
 import {ProxyCache} from '../src/proxy-cache';
 import {calculateCacheKey, extractBodyBuffer} from '../src/cache-helpers';
 import {handleProxyResponse} from '../src/proxy-worker';
@@ -91,5 +94,31 @@ describe('Cache mechanism', () => {
     expect(JSON.stringify(testCache.read(cacheKey)?.data)).toEqual(
       JSON.stringify(requestData)
     );
+  });
+
+  it('should prevent outgoing requests when the endpoint is hit', async () => {
+    const requestLockConfig = {
+      url: CACHE_CONTROL_ENDPOINT,
+      method: 'POST',
+      buffer: Buffer.from('{"enableOutboundRequests": false}'),
+      headers: {
+        host: 'localhost',
+      },
+    };
+
+    const req = new mockHttp.Request(requestLockConfig);
+    const res = new mockHttp.Response();
+
+    expect(testLock.getStatus()).toBe(true);
+
+    await handleIncomingRequest({
+      cache: testCache,
+      request: req,
+      response: res,
+      handleUncached: jest.fn(),
+      lock: testLock,
+    });
+
+    expect(testLock.getStatus()).toBe(false);
   });
 });

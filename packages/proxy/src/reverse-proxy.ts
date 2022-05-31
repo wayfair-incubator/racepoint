@@ -23,7 +23,7 @@ import {getProxyMetrics} from './proxy-metrics';
 import {getProxyEventObservable, CommonEvents} from './proxy-observable';
 
 const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
-const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
+export const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
 // a hopefully unique url to signal to the proxy that this particular incoming request
 // should be treated differently
 const CACHE_INFO_URL = '/rp-cache-info';
@@ -108,7 +108,7 @@ const handleLockControlRequest = async ({
 }) => {
   const requestData: any = await extractBodyFromRequest(request);
   const hasValidProperty = 'enableOutboundRequests' in requestData;
-  if (requestData.enableOutboundRequests) {
+  if (hasValidProperty) {
     lock.setStatus(requestData.enableOutboundRequests);
   }
   response.writeHead(hasValidProperty ? StatusCodes.OK : StatusCodes.ACCEPTED);
