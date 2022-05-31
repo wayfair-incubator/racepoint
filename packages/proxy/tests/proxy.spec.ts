@@ -121,4 +121,30 @@ describe('Cache mechanism', () => {
 
     expect(testLock.getStatus()).toBe(false);
   });
+
+  it('should re-enable outgoing requests when the endpoint is hit', async () => {
+    const requestLockConfig = {
+      url: CACHE_CONTROL_ENDPOINT,
+      method: 'POST',
+      buffer: Buffer.from('{"enableOutboundRequests": true}'),
+      headers: {
+        host: 'localhost',
+      },
+    };
+
+    const req = new mockHttp.Request(requestLockConfig);
+    const res = new mockHttp.Response();
+
+    expect(testLock.getStatus()).toBe(false);
+
+    await handleIncomingRequest({
+      cache: testCache,
+      request: req,
+      response: res,
+      handleUncached: jest.fn(),
+      lock: testLock,
+    });
+
+    expect(testLock.getStatus()).toBe(true);
+  });
 });
