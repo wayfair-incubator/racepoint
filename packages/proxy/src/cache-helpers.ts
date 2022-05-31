@@ -18,7 +18,7 @@ export const isHttpRequest = (
  *
  * @param httpMessage
  */
-export const extractBody = async (
+export const extractBodyBuffer = async (
   httpMessage: IncomingMessage | Http2ServerRequest | ClientHttp2Stream
 ): Promise<Buffer> =>
   new Promise((resolve) => {
@@ -28,6 +28,25 @@ export const extractBody = async (
     });
     httpMessage.on('end', function () {
       resolve(Buffer.concat(bodyData));
+    });
+  });
+
+/**
+ * Extract the response object
+ *
+ * @param httpMessage
+ */
+export const extractBodyFromRequest = (
+  request: IncomingMessage | Http2ServerRequest,
+  parser: (data: string) => any = JSON.parse
+): Promise<object> =>
+  new Promise((resolve) => {
+    let payload = '';
+    request.on('data', (chunk) => {
+      payload += chunk;
+    });
+    request.on('end', () => {
+      resolve(parser(payload));
     });
   });
 
@@ -42,13 +61,24 @@ export const calculateCacheKey = (
   request: IncomingMessage | Http2ServerRequest,
   requestData: Buffer
 ): string => {
+  const pathname = new URL(
+    request?.url || '',
+    isHttpRequest(request)
+      ? `http://${request.headers.host}`
+      : `https://${request.authority}`
+  ).pathname;
+
   const payload = {
-    headers: request.headers,
-    url: request.url,
+    headers: {
+      ...request.headers,
+      ':path': pathname,
+    },
+    pathname,
   };
+
   const baseUrl = isHttpRequest(request)
-    ? `${request.headers.host}${request.url}`
-    : `${request.authority}${request.url}`;
+    ? `${request.headers.host}${pathname}`
+    : `${request.authority}${pathname}`;
 
   // If there's any request body from POST/GET/etc. include it in the key
   if (requestData.toString().length > 0) {
@@ -127,6 +157,7 @@ export const cacheExtractedProxyResponse = async ({
         },
         status: statusCode ? statusCode : StatusCodes.OK,
         data: proxyBodyData,
+        url: originalRequest.url || '',
       });
     }
 
@@ -151,13 +182,14 @@ export const cacheEmptyResponse = (
   const key = originalRequest.headers[CACHE_KEY_HEADER] as string | undefined;
 
   if (key && !cacheInstance.contains(key)) {
-    console.log(`💾 Caching empty data for failed request - ${trimKey(key)}`);
+    console.log(`💾 Caching empty data for request - ${trimKey(key)}`);
     cacheInstance.write(key, {
       headers: {
         [CACHE_KEY_HEADER]: key,
       },
       status: StatusCodes.NOT_FOUND,
       data: buffer,
+      url: originalRequest.url || '',
     });
   }
 };

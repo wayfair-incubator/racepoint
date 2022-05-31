@@ -8,6 +8,7 @@ import {EventEmitter} from 'stream';
 export interface ProxyCacheItem {
   status: number;
   headers: IncomingHttpHeaders;
+  url: string;
   data: Buffer;
 }
 

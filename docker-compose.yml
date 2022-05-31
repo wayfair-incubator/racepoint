@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - ${RACEPROXY_PORT:-443}:${RACEPROXY_PORT:-443}
+    environment:
+      - RACEPROXY_SERVER=raceproxy
     image: rp-proxy
     restart: always
   racer:
@@ -31,7 +33,8 @@ services:
       - raceproxy
       - racer
     environment:
-      - RACER_SERVER=http://racer
+      - RACER_SERVER=racer
+      - RACEPROXY_SERVER=raceproxy
       # - LOG_LEVEL=debug
     volumes:
       - './results:/rp/results'
