@@ -32,9 +32,6 @@ class ProxyMetricsObserver {
     this.observable.on(
       CommonEvents.requestUrlNotInCache,
       (request: IncomingMessage | Http2ServerRequest) => {
-        // const parsedUrl = url.parse(request.url!!, true);
-        // const path = parsedUrl.pathname!!;
-
         const pathname = new URL(
           request?.url || '',
           isHttpRequest(request)

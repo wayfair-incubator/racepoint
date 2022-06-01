@@ -3,7 +3,13 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": "./src",
-    "outDir": "./build"
+    "outDir": "./build",
+    "module": "esnext",
+    "target": "esnext",
+    "declaration": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react"
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*", "**/*.test.ts"]
