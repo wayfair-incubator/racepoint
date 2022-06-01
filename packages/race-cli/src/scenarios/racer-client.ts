@@ -7,7 +7,6 @@ import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
 import {StatusCodes} from 'http-status-codes';
 import logger from '../logger';
 import {CacheStats, ProfileContext} from '../types';
-import {resolve} from 'path';
 
 const racerServer = process.env?.RACER_SERVER || 'localhost';
 const racerPort = process.env?.RACER_PORT || 3000;

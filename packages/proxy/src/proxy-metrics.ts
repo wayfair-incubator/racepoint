@@ -1,6 +1,5 @@
 import {Http2ServerRequest} from 'http2';
 import {IncomingMessage} from 'http';
-import url from 'url';
 import {ProxyCache} from './proxy-cache';
 import {isHttpRequest} from './cache-helpers';
 import {CommonEvents, getProxyEventObservable} from './proxy-observable';
