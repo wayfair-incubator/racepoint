@@ -6,9 +6,8 @@ import {
   BaseRacepointReporter,
   LightHouseAuditKeys,
   ProfileConfig,
-  CacheStats,
-  MissCountType,
 } from '../types';
+import {MissCount, CacheMetricData} from '@racepoint/shared';
 import logger from '../logger';
 import {formatFilename} from '../helpers';
 
@@ -19,8 +18,8 @@ const FORMAT_MD = 'md';
 
 const resultsToMarkdown = (
   data: any,
-  _settings: ProfileConfig,
-  cacheStats?: CacheStats
+  settings: ProfileConfig,
+  cacheStats?: CacheMetricData
 ) => {
   const rows = Array.from(Object.keys(data), (key) => ({
     [METRIC_KEY]: key,
@@ -30,9 +29,9 @@ const resultsToMarkdown = (
 
   return json2md([
     {h2: 'Racepoint Aggregated Results'},
-    {p: `Target Url: ${_settings.targetUrl}`},
-    {p: `Device Type: ${_settings.deviceType}`},
-    {p: `Number of Runs: ${_settings.numberRuns}`},
+    {p: `Target Url: ${settings.targetUrl}`},
+    {p: `Device Type: ${settings.deviceType}`},
+    {p: `Number of Runs: ${settings.numberRuns}`},
     {
       table: {
         headers: [METRIC_KEY, MEAN_KEY, STD_DEVIATION_KEY],
@@ -46,12 +45,19 @@ const resultsToMarkdown = (
           {p: `Keys cached: ${cacheStats.keys}`},
           {p: `Cache hits: ${cacheStats.hits}`},
           {p: `Cache misses: ${cacheStats.misses}`},
-          {p: `Top missed items:`},
-          {
-            ol: cacheStats.topMissCounts.map((missedItem: MissCountType) => {
-              return `URL: ${missedItem.url}<br />Misses: ${missedItem.misses}`;
-            }),
-          },
+          ...(cacheStats.topMissCounts.length > 0
+            ? [
+                {p: `Top missed items:`},
+                {
+                  ol: cacheStats.topMissCounts
+                    .filter((missedItem) => missedItem.misses > 0)
+                    .map(
+                      (missedItem: MissCount) =>
+                        `URL: <a href="${missedItem.url}">${missedItem.url}</a><br>Misses: ${missedItem.misses}`
+                    ),
+                },
+              ]
+            : []),
         ]
       : []),
   ]);
@@ -79,7 +85,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
     });
   };
 
-  async finalize(cacheStats?: CacheStats): Promise<void> {
+  async finalize(cacheStats?: CacheMetricData): Promise<void> {
     logger.info('Calculating Summary:', cacheStats);
     let table: {[metric: string]: SummaryRow} = {};
     Object.entries(LightHouseAuditKeys).forEach(([key, value]) => {

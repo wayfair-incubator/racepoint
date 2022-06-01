@@ -45,13 +45,11 @@ export const extractBodyFromRequest = (
       payload += chunk;
     });
     request.on('end', () => {
-      resolve(() => {
-        try {
-          JSON.parse(payload);
-        } catch (e) {
-          console.error('Invalid JSON');
-        }
-      });
+      try {
+        resolve(JSON.parse(payload));
+      } catch (e) {
+        console.error('Invalid JSON');
+      }
     });
   });
 

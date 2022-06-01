@@ -6,7 +6,7 @@ import {
   handleStartRacer,
   collectAndPruneResults,
   executeWarmingRun,
-  disableOutboundRequests,
+  enableOutboundRequests,
   retrieveCacheStatistics,
 } from './racer-client';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
@@ -43,7 +43,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       data: context,
     });
 
-    await disableOutboundRequests();
+    await enableOutboundRequests(false);
     logger.info('Warming runs complete!');
 
     const processingQueue = async.queue(() => {
@@ -135,13 +135,15 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       interval: RETRY_INTERVAL_MS,
     });
 
-    // Do we want an option to disable this?
-    const cacheStats = await retrieveCacheStatistics();
-
     // Time to process the results
     resultsArray.forEach(async (result: LighthouseResultsWrapper) => {
       await resultsReporter.process(result);
     });
+
+    // Do we want an option to disable this?
+    const cacheStats = await retrieveCacheStatistics();
+    // Re-enable outbound requests
+    await enableOutboundRequests(true);
 
     await resultsReporter.finalize(cacheStats);
     process.exit(0);

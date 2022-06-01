@@ -207,13 +207,17 @@ export const executeWarmingRun = async ({data}: {data: ProfileContext}) => {
   return deleteResult({jobId});
 };
 
-export const disableOutboundRequests = async () =>
+export const enableOutboundRequests = async (enable: boolean) =>
   axios
     .post(`http://${raceProxyServer}${CACHE_CONTROL_ENDPOINT}`, {
-      enableOutboundRequests: false,
+      enableOutboundRequests: enable,
     })
     .then((response: AxiosResponse) => {
-      logger.debug(`Cache disabled after warmup with code: ${response.status}`);
+      logger.debug(
+        `Cache successfully ${enable ? 'enabled' : 'disabled'} with code: ${
+          response.status
+        }`
+      );
     })
     .catch((error: Error | AxiosError) => {
       logger.error(error);
