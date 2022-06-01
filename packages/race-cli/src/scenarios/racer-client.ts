@@ -3,10 +3,14 @@
  */
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import retry from 'async-await-retry';
-import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
+import {
+  LighthouseResultsWrapper,
+  LighthouseResults,
+  CacheMetricData,
+} from '@racepoint/shared';
 import {StatusCodes} from 'http-status-codes';
 import logger from '../logger';
-import {CacheStats, ProfileContext} from '../types';
+import {ProfileContext} from '../types';
 
 const racerServer = process.env?.RACER_SERVER || 'localhost';
 const racerPort = process.env?.RACER_PORT || 3000;
@@ -223,7 +227,7 @@ export const enableOutboundRequests = async (enable: boolean) =>
     });
 
 export const retrieveCacheStatistics = async (): Promise<
-  CacheStats | undefined
+  CacheMetricData | undefined
 > =>
   axios
     .get(`http://${raceProxyServer}${CACHE_INFO_URL}`)

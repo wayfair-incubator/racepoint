@@ -1,10 +1,10 @@
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper, CacheMetricData} from '@racepoint/shared';
 import logger from '../logger';
 import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
 import {HtmlReporter} from './html-reporter';
 import {AggregateConsoleReporter} from './aggregate-console-reporter';
-import {LLReporter, ProfileConfig, CacheStats} from '../types';
+import {LLReporter, ProfileConfig} from '../types';
 
 export interface ReporterSettings extends ProfileConfig {
   outputs: ReportingTypes[];
@@ -64,7 +64,7 @@ export class LHResultsReporter {
     );
   }
 
-  async finalize(cacheStats?: CacheStats): Promise<any> {
+  async finalize(cacheStats?: CacheMetricData): Promise<any> {
     return Promise.all(
       this._reporters.map((reporter) => reporter?.finalize(cacheStats))
     );
