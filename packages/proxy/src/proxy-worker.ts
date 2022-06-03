@@ -12,7 +12,7 @@ import net from 'net';
 import {createProxyServer} from 'http-proxy';
 import {ProxyCache} from './proxy-cache';
 import {
-  extractBody,
+  extractBodyBuffer,
   cacheExtractedProxyResponse,
   cacheEmptyResponse,
   trimKey,
@@ -37,7 +37,7 @@ export const handleProxyResponse = async ({
 }) => {
   console.log(`📥 Response received for ${trimKey(originalRequest?.url)}`);
 
-  await extractBody(proxyRes)
+  await extractBodyBuffer(proxyRes)
     .then((bodyBuffer) =>
       cacheExtractedProxyResponse({
         cacheInstance,

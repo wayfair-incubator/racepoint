@@ -1,4 +1,4 @@
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper, CacheMetricData} from '@racepoint/shared';
 import logger from '../logger';
 import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
@@ -64,7 +64,9 @@ export class LHResultsReporter {
     );
   }
 
-  async finalize(): Promise<any> {
-    return Promise.all(this._reporters.map((reporter) => reporter?.finalize()));
+  async finalize(cacheStats?: CacheMetricData): Promise<any> {
+    return Promise.all(
+      this._reporters.map((reporter) => reporter?.finalize(cacheStats))
+    );
   }
 }

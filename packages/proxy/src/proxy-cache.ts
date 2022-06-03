@@ -8,13 +8,14 @@ import {EventEmitter} from 'stream';
 export interface ProxyCacheItem {
   status: number;
   headers: IncomingHttpHeaders;
+  url: string;
   data: Buffer;
 }
 
 export interface CacheStats {
   count: number;
-  hitPercentage: number;
-  missPercentage: number;
+  hits: number;
+  misses: number;
 }
 
 export enum CacheEvents {
@@ -62,8 +63,8 @@ export class ProxyCache extends EventEmitter {
   stats(): CacheStats {
     return {
       count: this._cache.stats.keys,
-      hitPercentage: this._cache.stats.hits,
-      missPercentage: this._cache.stats.misses,
+      hits: this._cache.stats.hits,
+      misses: this._cache.stats.misses,
     };
   }
 }
