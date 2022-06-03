@@ -38,3 +38,12 @@ services:
       # - LOG_LEVEL=debug
     volumes:
       - './results:/rp/results'
+  stageharbor:
+    container_name: stageharbor
+    build:
+      context: ./packages/stageharbor/.
+      dockerfile: Dockerfile
+    depends_on:
+      - raceproxy
+    volumes:
+      - './results:/sth/results'
