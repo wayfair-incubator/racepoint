@@ -1,29 +1,17 @@
 import {Http2ServerRequest} from 'http2';
 import {IncomingMessage} from 'http';
-import url from 'url';
 import {ProxyCache} from './proxy-cache';
+import {isHttpRequest} from './cache-helpers';
 import {CommonEvents, getProxyEventObservable} from './proxy-observable';
+import {CacheMetricData} from '@racepoint/shared';
 
 let instance: ProxyMetricsObserver | undefined = undefined;
-
-interface MissCount {
-  url: string;
-  misses: number;
-}
-
-interface ProxyMetricData {
-  totalRequests: number;
-  keys: number;
-  hits: number;
-  misses: number;
-  topMissCounts: MissCount[];
-}
 
 /**
  * The first major use case of such a pipeline is tracking overall stats on how the Proxy is doing
  */
 class ProxyMetricsObserver {
-  private data: ProxyMetricData = {
+  private data: CacheMetricData = {
     totalRequests: 0,
     keys: 0,
     hits: 0,
@@ -44,28 +32,39 @@ class ProxyMetricsObserver {
     this.observable.on(
       CommonEvents.requestUrlNotInCache,
       (request: IncomingMessage | Http2ServerRequest) => {
-        const parsedUrl = url.parse(request.url!!, true);
-        const path = parsedUrl.pathname!!;
-        if (parsedUrl === undefined) {
+        const pathname = new URL(
+          request?.url || '',
+          isHttpRequest(request)
+            ? `http://${request.headers.host}`
+            : `https://${request.authority}`
+        ).pathname;
+
+        if (pathname === undefined) {
           console.warn(
             'Received an event for a requested url, but not url found in the request'
           );
           return;
         }
+
+        const baseUrl = isHttpRequest(request)
+          ? `http://${request.headers.host}${pathname}`
+          : `https://${request.authority}${pathname}`;
+
         // track as a hash the paths (not including query params) long with the individual
         // counts. We could use the full url, but the idea here is that if there's a miss
         // it's likely due to non-determinism in the URL (e.g. timestamp in a query param).
-        if (this.trackedMissedUrls[path] === undefined) {
-          this.trackedMissedUrls[path] = 0;
+        if (this.trackedMissedUrls[baseUrl] === undefined) {
+          this.trackedMissedUrls[baseUrl] = 0;
+        } else {
+          this.trackedMissedUrls[baseUrl]++;
         }
-        this.trackedMissedUrls[path]++;
       }
     );
 
     console.log('Metrics Observer initialized');
   }
 
-  report(cache: ProxyCache, topN: number = 10): ProxyMetricData {
+  report(cache: ProxyCache, topN: number = 10): CacheMetricData {
     // reuse the data tracked by the proxy cache
     this.data.keys = cache.stats().count;
     this.data.hits = cache.stats().hits;

@@ -1,4 +1,4 @@
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {LighthouseResultsWrapper, CacheMetricData} from '@racepoint/shared';
 
 export interface ScenarioContext {}
 
@@ -38,14 +38,14 @@ export abstract class Scenario<SC extends ScenarioContext> {
 export interface LLReporter {
   initialize: () => Promise<void>;
   process: (results: LighthouseResultsWrapper) => Promise<void> | undefined;
-  finalize: () => Promise<void>;
+  finalize: (cacheStats?: CacheMetricData) => Promise<void>;
 }
 
 export abstract class BaseRacepointReporter implements LLReporter {
   initialize(): Promise<void> {
     return Promise.resolve();
   }
-  finalize(): Promise<void> {
+  finalize(cacheStats?: CacheMetricData): Promise<void> {
     return Promise.resolve();
   }
   abstract process: (
