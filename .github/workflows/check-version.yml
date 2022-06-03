@@ -11,8 +11,10 @@ jobs:
   check-version-bump:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for version bump
-        uses: del-systems/check-if-version-bumped@v1
+      - name: Check for main version bump
+        id: check-main
+        uses: EndBug/version-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
           file-name: ./package.json
