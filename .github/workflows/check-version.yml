@@ -15,4 +15,4 @@ jobs:
         uses: del-systems/check-if-version-bumped@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-        file-name: ./package.json
+          file-name: ./package.json
