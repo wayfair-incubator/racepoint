@@ -80,3 +80,16 @@ export interface LighthouseResults {
       runtimeError: undefined,
       audits: {
   */
+
+export interface MissCount {
+  url: string;
+  misses: number;
+}
+
+export interface CacheMetricData {
+  totalRequests: number;
+  keys: number;
+  hits: number;
+  misses: number;
+  topMissCounts: MissCount[];
+}
