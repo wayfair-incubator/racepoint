@@ -26,7 +26,6 @@ jobs:
 
       - name: Extract package version
         id: extract-version
-        if: steps.check-main.outputs.changed == 'true'
         uses: Saionaro/extract-package-version@v1.1.1
 
       - name: Release Latest
