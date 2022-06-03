@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check for version bump
-        uses: del-systems/check-if-version-bumped@v1
+        uses: EndBug/version-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
