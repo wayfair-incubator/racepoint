@@ -78,9 +78,6 @@ export const calculateCacheKey = (
     },
     pathname,
   };
-  const baseUrl = isHttpRequest(request)
-    ? `${request.headers.host}${request.url}`
-    : `${request.authority}${request.url}`;
 
   const baseUrl = isHttpRequest(request)
     ? `${request.headers.host}${pathname}`
@@ -93,16 +90,6 @@ export const calculateCacheKey = (
     return `${baseUrl}_${hash(payload)}`;
   }
 };
-
-/**
- * Helper function to make long keys (URLs) more readable
- *
- * @param key
- */
-export const trimKey = (key: string = '') =>
-  key.length > 100
-    ? key.slice(0, 50).concat('...', key.slice(key.length - 50, key.length))
-    : key;
 
 /**
  * Extracts an integer from a query param, or undefined
