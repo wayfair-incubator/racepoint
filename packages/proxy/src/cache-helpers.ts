@@ -92,16 +92,6 @@ export const calculateCacheKey = (
 };
 
 /**
- * Helper function to make long keys (URLs) more readable
- *
- * @param key
- */
-export const trimKey = (key: string = '') =>
-  key.length > 100
-    ? key.slice(0, 50).concat('...', key.slice(key.length - 50, key.length))
-    : key;
-
-/**
  * Extracts an integer from a query param, or undefined
  *
  *
@@ -123,6 +113,16 @@ export const parseIntQueryParam = (
   }
   return parsed;
 };
+
+/**
+ * Helper function to make long keys (URLs) more readable
+ *
+ * @param key
+ */
+export const trimKey = (key: string = '') =>
+  key.length > 100
+    ? key.slice(0, 50).concat('...', key.slice(key.length - 50, key.length))
+    : key;
 
 /**
  * Takes a request and writes it to cache if not present
