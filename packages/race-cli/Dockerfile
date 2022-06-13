@@ -8,7 +8,7 @@ LABEL \
 COPY . /rp/
 WORKDIR /rp/
 
-# Create default logs directory
+# Create default results & flows directories
 RUN mkdir -p results
 RUN mkdir -p flows
 
