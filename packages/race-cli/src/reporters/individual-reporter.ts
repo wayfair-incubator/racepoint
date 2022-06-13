@@ -1,4 +1,8 @@
-import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
+import {
+  LighthouseResultsWrapper,
+  LighthouseResults,
+  UserFlowResultsWrapper,
+} from '@racepoint/shared';
 import {LightHouseAuditKeys} from '../types';
 import {BaseRacepointReporter} from '../types';
 
@@ -25,13 +29,15 @@ export class IndividualRunsReporter extends BaseRacepointReporter {
     this._hasBegun = false;
   }
 
-  process = (results: LighthouseResultsWrapper): Promise<void> =>
+  process = (
+    results: LighthouseResultsWrapper | UserFlowResultsWrapper
+  ): Promise<void> =>
     new Promise((resolve) => {
       if (this._hasBegun === false) {
         this._hasBegun = true;
         console.log(this.buildHeaders());
       }
-      console.log(this.buildRow(results.lhr));
+      // console.log(this.buildRow(results.lhr));
       resolve();
     });
 

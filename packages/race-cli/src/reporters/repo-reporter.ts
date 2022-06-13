@@ -1,4 +1,8 @@
-import {LighthouseResultsWrapper, LighthouseResults} from '@racepoint/shared';
+import {
+  LighthouseResultsWrapper,
+  LighthouseResults,
+  UserFlowResultsWrapper,
+} from '@racepoint/shared';
 import {
   connectRepository,
   ReportingRepository,
@@ -37,11 +41,14 @@ export class RepositoryReporter extends BaseRacepointReporter {
         logger.error('Failed to connect to repository');
       });
 
-  process = (results: LighthouseResultsWrapper): Promise<void> | undefined => {
-    return (
-      this._repository &&
-      this._repository.write(this.mapResultsToRow(results.lhr))
-    );
+  process = (
+    results: LighthouseResultsWrapper | UserFlowResultsWrapper
+  ): Promise<void> | undefined => {
+    return;
+    // return (
+    //   this._repository &&
+    //   this._repository.write(this.mapResultsToRow(results.lhr))
+    // );
   };
 
   private mapResultsToRow = (results: LighthouseResults): ReportingRow => {

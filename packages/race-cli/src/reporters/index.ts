@@ -1,4 +1,8 @@
-import {LighthouseResultsWrapper, CacheMetricData} from '@racepoint/shared';
+import {
+  LighthouseResultsWrapper,
+  UserFlowResultsWrapper,
+  CacheMetricData,
+} from '@racepoint/shared';
 import logger from '../logger';
 import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
@@ -28,20 +32,23 @@ export class LHResultsReporter {
   constructor(options: ReporterSettings) {
     // initialize reporters based on options, as we add more reporting types, add them here
     this._reporters = options.outputs.map((type: ReportingTypes) => {
-      if (type === ReportingTypes.IndividualRunsReporter) {
-        return new IndividualRunsReporter();
-      } else if (type === ReportingTypes.Aggregate) {
+      // if (type === ReportingTypes.IndividualRunsReporter) {
+      //   return new IndividualRunsReporter();
+      // } else
+      if (type === ReportingTypes.Aggregate) {
         return new AggregateConsoleReporter(options);
-      } else if (type === ReportingTypes.LighthouseHtml) {
+      } // else
+      else if (type === ReportingTypes.LighthouseHtml) {
         // for now, hardcode the result. We could make it a setting in ReporterSettings but as it stands, it feels weird to add
         // more file path locations there. hmm
         return new HtmlReporter(options.outputTarget);
-      } else if (type === ReportingTypes.Repository) {
-        return new RepositoryReporter(
-          options.targetUrl,
-          options.repositoryId,
-          options.outputTarget
-        );
+        // }
+        // else if (type === ReportingTypes.Repository) {
+        //   return new RepositoryReporter(
+        //     options.targetUrl,
+        //     options.repositoryId,
+        //     options.outputTarget
+        //   );
       } else {
         logger.error('Unknown reporting type of:', type);
       }
@@ -58,7 +65,7 @@ export class LHResultsReporter {
   // do not hold on to reports more than necessary
   //
 
-  async process(report: LighthouseResultsWrapper): Promise<any> {
+  async process(report: UserFlowResultsWrapper): Promise<any> {
     return Promise.all(
       this._reporters.map((reporter) => reporter?.process(report))
     );

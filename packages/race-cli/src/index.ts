@@ -136,6 +136,15 @@ program
     parseIntArg,
     1
   )
+  .option(
+    '--output-target <string>',
+    descriptionHelper('Location to save results'),
+    'results'
+  )
+  .option(
+    '--output-format [string...]',
+    descriptionHelper('Save results as CSV, HTML, and/or MD')
+  )
   .usage('./my-test.js')
   .action((testFileLocation: any, options: any) => {
     const testFile = fs.readFileSync(testFileLocation, 'utf8');
@@ -143,6 +152,9 @@ program
     new FlowScenario().enter({
       ...options,
       testFile,
+      outputFormat: options.outputFormat
+        ? options.outputFormat.map((format: string) => format.toLowerCase())
+        : [],
     });
   });
 

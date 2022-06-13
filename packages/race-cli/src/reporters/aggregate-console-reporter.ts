@@ -1,7 +1,11 @@
 import {std, mean, round} from 'mathjs';
 import fs from 'fs/promises';
 import json2md from 'json2md';
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {
+  LighthouseResultsWrapper,
+  UserFlowStep,
+  UserFlowResultsWrapper,
+} from '@racepoint/shared';
 import {
   BaseRacepointReporter,
   LightHouseAuditKeys,
@@ -10,6 +14,7 @@ import {
 import {MissCount, CacheMetricData} from '@racepoint/shared';
 import logger from '../logger';
 import {formatFilename} from '../helpers';
+import {MULTIPLE_CHOICES} from 'http-status-codes';
 
 const STD_DEVIATION_KEY = 'Standard Deviation';
 const MEAN_KEY = 'Mean';
@@ -63,11 +68,33 @@ const resultsToMarkdown = (
   ]);
 };
 
+interface StepData {
+  step: number;
+  [LightHouseAuditKeys.SI]: number[];
+  [LightHouseAuditKeys.LCP]: number[];
+  [LightHouseAuditKeys.FCP]: number[];
+  [LightHouseAuditKeys.CLS]: number[];
+  [LightHouseAuditKeys.MaxFID]: number[];
+  [LightHouseAuditKeys.TotalBlocking]: number[];
+}
+
+const emptyStep = (step: number): StepData => ({
+  step,
+  [LightHouseAuditKeys.SI]: [],
+  [LightHouseAuditKeys.LCP]: [],
+  [LightHouseAuditKeys.FCP]: [],
+  [LightHouseAuditKeys.CLS]: [],
+  [LightHouseAuditKeys.MaxFID]: [],
+  [LightHouseAuditKeys.TotalBlocking]: [],
+});
+
 export class AggregateConsoleReporter extends BaseRacepointReporter {
   private _collectedData: {[key: string]: number[]} = {};
   private _reportPath: string;
   private _outputMarkdown: boolean;
   private _settings: ProfileConfig;
+
+  private _stepDataCollection: {[key: number]: StepData} = {};
 
   constructor(options: ProfileConfig) {
     super();
@@ -79,10 +106,24 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
     this._settings = options;
   }
 
-  process = async (results: LighthouseResultsWrapper) => {
-    Object.values(LightHouseAuditKeys).forEach((value) => {
-      this._collectedData[value].push(results.lhr.audits[value].numericValue);
+  process = async (results: UserFlowResultsWrapper) => {
+    console.log(`Processing result ${results.steps[0].name}`);
+
+    results.steps.forEach((step: UserFlowStep, i) => {
+      // Initialize a new empty step if it doesn't exist
+      if (!this._stepDataCollection[i]) {
+        this._stepDataCollection[i] = emptyStep(i);
+      }
+      const activeStep = this._stepDataCollection[i];
+
+      Object.values(LightHouseAuditKeys).forEach((value) => {
+        if (step.lhr.audits.hasOwnProperty(value)) {
+          activeStep[value].push(step.lhr.audits[value].numericValue);
+        }
+      });
     });
+
+    console.log('🃏 Processed successfully!', this._stepDataCollection);
   };
 
   async finalize(cacheStats?: CacheMetricData): Promise<void> {

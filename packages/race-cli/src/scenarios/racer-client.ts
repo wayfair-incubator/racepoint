@@ -190,6 +190,7 @@ export const collectAndPruneResults = async ({
       resultsWrapper = {
         steps: data,
         report: '',
+        name: `result_${jobId}`,
       };
       if (retrieveHtml) {
         return fetchAndAppendHtml({jobId, resultsWrapper});

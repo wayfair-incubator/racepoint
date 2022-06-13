@@ -1,4 +1,8 @@
-import {LighthouseResultsWrapper, CacheMetricData} from '@racepoint/shared';
+import {
+  LighthouseResultsWrapper,
+  CacheMetricData,
+  UserFlowResultsWrapper,
+} from '@racepoint/shared';
 
 export interface ScenarioContext {}
 
@@ -37,7 +41,7 @@ export abstract class Scenario<SC extends ScenarioContext> {
 
 export interface LLReporter {
   initialize: () => Promise<void>;
-  process: (results: LighthouseResultsWrapper) => Promise<void> | undefined;
+  process: (results: UserFlowResultsWrapper) => Promise<void> | undefined;
   finalize: (cacheStats?: CacheMetricData) => Promise<void>;
 }
 
@@ -49,7 +53,7 @@ export abstract class BaseRacepointReporter implements LLReporter {
     return Promise.resolve();
   }
   abstract process: (
-    results: LighthouseResultsWrapper
+    results: UserFlowResultsWrapper
   ) => Promise<void> | undefined;
 }
 
@@ -83,15 +87,19 @@ export class ProfileContext implements ScenarioContext {
 
 export class FlowContext implements ScenarioContext {
   testFile: string;
-  deviceType: 'Mobile' | 'Desktop';
   chromeFlags?: string[];
+  deviceType: 'Mobile' | 'Desktop';
   numberRuns: number;
+  outputFormat: string[];
+  outputTarget: string;
 
   constructor(userArgs: any) {
     this.testFile = userArgs?.testFile || '';
     this.chromeFlags = userArgs?.chromeFlags;
     this.deviceType = userArgs?.deviceType;
     this.numberRuns = userArgs?.numberRuns;
+    this.outputFormat = userArgs?.outputFormat;
+    this.outputTarget = userArgs?.outputTarget;
   }
 }
 
