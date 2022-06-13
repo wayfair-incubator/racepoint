@@ -1,11 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import {StatusCodes} from 'http-status-codes';
-import {
-  LighthouseResults,
-  UserFlowResultsWrapper,
-  UserFlowStep,
-} from '@racepoint/shared';
+import {UserFlowResultsWrapper, UserFlowStep} from '@racepoint/shared';
 import {
   handleStartRacer,
   deleteResult,
