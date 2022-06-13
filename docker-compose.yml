@@ -38,3 +38,4 @@ services:
       # - LOG_LEVEL=debug
     volumes:
       - './results:/rp/results'
+      - './flows:/rp/flows'

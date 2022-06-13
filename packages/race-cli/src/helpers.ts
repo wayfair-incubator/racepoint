@@ -2,6 +2,8 @@ const chalk = require('chalk');
 const commander = require('commander');
 const figlet = require('figlet');
 const {textSync} = figlet;
+const fs = require('fs');
+const path = require('path');
 
 // Format command descriptions
 export const descriptionHelper = (str: string) => chalk.italic.blue(str);
@@ -69,4 +71,12 @@ export const formatFilename = ({
   const s = ('0' + formattedDate.getSeconds()).slice(-2);
 
   return `${title}_${y}-${mo}-${d}_${h}-${mi}-${s}.${suffix}`;
+};
+
+export const validateFile = (filepath: string) => {
+  if (fs.existsSync(filepath) && path.extname(filepath) === '.js') {
+    return filepath;
+  } else {
+    throw new commander.InvalidArgumentError('Not a valid Javascript file.');
+  }
 };

@@ -61,7 +61,7 @@ const selectResponseTypeByHeader = (
       MIME_HTML
     );
   } else {
-    return new EndpointResponse(record.results.lhr).withHeader(
+    return new EndpointResponse(record.results.steps).withHeader(
       CONTENT_TYPE,
       'application/json'
     );

@@ -81,6 +81,20 @@ export class ProfileContext implements ScenarioContext {
   }
 }
 
+export class FlowContext implements ScenarioContext {
+  testFile: string;
+  deviceType: 'Mobile' | 'Desktop';
+  chromeFlags?: string[];
+  numberRuns: number;
+
+  constructor(userArgs: any) {
+    this.testFile = userArgs?.testFile || '';
+    this.chromeFlags = userArgs?.chromeFlags;
+    this.deviceType = userArgs?.deviceType;
+    this.numberRuns = userArgs?.numberRuns;
+  }
+}
+
 /**
  * The keys (among many dozens) in a Lighthouse Report that we wish to look into
  */

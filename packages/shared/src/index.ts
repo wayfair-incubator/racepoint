@@ -61,6 +61,17 @@ export interface LighthouseResults {
   timing: LighthouseTiming;
 }
 
+export interface UserFlowStep {
+  lhr: LighthouseResults;
+  name: string;
+}
+
+export interface UserFlowResultsWrapper {
+  steps: UserFlowStep[];
+  report?: string;
+  name?: string;
+}
+
 //timing: { entries: [Array], total: 13843.27 },
 
 /*
