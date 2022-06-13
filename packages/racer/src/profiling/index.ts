@@ -35,7 +35,7 @@ export const submitLighthouseRun = async (
 };
 
 /**
- * Starts a user flow run asynchronously, returning a job id immediately.
+ * Starts a user flow script asynchronously, returning a job id immediately.
  *
  * @param command the  RaceProfileCommand dictating the instruction of the profiling to do.
  */
@@ -45,7 +45,7 @@ export const submitUserFlow = async (
 ): Promise<number> => {
   const jobId = await LighthouseResultsRepository.getNextId();
   const context = new FlowContext(jobId, command, testCase);
-  // execute a Lighthouse run. This is an async function and as such the jobId is returned immediately.
+  // execute a User Flow script This is an async function and as such the jobId is returned immediately.
   runUserFlow(context);
   return jobId;
 };
@@ -65,7 +65,6 @@ const runUserFlow = async (context: FlowContext) => {
 
     // Closing browser if not closed...
     await browser.close();
-    console.log('Writing results...', resultsFile.toString().slice(0, 400));
 
     const {window} = new JSDOM(resultsFile, {runScripts: 'dangerously'});
 
@@ -97,7 +96,6 @@ const profileWithLighthouse = async (context: RaceContext) => {
     context.blockedUrlPatterns
   );
 
-  console.log('Original Results', results);
   // Re-format the results object into a shared user flow type
   // Essentially a flow with a single step
   const formattedResults: UserFlowResultsWrapper = {
@@ -109,7 +107,6 @@ const profileWithLighthouse = async (context: RaceContext) => {
     ],
     report: results.report,
   };
-  console.log('Formattted Results', formattedResults);
 
   // don't forget the cleanup
   await chrome.kill();
