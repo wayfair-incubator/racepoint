@@ -1,6 +1,6 @@
 const api = require('lighthouse/lighthouse-core/fraggle-rock/api.js');
 
-class whateverYouWant {
+class exampleUserFlow {
   async connect(browser) {
     // return new Promise(async (resolve, reject) => {
     const page = await browser.newPage();
@@ -29,4 +29,4 @@ class whateverYouWant {
     return report;
   }
 }
-module.exports = new whateverYouWant();
+module.exports = new exampleUserFlow();

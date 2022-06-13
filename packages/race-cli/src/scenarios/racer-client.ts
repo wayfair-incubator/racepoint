@@ -86,11 +86,9 @@ export const handleStartUserFlow = async ({
 /*
   Validate the response is either HTML or a LHR
 */
-const validateResponseData = (data: any | string) => {
+const validateResponseData = (data: UserFlowStep[] | string) => {
   if (
-    (typeof data !== 'string' && data.lighthouseVersion) ||
-    // TEMP
-    (typeof data !== 'string' && data.length > 0) ||
+    (typeof data !== 'string' && data[0].lhr) ||
     (typeof data === 'string' && data.length > 0)
   ) {
     return true;
