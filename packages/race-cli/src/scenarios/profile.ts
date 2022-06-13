@@ -60,11 +60,11 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
 
     const resultsArray = await retryableQueue({
-      enqueue: async () =>
+      enqueue: () =>
         handleStartRacer({
           data: context,
         }),
-      processResult: async (jobId: number) =>
+      processResult: (jobId: number) =>
         collectAndPruneResults({
           jobId,
           retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
@@ -73,8 +73,10 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     // Temporary until changes to aggregate reporter are made to support User Flows
-    const formattedResults = resultsArray.map((result) => result.steps[0].lhr);
-    console.log('results array:', formattedResults);
+    const formattedResults = resultsArray.map((result) => ({
+      lhr: result.steps[0].lhr,
+      report: result.report,
+    }));
 
     // Time to process the results
     formattedResults.forEach(async (result: LighthouseResultsWrapper) => {

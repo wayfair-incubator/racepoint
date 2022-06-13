@@ -127,7 +127,6 @@ export const fetchResult = async ({
       if (validateResponseData(response.data)) {
         return response.data;
       } else {
-        console.error('Bad data', response.data);
         throw new Error('Received bad data');
       }
     })
@@ -292,7 +291,7 @@ export const retryableQueue = async ({
     // Number of elements to be processed.
     const remaining = processingQueue.length();
     if (remaining === 0) {
-      console.log('Queue complete');
+      logger.debug('Queue complete');
     }
   }, 2);
 
@@ -306,38 +305,35 @@ export const retryableQueue = async ({
     });
   };
 
-  const tryEnqueue = async () => {
-    try {
-      const jobId = await enqueue();
-      numProcessed++;
-      return jobId;
-    } catch (e) {
-      numFailed++;
-      return 0;
-    }
-  };
-
-  // Loop through runs, queueing up the fetch command, retrying if we don't have the ready reponse
-  for (let i = 1; i <= numberRuns; i++) {
-    try {
-      const jobId = await retry(tryEnqueue, [], {
-        retriesMax: MAX_RETRIES,
-        interval: RETRY_INTERVAL_MS,
-      });
-
-      const retryProcessResults = await retry(
-        async () => {
-          const result = await processResult(jobId);
-          resultsArray.push(result);
-        },
+  const enqueueAndProcess = async () =>
+    enqueue().then((jobId: number) => {
+      const tryGetResults = retry(
+        () =>
+          processResult(jobId).then((result: any) => {
+            resultsArray.push(result);
+            numProcessed++;
+            logger.info(`Results received [${numProcessed}/${numberRuns}]`);
+          }),
         [],
         {
           retriesMax: MAX_RETRIES,
           interval: RETRY_INTERVAL_MS,
         }
-      );
+      ).catch(() => {
+        numFailed++;
+        logger.error(`Results failed after ${MAX_RETRIES} retries!`);
+      });
 
-      processingQueue.push(retryProcessResults);
+      processingQueue.push(tryGetResults);
+    });
+
+  // Loop through runs, queueing up the fetch command, retrying if we don't have the ready reponse
+  for (let i = 1; i <= numberRuns; i++) {
+    try {
+      await retry(enqueueAndProcess, [], {
+        retriesMax: MAX_RETRIES,
+        interval: RETRY_INTERVAL_MS,
+      });
     } catch {
       logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
     }
