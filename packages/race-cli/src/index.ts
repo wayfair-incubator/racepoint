@@ -1,5 +1,6 @@
 #! /usr/bin/env node
 import commander from 'commander';
+import fs from 'fs';
 import {
   argumentHelper,
   descriptionHelper,
@@ -7,8 +8,10 @@ import {
   parseIntArg,
   parseUrlArg,
   splitChromeArgs,
+  validateFile,
 } from './helpers';
 import {ProfileScenario, PROFILE_COMMAND} from './scenarios/profile';
+import {FlowScenario, FLOW_COMMAND} from './scenarios/flow';
 
 const program = new commander.Command();
 
@@ -101,6 +104,45 @@ program
         ? options.outputFormat.map((format: string) => format.toLowerCase())
         : [],
       outputTarget: options.outputTarget ? options.outputTarget : process.cwd(),
+    });
+  });
+
+program
+  .command(FLOW_COMMAND)
+  .description(descriptionHelper('Perform a number of Lighthouse user flows'))
+  .argument(
+    '<testcase>',
+    argumentHelper('Location of user flow file'),
+    validateFile
+  )
+  .showHelpAfterError()
+  // Keep these alphabetical
+  .option(
+    '--chrome-flags <string>',
+    descriptionHelper(
+      'Chrome flags for the emulated browser. Will be merged with necessary defaults. Should be a comma-delimited list of arguments.'
+    ),
+    splitChromeArgs,
+    []
+  )
+  .option(
+    '-d, --device-type <device>',
+    descriptionHelper('Device type to emulate'),
+    'Mobile'
+  )
+  .option(
+    '-n, --number-runs <number>',
+    descriptionHelper('Number of Lighthouse runs per URL'),
+    parseIntArg,
+    1
+  )
+  .usage('./my-test.js')
+  .action((testFileLocation: any, options: any) => {
+    const testFile = fs.readFileSync(testFileLocation, 'utf8');
+
+    new FlowScenario().enter({
+      ...options,
+      testFile,
     });
   });
 

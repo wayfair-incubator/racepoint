@@ -1,5 +1,3 @@
-import async from 'async';
-import retry from 'async-await-retry';
 import {ProfileContext, Scenario} from '../types';
 import {LHResultsReporter, ReportingTypes} from '../reporters/index';
 import {
@@ -8,12 +6,11 @@ import {
   executeWarmingRun,
   enableOutboundRequests,
   retrieveCacheStatistics,
+  retryableQueue,
 } from './racer-client';
 import {LighthouseResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
 
-const MAX_RETRIES = 100;
-const RETRY_INTERVAL_MS = 3000;
 const FORMAT_CSV = 'csv';
 const FORMAT_HTML = 'html';
 
@@ -29,15 +26,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
   }
 
   async runScenario(context: ProfileContext): Promise<void> {
-    let resultsArray: any = [];
-    let numProcessed = 0;
-    let numFailed = 0;
-
-    process.on('SIGINT', function () {
-      logger.warn('\nGracefully shutting down from SIGINT (Ctrl-C)');
-      process.exit(0);
-    });
-
     logger.info('Executing warming run...');
     await executeWarmingRun({
       data: context,
@@ -45,53 +33,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     await enableOutboundRequests(false);
     logger.info('Warming runs complete!');
-
-    const processingQueue = async.queue(() => {
-      // Number of elements to be processed.
-      const remaining = processingQueue.length();
-      if (remaining === 0) {
-        logger.debug('Queue complete');
-      }
-    }, 2);
-
-    const checkQueue = async () => {
-      return new Promise<void>((resolve, reject) => {
-        if (numProcessed + numFailed === context.numberRuns) {
-          resolve();
-        } else {
-          reject('Queue is not done processing');
-        }
-      });
-    };
-
-    const raceUrlAndProcess = async () =>
-      handleStartRacer({
-        data: context,
-      }).then((jobId: number) => {
-        const tryGetResults = retry(
-          () =>
-            collectAndPruneResults({
-              jobId,
-              retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
-            }).then((result: LighthouseResultsWrapper) => {
-              resultsArray.push(result);
-              numProcessed++;
-              logger.info(
-                `Results received [${numProcessed}/${context.numberRuns}]`
-              );
-            }),
-          [],
-          {
-            retriesMax: MAX_RETRIES,
-            interval: RETRY_INTERVAL_MS,
-          }
-        ).catch(() => {
-          numFailed++;
-          logger.error(`Results failed after ${MAX_RETRIES} retries!`);
-        });
-
-        processingQueue.push(tryGetResults);
-      });
 
     // Configure how we want the results reported
     const resultsReporter = new LHResultsReporter({
@@ -117,26 +58,26 @@ export class ProfileScenario extends Scenario<ProfileContext> {
 
     await resultsReporter.prepare();
     logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
-    for (let i = 1; i <= context.numberRuns; i++) {
-      try {
-        await retry(raceUrlAndProcess, [], {
-          retriesMax: MAX_RETRIES,
-          interval: RETRY_INTERVAL_MS,
-        });
-      } catch {
-        logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
-      }
-      logger.debug(`Requested run [${i}/${context.numberRuns}]`);
-    }
 
-    // Wait until all the results have been processed
-    await retry(checkQueue, [], {
-      retriesMax: 100,
-      interval: RETRY_INTERVAL_MS,
+    const resultsArray = await retryableQueue({
+      enqueue: async () =>
+        handleStartRacer({
+          data: context,
+        }),
+      processResult: async (jobId: number) =>
+        collectAndPruneResults({
+          jobId,
+          retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
+        }),
+      numberRuns: context.numberRuns,
     });
 
+    // Temporary until changes to aggregate reporter are made to support User Flows
+    const formattedResults = resultsArray.map((result) => result.steps[0].lhr);
+    console.log('results array:', formattedResults);
+
     // Time to process the results
-    resultsArray.forEach(async (result: LighthouseResultsWrapper) => {
+    formattedResults.forEach(async (result: LighthouseResultsWrapper) => {
       await resultsReporter.process(result);
     });
 

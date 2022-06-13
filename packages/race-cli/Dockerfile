@@ -10,6 +10,7 @@ WORKDIR /rp/
 
 # Create default logs directory
 RUN mkdir -p results
+RUN mkdir -p flows
 
 RUN npm install
 RUN npm install -g 
