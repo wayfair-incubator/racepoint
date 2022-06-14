@@ -1,8 +1,5 @@
-import {
-  LighthouseResultsWrapper,
-  LighthouseResults,
-  UserFlowResultsWrapper,
-} from '@racepoint/shared';
+import {LighthouseResults, UserFlowResultsWrapper} from '@racepoint/shared';
+import logger from '../logger';
 import {LightHouseAuditKeys} from '../types';
 import {BaseRacepointReporter} from '../types';
 
@@ -29,15 +26,18 @@ export class IndividualRunsReporter extends BaseRacepointReporter {
     this._hasBegun = false;
   }
 
-  process = (
-    results: LighthouseResultsWrapper | UserFlowResultsWrapper
-  ): Promise<void> =>
+  process = (results: UserFlowResultsWrapper): Promise<void> =>
     new Promise((resolve) => {
+      if (results.steps.length > 1) {
+        logger.warn(
+          'Individual reporter does not support user flows at this time'
+        );
+      }
       if (this._hasBegun === false) {
         this._hasBegun = true;
         console.log(this.buildHeaders());
       }
-      // console.log(this.buildRow(results.lhr));
+      console.log(this.buildRow(results.steps[0].lhr));
       resolve();
     });
 

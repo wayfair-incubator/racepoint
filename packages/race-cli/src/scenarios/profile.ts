@@ -8,7 +8,7 @@ import {
   retrieveCacheStatistics,
   retryableQueue,
 } from './racer-client';
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {UserFlowResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
 
 const FORMAT_CSV = 'csv';
@@ -37,7 +37,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     // Configure how we want the results reported
     const resultsReporter = new LHResultsReporter({
       outputs: [
-        // ReportingTypes.Aggregate,
+        ReportingTypes.Aggregate,
         // ...(context.includeIndividual
         //   ? [ReportingTypes.IndividualRunsReporter]
         //   : []),
@@ -56,39 +56,33 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       numberRuns: context.numberRuns,
     });
 
-    // await resultsReporter.prepare();
-    // logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
+    await resultsReporter.prepare();
+    logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
 
-    // const resultsArray = await retryableQueue({
-    //   enqueue: () =>
-    //     handleStartRacer({
-    //       data: context,
-    //     }),
-    //   processResult: (jobId: number) =>
-    //     collectAndPruneResults({
-    //       jobId,
-    //       retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
-    //     }),
-    //   numberRuns: context.numberRuns,
-    // });
+    const resultsArray = await retryableQueue({
+      enqueue: () =>
+        handleStartRacer({
+          data: context,
+        }),
+      processResult: (jobId: number) =>
+        collectAndPruneResults({
+          jobId,
+          retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
+        }),
+      numberRuns: context.numberRuns,
+    });
 
-    // // Temporary until changes to aggregate reporter are made to support User Flows
-    // const formattedResults = resultsArray.map((result) => ({
-    //   lhr: result.steps[0].lhr,
-    //   report: result.report,
-    // }));
+    // Time to process the results
+    resultsArray.forEach(async (result: UserFlowResultsWrapper) => {
+      await resultsReporter.process(result);
+    });
 
-    // // Time to process the results
-    // formattedResults.forEach(async (result: LighthouseResultsWrapper) => {
-    //   await resultsReporter.process(result);
-    // });
+    // Do we want an option to disable this?
+    const cacheStats = await retrieveCacheStatistics();
+    // Re-enable outbound requests
+    await enableOutboundRequests(true);
 
-    // // Do we want an option to disable this?
-    // const cacheStats = await retrieveCacheStatistics();
-    // // Re-enable outbound requests
-    // await enableOutboundRequests(true);
-
-    // await resultsReporter.finalize(cacheStats);
+    await resultsReporter.finalize(cacheStats);
     process.exit(0);
   }
 }

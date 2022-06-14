@@ -1,49 +1,57 @@
 import {std, mean, round} from 'mathjs';
 import fs from 'fs/promises';
 import json2md from 'json2md';
-import {
-  LighthouseResultsWrapper,
-  UserFlowStep,
-  UserFlowResultsWrapper,
-} from '@racepoint/shared';
+import {UserFlowStep, UserFlowResultsWrapper} from '@racepoint/shared';
 import {
   BaseRacepointReporter,
   LightHouseAuditKeys,
   ProfileConfig,
+  MathOperation,
+  StepData,
+  StepDataCollection,
+  ComputedStepDataCollection,
+  LabeledStepDataCollection,
 } from '../types';
 import {MissCount, CacheMetricData} from '@racepoint/shared';
 import logger from '../logger';
 import {formatFilename} from '../helpers';
-import {MULTIPLE_CHOICES} from 'http-status-codes';
 
 const STD_DEVIATION_KEY = 'Standard Deviation';
 const MEAN_KEY = 'Mean';
-const METRIC_KEY = 'Metric';
+const METRIC_KEY = 'Measurement';
 const FORMAT_MD = 'md';
 
 const resultsToMarkdown = (
-  data: any,
+  data: LabeledStepDataCollection[],
   settings: ProfileConfig,
   cacheStats?: CacheMetricData
 ) => {
-  const rows = Array.from(Object.keys(data), (key) => ({
-    [METRIC_KEY]: key,
-    [MEAN_KEY]: data[key][MEAN_KEY],
-    [STD_DEVIATION_KEY]: data[key][STD_DEVIATION_KEY],
-  }));
+  const getTables = () =>
+    data.map((stepData: LabeledStepDataCollection, i: number) => {
+      const rows = Object.entries(stepData.table).map(
+        ([key, value]: [key: string, value: any]) => {
+          return {
+            [METRIC_KEY]: key,
+            ...value,
+          };
+        }
+      );
 
-  return json2md([
-    {h2: 'Racepoint Aggregated Results'},
-    {p: `Target Url: ${settings.targetUrl}`},
-    {p: `Device Type: ${settings.deviceType}`},
-    {p: `Number of Runs: ${settings.numberRuns}`},
-    {
-      table: {
-        headers: [METRIC_KEY, MEAN_KEY, STD_DEVIATION_KEY],
-        rows,
-      },
-    },
-    ...(cacheStats
+      return [
+        {
+          p: `Step ${i + 1} - ${stepData.name}`,
+        },
+        {
+          table: {
+            headers: [METRIC_KEY, ...Object.keys(LightHouseAuditKeys)],
+            rows,
+          },
+        },
+      ];
+    });
+
+  const getCacheStats = () =>
+    cacheStats
       ? [
           {h3: 'Cache Stats'},
           {p: `Total requests: ${cacheStats.totalRequests}`},
@@ -64,21 +72,19 @@ const resultsToMarkdown = (
               ]
             : []),
         ]
-      : []),
+      : [];
+
+  return json2md([
+    {h2: 'Racepoint Aggregated Results'},
+    {p: `Target Url: ${settings.targetUrl}`},
+    {p: `Device Type: ${settings.deviceType}`},
+    {p: `Number of Runs: ${settings.numberRuns}`},
+    ...getTables(),
+    ...getCacheStats(),
   ]);
 };
 
-interface StepData {
-  step: number;
-  [LightHouseAuditKeys.SI]: number[];
-  [LightHouseAuditKeys.LCP]: number[];
-  [LightHouseAuditKeys.FCP]: number[];
-  [LightHouseAuditKeys.CLS]: number[];
-  [LightHouseAuditKeys.MaxFID]: number[];
-  [LightHouseAuditKeys.TotalBlocking]: number[];
-}
-
-const emptyStep = (step: number): StepData => ({
+const emptyStep = (step: string): StepData => ({
   step,
   [LightHouseAuditKeys.SI]: [],
   [LightHouseAuditKeys.LCP]: [],
@@ -94,7 +100,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   private _outputMarkdown: boolean;
   private _settings: ProfileConfig;
 
-  private _stepDataCollection: {[key: number]: StepData} = {};
+  private _stepDataCollection: StepDataCollection = {};
 
   constructor(options: ProfileConfig) {
     super();
@@ -107,14 +113,16 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   }
 
   process = async (results: UserFlowResultsWrapper) => {
-    console.log(`Processing result ${results.steps[0].name}`);
+    results.steps.forEach((step: UserFlowStep, i: number) => {
+      const stepKey = `step_${i}`;
 
-    results.steps.forEach((step: UserFlowStep, i) => {
       // Initialize a new empty step if it doesn't exist
-      if (!this._stepDataCollection[i]) {
-        this._stepDataCollection[i] = emptyStep(i);
+      if (!this._stepDataCollection[stepKey]) {
+        this._stepDataCollection[stepKey] = emptyStep(
+          step.name || `Step #${i}`
+        );
       }
-      const activeStep = this._stepDataCollection[i];
+      const activeStep = this._stepDataCollection[stepKey];
 
       Object.values(LightHouseAuditKeys).forEach((value) => {
         if (step.lhr.audits.hasOwnProperty(value)) {
@@ -122,18 +130,61 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
         }
       });
     });
-
-    console.log('🃏 Processed successfully!', this._stepDataCollection);
   };
 
   async finalize(cacheStats?: CacheMetricData): Promise<void> {
-    logger.info('Calculating Summary:', cacheStats);
-    let table: {[metric: string]: SummaryRow} = {};
-    Object.entries(LightHouseAuditKeys).forEach(([key, value]) => {
-      table[key] = this.calculateRow(this._collectedData[value]);
-    });
+    const mathBook: MathOperation[] = [
+      {
+        name: MEAN_KEY,
+        operation: (data: number[]) => round(mean(data), 4),
+      },
+      {
+        name: STD_DEVIATION_KEY,
+        operation: (data: number[]) => round(std(data, 'unbiased'), 4),
+      },
+    ];
 
-    console.table(table);
+    const resultsByStep: LabeledStepDataCollection[] = [];
+
+    logger.info('Calculating Summary...');
+
+    // 1. Loop through each step
+    // 2. Loop through each calculation type
+    // 3. Loop through every step data property
+    Object.keys(this._stepDataCollection).forEach((step: string) => {
+      let table: ComputedStepDataCollection = {};
+
+      const stepData: StepData =
+        this._stepDataCollection[step as keyof StepDataCollection];
+
+      mathBook.forEach((calc: MathOperation) => {
+        const computedStep: any = {};
+
+        Object.entries(LightHouseAuditKeys).forEach(([key, value]) => {
+          computedStep[key] = null;
+          // It's not going to be a string, that's just to support the name property
+          const metricData: number[] | string =
+            stepData[value as keyof StepData];
+          try {
+            computedStep[key] = calc.operation(metricData);
+          } catch {
+            // Do nothing
+          }
+        });
+        // ComputedStepData
+        table[calc.name] = computedStep;
+      });
+
+      console.log(`Results for step: ${stepData.step}`);
+      console.table(table);
+
+      // Need to reformat slightly to pass to the Markdown function
+      const formattedStepThing: LabeledStepDataCollection = {
+        name: stepData.step,
+        table,
+      };
+      resultsByStep.push(formattedStepThing);
+    });
 
     return this._outputMarkdown
       ? fs
@@ -142,7 +193,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
               url: this._settings.targetUrl,
               suffix: 'aggregate-report.md',
             })}`,
-            resultsToMarkdown(table, this._settings, cacheStats),
+            resultsToMarkdown(resultsByStep, this._settings, cacheStats),
             {
               flag: 'w',
             }
@@ -155,25 +206,4 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
           })
       : Promise.resolve();
   }
-
-  private calculateRow(data: number[]): SummaryRow {
-    let realMean = 0;
-    let stdDeviation = 0;
-    try {
-      (realMean = round(mean(data), 4)),
-        (stdDeviation = round(std(data, 'unbiased'), 4));
-    } catch (e) {
-      logger.error('Error in math', e);
-    }
-
-    return {
-      [MEAN_KEY]: realMean,
-      [STD_DEVIATION_KEY]: stdDeviation,
-    };
-  }
-}
-
-interface SummaryRow {
-  [MEAN_KEY]: number;
-  [STD_DEVIATION_KEY]: number;
 }

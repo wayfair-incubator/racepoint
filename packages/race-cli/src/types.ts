@@ -1,8 +1,4 @@
-import {
-  LighthouseResultsWrapper,
-  CacheMetricData,
-  UserFlowResultsWrapper,
-} from '@racepoint/shared';
+import {CacheMetricData, UserFlowResultsWrapper} from '@racepoint/shared';
 
 export interface ScenarioContext {}
 
@@ -122,4 +118,41 @@ export interface ProfileConfig {
   outputFormat: string[];
   outputTarget: string;
   repositoryId?: string;
+}
+
+export interface StepData {
+  step: string;
+  [LightHouseAuditKeys.SI]: number[];
+  [LightHouseAuditKeys.LCP]: number[];
+  [LightHouseAuditKeys.FCP]: number[];
+  [LightHouseAuditKeys.CLS]: number[];
+  [LightHouseAuditKeys.MaxFID]: number[];
+  [LightHouseAuditKeys.TotalBlocking]: number[];
+}
+
+export interface StepDataCollection {
+  [key: string]: StepData;
+}
+
+export interface ComputedStepData {
+  [LightHouseAuditKeys.SI]: number;
+  [LightHouseAuditKeys.LCP]: number;
+  [LightHouseAuditKeys.FCP]: number;
+  [LightHouseAuditKeys.CLS]: number;
+  [LightHouseAuditKeys.MaxFID]: number;
+  [LightHouseAuditKeys.TotalBlocking]: number;
+}
+
+export interface ComputedStepDataCollection {
+  [key: string]: ComputedStepData;
+}
+
+export interface LabeledStepDataCollection {
+  name: string;
+  table: ComputedStepDataCollection;
+}
+
+export interface MathOperation {
+  name: string;
+  operation: Function;
 }

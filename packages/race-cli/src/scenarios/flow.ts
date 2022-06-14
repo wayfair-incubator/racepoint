@@ -42,15 +42,9 @@ export class FlowScenario extends Scenario<FlowContext> {
     const resultsReporter = new LHResultsReporter({
       outputs: [
         ReportingTypes.Aggregate,
-        // ...(context.includeIndividual
-        //   ? [ReportingTypes.IndividualRunsReporter]
-        //   : []),
         ...(context.outputFormat.includes(FORMAT_HTML)
           ? [ReportingTypes.LighthouseHtml]
           : []),
-        // ...(context.outputFormat.includes(FORMAT_CSV)
-        //   ? [ReportingTypes.Repository]
-        //   : []),
       ],
       repositoryId: 'blah', //context.repositoryId,
       targetUrl: 'blah', //context.targetUrl,
@@ -81,17 +75,11 @@ export class FlowScenario extends Scenario<FlowContext> {
       await resultsReporter.process(result);
     });
 
-    // resultsArray.forEach(async (result, i) => {
-    //   console.log(`Result report ${i}`, result.report?.slice(0, 100));
+    const cacheStats = await retrieveCacheStatistics();
+    // Re-enable outbound requests
+    await enableOutboundRequests(true);
 
-    //   // Just write the file for now
-    //   return await fs
-    //     .writeFile(`./results/my_report_${i}.html`, result.report || '', {
-    //       flag: 'w',
-    //     })
-    //     .catch((e) => console.log('fs error', e?.message));
-    // });
-
+    await resultsReporter.finalize(cacheStats);
     process.exit(0);
   }
 }
