@@ -30,8 +30,9 @@ export class IndividualRunsReporter extends BaseRacepointReporter {
     new Promise((resolve) => {
       if (results.steps.length > 1) {
         logger.warn(
-          'Individual reporter does not support user flows at this time'
+          'Individual reporter does not support Lighthouse user flows at this time'
         );
+        resolve();
       }
       if (this._hasBegun === false) {
         this._hasBegun = true;

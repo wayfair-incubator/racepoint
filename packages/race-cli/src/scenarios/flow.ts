@@ -10,7 +10,6 @@ import {
 import {LHResultsReporter, ReportingTypes} from '../reporters/index';
 import {UserFlowResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
-import fs from 'fs/promises';
 
 export const FLOW_COMMAND = 'flow';
 const FORMAT_HTML = 'html';
@@ -30,13 +29,14 @@ export class FlowScenario extends Scenario<FlowContext> {
       process.exit(0);
     });
 
-    // logger.info('Executing warming run...');
-    // await executeWarmingRun({
-    //   data: context,
-    // });
+    logger.info('Executing warming run...');
+    await executeWarmingRun({
+      data: context,
+      warmingFunc: handleStartUserFlow,
+    });
 
     // await enableOutboundRequests(false);
-    // logger.info('Warming runs complete!');
+    logger.info('Warming runs complete!');
 
     // Configure how we want the results reported
     const resultsReporter = new LHResultsReporter({
@@ -46,8 +46,8 @@ export class FlowScenario extends Scenario<FlowContext> {
           ? [ReportingTypes.LighthouseHtml]
           : []),
       ],
-      repositoryId: 'blah', //context.repositoryId,
-      targetUrl: 'blah', //context.targetUrl,
+      repositoryId: '',
+      targetUrl: context.testFilename,
       deviceType: context.deviceType,
       outputFormat: context.outputFormat,
       outputTarget: context.outputTarget,
@@ -55,7 +55,9 @@ export class FlowScenario extends Scenario<FlowContext> {
     });
 
     await resultsReporter.prepare();
-    logger.info(`Beginning User flows from script ${context.testFile}`);
+    logger.info(
+      `Beginning Lighthouse user flows from script ${context.testFilename}`
+    );
 
     const resultsArray: UserFlowResultsWrapper[] = await retryableQueue({
       enqueue: async () =>

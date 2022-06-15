@@ -29,6 +29,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     logger.info('Executing warming run...');
     await executeWarmingRun({
       data: context,
+      warmingFunc: handleStartRacer,
     });
 
     await enableOutboundRequests(false);
@@ -38,15 +39,15 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     const resultsReporter = new LHResultsReporter({
       outputs: [
         ReportingTypes.Aggregate,
-        // ...(context.includeIndividual
-        //   ? [ReportingTypes.IndividualRunsReporter]
-        //   : []),
+        ...(context.includeIndividual
+          ? [ReportingTypes.IndividualRunsReporter]
+          : []),
         ...(context.outputFormat.includes(FORMAT_HTML)
           ? [ReportingTypes.LighthouseHtml]
           : []),
-        // ...(context.outputFormat.includes(FORMAT_CSV)
-        //   ? [ReportingTypes.Repository]
-        //   : []),
+        ...(context.outputFormat.includes(FORMAT_CSV)
+          ? [ReportingTypes.Repository]
+          : []),
       ],
       repositoryId: context.repositoryId,
       targetUrl: context.targetUrl,

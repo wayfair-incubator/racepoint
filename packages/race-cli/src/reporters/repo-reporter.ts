@@ -1,8 +1,4 @@
-import {
-  LighthouseResultsWrapper,
-  LighthouseResults,
-  UserFlowResultsWrapper,
-} from '@racepoint/shared';
+import {LighthouseResults, UserFlowResultsWrapper} from '@racepoint/shared';
 import {
   connectRepository,
   ReportingRepository,
@@ -41,14 +37,18 @@ export class RepositoryReporter extends BaseRacepointReporter {
         logger.error('Failed to connect to repository');
       });
 
-  process = (
-    results: LighthouseResultsWrapper | UserFlowResultsWrapper
-  ): Promise<void> | undefined => {
-    return;
-    // return (
-    //   this._repository &&
-    //   this._repository.write(this.mapResultsToRow(results.lhr))
-    // );
+  process = (results: UserFlowResultsWrapper): Promise<void> | undefined => {
+    if (results.steps.length > 1) {
+      logger.warn(
+        'Repository reporter does not support Lighthouse user flows at this time'
+      );
+      return;
+    }
+    const firstResult = results.steps[0].lhr;
+    return (
+      this._repository &&
+      this._repository.write(this.mapResultsToRow(firstResult))
+    );
   };
 
   private mapResultsToRow = (results: LighthouseResults): ReportingRow => {

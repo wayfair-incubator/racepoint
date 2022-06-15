@@ -125,7 +125,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
       const activeStep = this._stepDataCollection[stepKey];
 
       Object.values(LightHouseAuditKeys).forEach((value) => {
-        if (step.lhr.audits.hasOwnProperty(value)) {
+        if (step.lhr.audits[value]) {
           activeStep[value].push(step.lhr.audits[value].numericValue);
         }
       });

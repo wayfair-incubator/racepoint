@@ -82,7 +82,8 @@ export class ProfileContext implements ScenarioContext {
 }
 
 export class FlowContext implements ScenarioContext {
-  testFile: string;
+  testModule: string;
+  testFilename: string;
   chromeFlags?: string[];
   deviceType: 'Mobile' | 'Desktop';
   numberRuns: number;
@@ -90,7 +91,8 @@ export class FlowContext implements ScenarioContext {
   outputTarget: string;
 
   constructor(userArgs: any) {
-    this.testFile = userArgs?.testFile || '';
+    this.testModule = userArgs?.testModule || '';
+    this.testFilename = userArgs?.testFilename;
     this.chromeFlags = userArgs?.chromeFlags;
     this.deviceType = userArgs?.deviceType;
     this.numberRuns = userArgs?.numberRuns;

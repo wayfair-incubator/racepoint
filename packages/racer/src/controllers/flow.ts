@@ -16,7 +16,7 @@ const maybeRunUserFlow = async (
 ): Promise<EndpointResponse<object>> => {
   const response = new EndpointResponse<object>({});
 
-  const testCase: TestCaseType = requireFromString(context.testFile);
+  const testCase: TestCaseType = requireFromString(context.testModule);
 
   // Check that there is a connect method we can run
   if (typeof testCase.connect !== 'function') {

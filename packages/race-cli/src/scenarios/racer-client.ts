@@ -62,7 +62,7 @@ export const handleStartRacer = async ({
     .catch((error: AxiosError) => handleRacerError(error));
 
 /*
- Handler to request initializing Lighthouse User Flow
+ Handler to request initializing Lighthouse user flow
 */
 export const handleStartUserFlow = async ({
   data,
@@ -204,13 +204,19 @@ export const collectAndPruneResults = async ({
     .then(() => resultsWrapper);
 };
 
-export const executeWarmingRun = async ({data}: {data: ProfileContext}) => {
+export const executeWarmingRun = async ({
+  data,
+  warmingFunc,
+}: {
+  data: ProfileContext | FlowContext;
+  warmingFunc: Function;
+}) => {
   // start a race, but for this case do it in a retry loop to account for the lag in racer startup time
   // this works for this version, but in the future we'll need to get a bit more sophisticated, perhaps tracking 'awake' racers.
   let jobId = 0;
 
   try {
-    jobId = await retry(() => handleStartRacer({data}), [], {
+    jobId = await retry(() => warmingFunc({data}), [], {
       retriesMax: 10,
       interval: 250,
     });

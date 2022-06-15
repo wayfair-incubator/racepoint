@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 import commander from 'commander';
 import fs from 'fs';
+import path from 'path';
 import {
   argumentHelper,
   descriptionHelper,
@@ -146,12 +147,11 @@ program
     descriptionHelper('Save results as CSV, HTML, and/or MD')
   )
   .usage('./my-test.js')
-  .action((testFileLocation: any, options: any) => {
-    const testFile = fs.readFileSync(testFileLocation, 'utf8');
-
+  .action((testFilepath: any, options: any) => {
     new FlowScenario().enter({
       ...options,
-      testFile,
+      testModule: fs.readFileSync(testFilepath, 'utf8'),
+      testFilename: path.basename(testFilepath, '.js'),
       outputFormat: options.outputFormat
         ? options.outputFormat.map((format: string) => format.toLowerCase())
         : [],

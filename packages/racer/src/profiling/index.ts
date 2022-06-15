@@ -45,7 +45,7 @@ export const submitUserFlow = async (
 ): Promise<number> => {
   const jobId = await LighthouseResultsRepository.getNextId();
   const context = new FlowContext(jobId, command, testCase);
-  // execute a User Flow script This is an async function and as such the jobId is returned immediately.
+  // execute a user flow script This is an async function and as such the jobId is returned immediately.
   runUserFlow(context);
   return jobId;
 };
