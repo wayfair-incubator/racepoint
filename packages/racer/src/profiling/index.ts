@@ -2,7 +2,6 @@ import lighthouse from 'lighthouse';
 import {launch} from 'chrome-launcher';
 import {Flags} from 'lighthouse/types/externs';
 import puppeteer from 'puppeteer-core';
-import {JSDOM} from 'jsdom';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
 import {
@@ -18,7 +17,7 @@ import {
   constructChromeOptions,
   constructLighthouseFlags,
 } from './config';
-
+import api from 'lighthouse/lighthouse-core/fraggle-rock/api.js';
 /**
  * Starts a lighthouse run asynchronously, returning a job id immediately.
  *
@@ -57,20 +56,18 @@ const runUserFlow = async (context: FlowContext) => {
     executablePath: '/usr/bin/chromium-browser',
   });
 
-  let resultsFile: string;
-
   try {
     console.log('Attempting to run test...');
-    resultsFile = await context.testCase.connect(browser);
-
+    const resultFlow = await context.testCase.connect(browser, api);
     // Closing browser if not closed...
     await browser.close();
 
-    const {window} = new JSDOM(resultsFile, {runScripts: 'dangerously'});
+    const resultsFile = (await resultFlow?.generateReport()) || '';
+    const flowResult = (await resultFlow?.createFlowResult()) || {};
 
     const resultData: UserFlowResultsWrapper = {
-      steps: window?.__LIGHTHOUSE_FLOW_JSON__?.steps,
-      name: window?.__LIGHTHOUSE_FLOW_JSON__?.name,
+      steps: flowResult?.steps,
+      name: flowResult?.name,
       report: resultsFile,
     };
 
@@ -78,6 +75,8 @@ const runUserFlow = async (context: FlowContext) => {
     await UsageLock.getInstance().release();
   } catch (e) {
     console.error('Error trying to run test!');
+    await browser.close();
+    await UsageLock.getInstance().release();
   }
 };
 

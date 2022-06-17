@@ -229,7 +229,7 @@ export const executeWarmingRun = async ({
 
   try {
     await retry(() => fetchResult({jobId}), [], {
-      retriesMax: 50,
+      retriesMax: 1000,
       interval: 1000,
     });
   } catch (e) {

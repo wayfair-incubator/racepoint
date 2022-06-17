@@ -35,7 +35,7 @@ export class FlowScenario extends Scenario<FlowContext> {
       warmingFunc: handleStartUserFlow,
     });
 
-    // await enableOutboundRequests(false);
+    await enableOutboundRequests(false);
     logger.info('Warming runs complete!');
 
     // Configure how we want the results reported

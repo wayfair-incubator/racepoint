@@ -29,11 +29,25 @@ const resultsToMarkdown = (
   const getTables = () =>
     data.map((stepData: LabeledStepDataCollection, i: number) => {
       const rows = Object.entries(stepData.table).map(
-        ([key, value]: [key: string, value: any]) => {
-          return {
-            [METRIC_KEY]: key,
-            ...value,
+        ([measurementType, metricValues]: [key: string, value: any]) => {
+          const cells: any = {
+            [METRIC_KEY]: measurementType,
           };
+
+          // JSON2MD does not like null values so they need to be cleaned up
+          Object.entries(metricValues).forEach(
+            ([metricName, metricValue]: [
+              metricName: string,
+              metricValue: any
+            ]) => {
+              if (metricValue === null) {
+                metricValue = '✖';
+              }
+              cells[metricName] = metricValue;
+            }
+          );
+
+          return cells;
         }
       );
 
@@ -125,7 +139,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
       const activeStep = this._stepDataCollection[stepKey];
 
       Object.values(LightHouseAuditKeys).forEach((value) => {
-        if (step.lhr.audits[value]) {
+        if (step.lhr.audits.hasOwnProperty(value)) {
           activeStep[value].push(step.lhr.audits[value].numericValue);
         }
       });

@@ -26,6 +26,11 @@ export class ProfileScenario extends Scenario<ProfileContext> {
   }
 
   async runScenario(context: ProfileContext): Promise<void> {
+    process.on('SIGINT', function () {
+      logger.warn('\nGracefully shutting down from SIGINT (Ctrl-C)');
+      process.exit(0);
+    });
+
     logger.info('Executing warming run...');
     await executeWarmingRun({
       data: context,
