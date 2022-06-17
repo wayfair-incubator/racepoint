@@ -27,7 +27,7 @@ export interface RaceProfileCommand {
  * Defines the configuration and properties we expect for a given Lighthouse run
  */
 export interface RaceFlowCommand {
-  testFile: string;
+  testModule: string;
   deviceType?: 'desktop' | 'mobile';
   chromeFlags?: string[];
   // extraHeaders?: Record<string, string>;

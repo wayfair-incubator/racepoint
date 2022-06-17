@@ -7,6 +7,8 @@ import {
   deleteResult,
   fetchResult,
   fetchAndAppendHtml,
+  retryableQueue,
+  MAX_RETRIES,
 } from '../src/scenarios/racer-client';
 import {ProfileContext} from '../src/types';
 
@@ -185,5 +187,57 @@ describe('Race CLI request handlers work as expected', () => {
     expect(JSON.stringify(request.report)).toEqual(
       JSON.stringify(validHtmlData)
     );
+  });
+});
+
+describe('Racer client helpers function as intended', () => {
+  describe('Retry queue works as intended', () => {
+    it('Retries n times for n results', async () => {
+      const numberRuns = 10;
+
+      const results = await retryableQueue({
+        enqueue: () => new Promise((resolve) => resolve(1)),
+        processResult: () => new Promise((resolve) => resolve({data: 'foo'})),
+        numberRuns,
+      });
+
+      expect(results.length).toEqual(numberRuns);
+    });
+
+    it('Fails enqueue after max attempts', async () => {
+      let results: any = [];
+      const enqueue = jest.fn(() => {});
+      const processResult = jest.fn();
+
+      await retryableQueue({
+        enqueue,
+        processResult,
+        numberRuns: 1,
+        retryInterval: 0,
+      });
+
+      expect(enqueue).toBeCalledTimes(MAX_RETRIES);
+      expect(processResult).toBeCalledTimes(0);
+      expect(results.length).toEqual(0);
+    });
+
+    it('Fails to process results after max attempts', async () => {
+      let results: any = [];
+      const enqueue = jest.fn();
+      const processResult = jest.fn(() => {
+        throw new Error('foo');
+      });
+
+      await retryableQueue({
+        enqueue,
+        processResult,
+        numberRuns: 1,
+        retryInterval: 0,
+      });
+
+      expect(enqueue).toBeCalledTimes(MAX_RETRIES);
+      expect(processResult).toBeCalledTimes(0);
+      expect(results.length).toEqual(0);
+    });
   });
 });

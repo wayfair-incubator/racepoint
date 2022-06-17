@@ -8,7 +8,7 @@ import {
   retrieveCacheStatistics,
   retryableQueue,
 } from './racer-client';
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {UserFlowResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
 
 const FORMAT_CSV = 'csv';
@@ -26,9 +26,15 @@ export class ProfileScenario extends Scenario<ProfileContext> {
   }
 
   async runScenario(context: ProfileContext): Promise<void> {
+    process.on('SIGINT', function () {
+      logger.warn('\nGracefully shutting down from SIGINT (Ctrl-C)');
+      process.exit(0);
+    });
+
     logger.info('Executing warming run...');
     await executeWarmingRun({
       data: context,
+      warmingFunc: handleStartRacer,
     });
 
     await enableOutboundRequests(false);
@@ -72,14 +78,8 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       numberRuns: context.numberRuns,
     });
 
-    // Temporary until changes to aggregate reporter are made to support User Flows
-    const formattedResults = resultsArray.map((result) => ({
-      lhr: result.steps[0].lhr,
-      report: result.report,
-    }));
-
     // Time to process the results
-    formattedResults.forEach(async (result: LighthouseResultsWrapper) => {
+    resultsArray.forEach(async (result: UserFlowResultsWrapper) => {
       await resultsReporter.process(result);
     });
 

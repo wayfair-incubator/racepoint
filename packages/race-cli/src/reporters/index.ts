@@ -1,4 +1,4 @@
-import {LighthouseResultsWrapper, CacheMetricData} from '@racepoint/shared';
+import {UserFlowResultsWrapper, CacheMetricData} from '@racepoint/shared';
 import logger from '../logger';
 import {IndividualRunsReporter} from './individual-reporter';
 import {RepositoryReporter} from './repo-reporter';
@@ -58,7 +58,7 @@ export class LHResultsReporter {
   // do not hold on to reports more than necessary
   //
 
-  async process(report: LighthouseResultsWrapper): Promise<any> {
+  async process(report: UserFlowResultsWrapper): Promise<any> {
     return Promise.all(
       this._reporters.map((reporter) => reporter?.process(report))
     );
