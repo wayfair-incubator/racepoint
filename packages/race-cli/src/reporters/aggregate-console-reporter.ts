@@ -21,6 +21,17 @@ const MEAN_KEY = 'Mean';
 const MEASUREMENT_KEY = 'Measurement';
 const FORMAT_MD = 'md';
 
+const defaultMathbook: MathOperation[] = [
+  {
+    name: MEAN_KEY,
+    operation: (data: number[]) => round(mean(data), 4),
+  },
+  {
+    name: STD_DEVIATION_KEY,
+    operation: (data: number[]) => round(std(data, 'unbiased'), 4),
+  },
+];
+
 const resultsToMarkdown = (
   data: LabeledStepDataCollection[],
   settings: ProfileConfig,
@@ -147,20 +158,32 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
   };
 
   async finalize(cacheStats?: CacheMetricData): Promise<void> {
-    const mathBook: MathOperation[] = [
-      {
-        name: MEAN_KEY,
-        operation: (data: number[]) => round(mean(data), 4),
-      },
-      {
-        name: STD_DEVIATION_KEY,
-        operation: (data: number[]) => round(std(data, 'unbiased'), 4),
-      },
-    ];
-
-    const resultsByStep: LabeledStepDataCollection[] = [];
-
     logger.info('Calculating Summary...');
+    const resultsByStep: LabeledStepDataCollection[] = this.getResults();
+
+    return this._outputMarkdown
+      ? fs
+          .writeFile(
+            `${this._reportPath}/${formatFilename({
+              url: this._settings.targetUrl,
+              suffix: 'aggregate-report.md',
+            })}`,
+            resultsToMarkdown(resultsByStep, this._settings, cacheStats),
+            {
+              flag: 'w',
+            }
+          )
+          .then(() => {
+            logger.debug(`Aggregate results Markdown file successfully saved`);
+          })
+          .catch((e) => {
+            logger.error('Failed to write results', e);
+          })
+      : Promise.resolve();
+  }
+
+  private getResults(): LabeledStepDataCollection[] {
+    const results: LabeledStepDataCollection[] = [];
 
     // 1. Loop through each step
     // 2. Loop through each calculation type
@@ -171,7 +194,7 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
       const stepData: StepData =
         this._stepDataCollection[step as keyof StepDataCollection];
 
-      mathBook.forEach((calc: MathOperation) => {
+      defaultMathbook.forEach((calc: MathOperation) => {
         const computedStep: any = {};
 
         Object.entries(LightHouseAuditKeys).forEach(([key, value]) => {
@@ -197,27 +220,9 @@ export class AggregateConsoleReporter extends BaseRacepointReporter {
         name: stepData.step,
         table,
       };
-      resultsByStep.push(formattedStepThing);
+      results.push(formattedStepThing);
     });
 
-    return this._outputMarkdown
-      ? fs
-          .writeFile(
-            `${this._reportPath}/${formatFilename({
-              url: this._settings.targetUrl,
-              suffix: 'aggregate-report.md',
-            })}`,
-            resultsToMarkdown(resultsByStep, this._settings, cacheStats),
-            {
-              flag: 'w',
-            }
-          )
-          .then(() => {
-            logger.debug(`Aggregate results Markdown file successfully saved`);
-          })
-          .catch((e) => {
-            logger.error('Failed to write results', e);
-          })
-      : Promise.resolve();
+    return results;
   }
 }
