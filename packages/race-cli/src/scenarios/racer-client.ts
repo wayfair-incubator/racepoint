@@ -20,6 +20,8 @@ const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
 const CACHE_INFO_URL = '/rp-cache-info';
 const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
 
+export const MAX_RETRIES = 100;
+const RETRY_INTERVAL_MS = 3000;
 /*
   Handler for the different error responses from the Racer
 */
@@ -270,9 +272,6 @@ export const retrieveCacheStatistics = async (): Promise<
       logger.error(error);
     });
 
-const MAX_RETRIES = 100;
-const RETRY_INTERVAL_MS = 3000;
-
 /*
     For n number of runs, this function accepts a function to enqueue, expecting that to return a jobId #
     It then enqueues a second function that typically processes said ID #
@@ -283,10 +282,12 @@ export const retryableQueue = async ({
   enqueue,
   processResult,
   numberRuns,
+  retryInterval = RETRY_INTERVAL_MS,
 }: {
   enqueue: any;
   processResult: Function;
   numberRuns: number;
+  retryInterval?: number;
 }): Promise<Array<any>> => {
   let resultsArray: any = [];
   let numProcessed = 0;
@@ -302,7 +303,8 @@ export const retryableQueue = async ({
 
   const checkQueue = async () => {
     return new Promise<void>((resolve, reject) => {
-      if (numProcessed + numFailed === numberRuns) {
+      console.log('Checking queue', numProcessed, numFailed);
+      if (numProcessed + numFailed >= numberRuns) {
         resolve();
       } else {
         reject('Queue is not done processing');
@@ -322,7 +324,7 @@ export const retryableQueue = async ({
         [],
         {
           retriesMax: MAX_RETRIES,
-          interval: RETRY_INTERVAL_MS,
+          interval: retryInterval,
         }
       ).catch(() => {
         numFailed++;
@@ -337,17 +339,20 @@ export const retryableQueue = async ({
     try {
       await retry(enqueueAndProcess, [], {
         retriesMax: MAX_RETRIES,
-        interval: RETRY_INTERVAL_MS,
+        interval: retryInterval,
       });
     } catch {
+      // numFailed = 100;
       logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
+      // Early return
+      return resultsArray;
     }
   }
 
   // Wait until all the results have been processed
   await retry(checkQueue, [], {
     retriesMax: 100,
-    interval: RETRY_INTERVAL_MS,
+    interval: retryInterval,
   });
 
   return resultsArray;

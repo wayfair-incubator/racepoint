@@ -18,7 +18,7 @@ import {formatFilename} from '../helpers';
 
 const STD_DEVIATION_KEY = 'Standard Deviation';
 const MEAN_KEY = 'Mean';
-const METRIC_KEY = 'Measurement';
+const MEASUREMENT_KEY = 'Measurement';
 const FORMAT_MD = 'md';
 
 const resultsToMarkdown = (
@@ -31,7 +31,7 @@ const resultsToMarkdown = (
       const rows = Object.entries(stepData.table).map(
         ([measurementType, metricValues]: [key: string, value: any]) => {
           const cells: any = {
-            [METRIC_KEY]: measurementType,
+            [MEASUREMENT_KEY]: measurementType,
           };
 
           // JSON2MD does not like null values so they need to be cleaned up
@@ -57,7 +57,7 @@ const resultsToMarkdown = (
         },
         {
           table: {
-            headers: [METRIC_KEY, ...Object.keys(LightHouseAuditKeys)],
+            headers: [MEASUREMENT_KEY, ...Object.keys(LightHouseAuditKeys)],
             rows,
           },
         },
