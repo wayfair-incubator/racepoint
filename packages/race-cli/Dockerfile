@@ -8,8 +8,9 @@ LABEL \
 COPY . /rp/
 WORKDIR /rp/
 
-# Create default logs directory
+# Create default results & flows directories
 RUN mkdir -p results
+RUN mkdir -p flows
 
 RUN npm install
 RUN npm install -g 

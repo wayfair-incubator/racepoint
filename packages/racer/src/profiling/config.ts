@@ -2,6 +2,15 @@ import {Options} from 'chrome-launcher';
 import {OutputMode} from 'lighthouse/types/lhr/settings';
 import {Flags} from 'lighthouse/types/externs';
 
+const DEFAULT_CHROME_FLAGS = [
+  '--headless',
+  '--disable-gpu',
+  '--no-sandbox',
+  '--ignore-certificate-errors',
+  '--disable-dev-shm-usage',
+  '--disable-setuid-sandbox',
+];
+
 /**
  * Defines the configuration and properties we expect for a given Lighthouse run
  */
@@ -12,6 +21,51 @@ export interface RaceProfileCommand {
   extraHeaders?: Record<string, string>;
   disableStorageReset?: boolean;
   blockedUrlPatterns?: string[];
+}
+
+/**
+ * Defines the configuration and properties we expect for a given Lighthouse run
+ */
+export interface RaceFlowCommand {
+  testModule: string;
+  deviceType?: 'desktop' | 'mobile';
+  chromeFlags?: string[];
+  // extraHeaders?: Record<string, string>;
+  // disableStorageReset?: boolean;
+  // blockedUrlPatterns?: string[];
+}
+
+export interface TestCaseType {
+  connect: Function;
+}
+
+export class FlowContext {
+  jobId: number;
+  testCase: TestCaseType;
+  deviceType = 'desktop';
+  chromeFlags: string[] = [];
+  // disableStorageReset = false;
+  // extraHeaders: Record<string, string> = {};
+  // blockedUrlPatterns: string[] = [];
+
+  constructor(
+    requestedJobId: number,
+    command: RaceFlowCommand,
+    testCase: TestCaseType
+  ) {
+    this.jobId = requestedJobId;
+    this.testCase = testCase;
+    this.deviceType = command.deviceType || this.deviceType;
+    // this.disableStorageReset =
+    //   command.disableStorageReset || this.disableStorageReset;
+    // equivalent of java '.addAll()'
+    this.chromeFlags.push(
+      ...(command.chromeFlags || []),
+      ...DEFAULT_CHROME_FLAGS
+    );
+    // this.blockedUrlPatterns.push(...(command.blockedUrlPatterns || []));
+    // this.extraHeaders = command.extraHeaders || this.extraHeaders;
+  }
 }
 
 /**
@@ -43,15 +97,7 @@ export class RaceContext {
 export const constructChromeOptions = (context: RaceContext): Options => {
   return {
     logLevel: 'info',
-    chromeFlags: [
-      '--headless',
-      '--disable-gpu',
-      '--no-sandbox',
-      '--ignore-certificate-errors',
-      '--disable-dev-shm-usage',
-      '--disable-setuid-sandbox',
-      ...context.chromeFlags,
-    ],
+    chromeFlags: [...DEFAULT_CHROME_FLAGS, ...context.chromeFlags],
   };
 };
 

@@ -1,4 +1,4 @@
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {UserFlowResultsWrapper} from '@racepoint/shared';
 import fs from 'fs';
 import {BaseRacepointReporter} from '../types';
 import logger from '../logger';
@@ -15,16 +15,16 @@ export class HtmlReporter extends BaseRacepointReporter {
     this._reportPath = outputTarget || '.';
   }
 
-  process = (results: LighthouseResultsWrapper): undefined => {
+  process = (results: UserFlowResultsWrapper): undefined => {
     const htmlPath = `${this._reportPath}/${formatFilename({
-      url: results.lhr.requestedUrl,
-      date: results.lhr.fetchTime,
+      url: results.steps[0].lhr.requestedUrl,
+      date: results.steps[0].lhr.fetchTime,
       suffix: 'race.html',
     })}`;
 
     // Need to use synchronous file save as the promise version often had partial writes
     try {
-      fs.writeFileSync(htmlPath, results.report, {flag: 'w'});
+      fs.writeFileSync(htmlPath, results.report || '', {flag: 'w'});
       logger.debug(`Lighthouse HTML results successfully saved`);
     } catch (e) {
       logger.error('Failed to write results', e);

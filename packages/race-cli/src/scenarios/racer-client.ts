@@ -2,15 +2,16 @@
  * Methods for interacting with the Racer.
  */
 import axios, {AxiosError, AxiosResponse} from 'axios';
+import async from 'async';
 import retry from 'async-await-retry';
 import {
-  LighthouseResultsWrapper,
-  LighthouseResults,
   CacheMetricData,
+  UserFlowResultsWrapper,
+  UserFlowStep,
 } from '@racepoint/shared';
 import {StatusCodes} from 'http-status-codes';
 import logger from '../logger';
-import {ProfileContext} from '../types';
+import {ProfileContext, FlowContext} from '../types';
 
 const racerServer = process.env?.RACER_SERVER || 'localhost';
 const racerPort = process.env?.RACER_PORT || 3000;
@@ -19,6 +20,8 @@ const CACHE_CONTROL_ENDPOINT = '/rp-cache-control';
 const CACHE_INFO_URL = '/rp-cache-info';
 const raceProxyServer = process.env?.RACEPROXY_SERVER || 'localhost';
 
+export const MAX_RETRIES = 100;
+const RETRY_INTERVAL_MS = 3000;
 /*
   Handler for the different error responses from the Racer
 */
@@ -61,11 +64,33 @@ export const handleStartRacer = async ({
     .catch((error: AxiosError) => handleRacerError(error));
 
 /*
+ Handler to request initializing Lighthouse user flow
+*/
+export const handleStartUserFlow = async ({
+  data,
+}: {
+  data: FlowContext;
+}): Promise<number> =>
+  axios
+    .post(`http://${racerServer}:${racerPort}/flow`, data)
+    .then(async (response: AxiosResponse) => {
+      const jobId = response.data?.jobId;
+      if (jobId) {
+        logger.info(`Success queuing job #${jobId}`);
+        return jobId;
+      } else {
+        throw 'No job ID received';
+      }
+    })
+    // @TODO Add new handler
+    .catch((error: AxiosError) => handleRacerError(error));
+
+/*
   Validate the response is either HTML or a LHR
 */
-const validateResponseData = (data: LighthouseResults | string) => {
+const validateResponseData = (data: UserFlowStep[] | string) => {
   if (
-    (typeof data !== 'string' && data.lighthouseVersion) ||
+    (typeof data !== 'string' && data[0].lhr) ||
     (typeof data === 'string' && data.length > 0)
   ) {
     return true;
@@ -95,12 +120,14 @@ export const fetchResult = async ({
 
   return axios
     .get(`http://${racerServer}:${racerPort}/results/${jobId}`, options)
-    .then((response: AxiosResponse) => {
+    .then(async (response: AxiosResponse) => {
       logger.debug(`Success fetching job #${jobId} ${isHtml ? 'HTML' : 'LHR'}`);
+
+      // @TODO support user flow report
       if (validateResponseData(response.data)) {
         return response.data;
       } else {
-        throw {};
+        throw new Error('Received bad data');
       }
     })
     .catch((error: Error | AxiosError) => {
@@ -121,7 +148,7 @@ export const fetchAndAppendHtml = async ({
   resultsWrapper,
 }: {
   jobId: number;
-  resultsWrapper: LighthouseResultsWrapper;
+  resultsWrapper: UserFlowResultsWrapper;
 }) => {
   return fetchResult({
     jobId,
@@ -158,13 +185,14 @@ export const collectAndPruneResults = async ({
   jobId: number;
   retrieveHtml: boolean;
 }) => {
-  let resultsWrapper: LighthouseResultsWrapper;
+  let resultsWrapper: UserFlowResultsWrapper;
 
   return fetchResult({jobId})
-    .then((data: any) => {
+    .then((data: UserFlowStep[]) => {
       resultsWrapper = {
-        lhr: data,
+        steps: data,
         report: '',
+        name: `result_${jobId}`,
       };
       if (retrieveHtml) {
         return fetchAndAppendHtml({jobId, resultsWrapper});
@@ -178,13 +206,19 @@ export const collectAndPruneResults = async ({
     .then(() => resultsWrapper);
 };
 
-export const executeWarmingRun = async ({data}: {data: ProfileContext}) => {
+export const executeWarmingRun = async ({
+  data,
+  warmingFunc,
+}: {
+  data: ProfileContext | FlowContext;
+  warmingFunc: Function;
+}) => {
   // start a race, but for this case do it in a retry loop to account for the lag in racer startup time
   // this works for this version, but in the future we'll need to get a bit more sophisticated, perhaps tracking 'awake' racers.
   let jobId = 0;
 
   try {
-    jobId = await retry(() => handleStartRacer({data}), [], {
+    jobId = await retry(() => warmingFunc({data}), [], {
       retriesMax: 10,
       interval: 250,
     });
@@ -197,7 +231,7 @@ export const executeWarmingRun = async ({data}: {data: ProfileContext}) => {
 
   try {
     await retry(() => fetchResult({jobId}), [], {
-      retriesMax: 50,
+      retriesMax: 1000,
       interval: 1000,
     });
   } catch (e) {
@@ -237,3 +271,89 @@ export const retrieveCacheStatistics = async (): Promise<
     .catch((error: Error | AxiosError) => {
       logger.error(error);
     });
+
+/*
+    For n number of runs, this function accepts a function to enqueue, expecting that to return a jobId #
+    It then enqueues a second function that typically processes said ID #
+    Every function is retried a # of times until success or max retry
+    The result of each run is returned in an array
+*/
+export const retryableQueue = async ({
+  enqueue,
+  processResult,
+  numberRuns,
+  retryInterval = RETRY_INTERVAL_MS,
+}: {
+  enqueue: any;
+  processResult: Function;
+  numberRuns: number;
+  retryInterval?: number;
+}): Promise<Array<any>> => {
+  let resultsArray: any = [];
+  let numProcessed = 0;
+  let numFailed = 0;
+
+  const processingQueue = async.queue(() => {
+    // Number of elements to be processed.
+    const remaining = processingQueue.length();
+    if (remaining === 0) {
+      logger.debug('Queue complete');
+    }
+  }, 2);
+
+  const checkQueue = async () => {
+    return new Promise<void>((resolve, reject) => {
+      console.log('Checking queue', numProcessed, numFailed);
+      if (numProcessed + numFailed >= numberRuns) {
+        resolve();
+      } else {
+        reject('Queue is not done processing');
+      }
+    });
+  };
+
+  const enqueueAndProcess = async () =>
+    enqueue().then((jobId: number) => {
+      const tryGetResults = retry(
+        () =>
+          processResult(jobId).then((result: any) => {
+            resultsArray.push(result);
+            numProcessed++;
+            logger.info(`Results received [${numProcessed}/${numberRuns}]`);
+          }),
+        [],
+        {
+          retriesMax: MAX_RETRIES,
+          interval: retryInterval,
+        }
+      ).catch(() => {
+        numFailed++;
+        logger.error(`Results failed after ${MAX_RETRIES} retries!`);
+      });
+
+      processingQueue.push(tryGetResults);
+    });
+
+  // Loop through runs, queueing up the fetch command, retrying if we don't have the ready reponse
+  for (let i = 1; i <= numberRuns; i++) {
+    try {
+      await retry(enqueueAndProcess, [], {
+        retriesMax: MAX_RETRIES,
+        interval: retryInterval,
+      });
+    } catch {
+      // numFailed = 100;
+      logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
+      // Early return
+      return resultsArray;
+    }
+  }
+
+  // Wait until all the results have been processed
+  await retry(checkQueue, [], {
+    retriesMax: 100,
+    interval: retryInterval,
+  });
+
+  return resultsArray;
+};

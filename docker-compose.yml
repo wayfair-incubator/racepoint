@@ -38,6 +38,7 @@ services:
       # - LOG_LEVEL=debug
     volumes:
       - './results:/rp/results'
+      - './flows:/rp/flows'
   stageharbor:
     container_name: stageharbor
     build:

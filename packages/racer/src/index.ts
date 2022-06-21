@@ -1,6 +1,7 @@
 import {RegisteredEndpoint} from './server/utils';
 import {FetchEndpoint} from './controllers/fetch';
 import {ProfileEndpoint} from './controllers/profile';
+import {FlowEndpoint} from './controllers/flow';
 import {ResultsGet, ResultsDelete} from './controllers/results';
 import {initialize} from './server';
 
@@ -9,6 +10,7 @@ import {initialize} from './server';
 const endpoints: RegisteredEndpoint<any>[] = [
   FetchEndpoint,
   ProfileEndpoint,
+  FlowEndpoint,
   ResultsGet,
   ResultsDelete,
 ];
