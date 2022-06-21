@@ -47,3 +47,5 @@ services:
       - raceproxy
     volumes:
       - './results:/sth/results'
+    devices:
+      - "/dev/kvm"

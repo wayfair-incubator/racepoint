@@ -1,11 +1,11 @@
 FROM ubuntu
 
-SHELL ["/bin/bash", "-c"]
-
 ARG JDK_VERSION=11
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get dist-upgrade -y && \
+    apt-get install -y --no-install-recommends dnsmasq && \
+    apt-get install -y --no-install-recommends dnsutils && \
     apt-get install -y --no-install-recommends pulseaudio libxcomposite-dev libxcursor-dev libxdamage-dev libncurses5:i386 libc6:i386 libstdc++6:i386 lib32gcc-s1 lib32ncurses6 lib32z1 zlib1g:i386 && \
     apt-get install -y --no-install-recommends openjdk-${JDK_VERSION}-jdk && \
     apt-get install -y --no-install-recommends git wget unzip && \
@@ -37,12 +37,15 @@ RUN yes | sdkmanager --licenses
 
 ENV PATH "$PATH:$ANDROID_HOME/platform-tools"
 
-RUN echo no | avdmanager create avd --force --name testAVD --abi google_apis_playstore/x86_64 --package 'system-images;android-32;google_apis_playstore;x86_64' && \
-    cd ~ && \
-    echo -e 'emulator -avd testAVD -no-audio -no-boot-anim -no-window -accel on -gpu off' > run-emulator.sh && \
-    chmod u+x run-emulator.sh
-
-EXPOSE 5554 5555 5037
+RUN echo no | avdmanager create avd --force --name testAVD --abi google_apis_playstore/x86_64 --package 'system-images;android-32;google_apis_playstore;x86_64'
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=America/New_York apt-get -y install tzdata && \
     ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
+
+COPY files /mnt/files
+
+WORKDIR /mnt/files
+
+RUN chmod +x emulator.sh && \
+    chmod +x update-dns.sh
+
