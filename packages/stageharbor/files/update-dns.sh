@@ -7,10 +7,12 @@ echo "Updating ip address in order to treat local dnsmasq as our dns resolver an
 # the next line after the 'Answer Section' contains the first match of the domain and its ip
 ip=$(dig raceproxy | awk '/ANSWER SECTION/ {getline;print $5;}')
 echo "The ip in question is $ip"
-echo "#Listen to localhost
+tee -a /etc/dnsmasq.conf << END
+#Listen to localhost
 listen-address=::1,127.0.0.1
 #Resolve all dns calls to raceproxy
-address=/#/$ip" >> /etc/dnsmasq.conf
+address=/#/$ip
+END
 echo "dnsmasq config updated. Replacing /etc/resolv.conf"
 # resolv.conf is actively used by a special mount created by the Docker environment. We cannot cp or rm the file, but we can
 # replace all the text inside
