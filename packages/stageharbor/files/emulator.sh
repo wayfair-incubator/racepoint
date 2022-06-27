@@ -1,1 +1,0 @@
-emulator -avd testAVD -no-audio -no-boot-anim -no-window -accel on -gpu off

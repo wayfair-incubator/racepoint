@@ -46,6 +46,6 @@ COPY files /mnt/files
 
 WORKDIR /mnt/files
 
-RUN chmod +x emulator.sh && \
+RUN chmod +x racerx.sh && \
     chmod +x update-dns.sh
 
