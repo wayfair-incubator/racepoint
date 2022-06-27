@@ -14,12 +14,13 @@ Stage Harbor (named after the [lighthouse](https://www.capecodlighthouses.info/s
 - Emulator Image (android-32;google_apis_playstore;x86_64)
 
 ## iOS Features
+
 - libimobiledevice v1.3.0
 - More comming soon
+
 ## Docker image creation
 
 In order to create a local image of stage harbor we need to:
-
 - Install docker 
 - Run the following command
 
@@ -31,13 +32,14 @@ docker image build -t stageharbor .
 > Mac users : Mac is not compatible at the moment to run the headless emulator, we can use a physical device connected to the host instead.
 
 > Windows users : We need to enable the WSL 2 feature in order to enable the emulator, we can enable thar following [this](https://docs.microsoft.com/en-us/windows/wsl/install) steps. Linux rules :metal:
+
 ## Container creation/usage
 
 ```bash
 docker container run -it --privileged --rm stageharbor /bin/bash
 ```
 
-#### Where
+### Where
 
 - -i    : Keep STDIN open even if not attached *
 - -t    : Allocate a pseudo-tty *
@@ -47,18 +49,15 @@ docker container run -it --privileged --rm stageharbor /bin/bash
 
 *(Used only if testing, to keep the input alive even in detached mode, not needed in a CI/CD Pipeline)
 
-
 ## Documentation
 
 [Human Readable Documentation](https://infohub.corp.wayfair.com/x/chzLJg)
 
-[Technical Documentation](#) (In progress)
-
+[Technical Documentation](https://docs.google.com/document/d/1zX_JhPF-Csrp1BBU7LNxPWOfUIXfO4g1IvNt9OPxw1I/edit?usp=sharing) (In progress)
 
 ## Feedback
 
 If you have any feedback, please reach out to me at smartinez11@wayfair.com
-
 
 ## Roadmap
 
@@ -71,6 +70,7 @@ If you have any feedback, please reach out to me at smartinez11@wayfair.com
 - iOS Compatibility
 - Real Device farm (To allow configurations like : internal network access (Compatibility with racepoint and other tools), complete control over physical devices, UI testing using stageharbor or any other custom tool 
 - Decide if this can be an open source tool :smile:
+
 ## Authors
 
 - [@smartinez11](smartinez11@wayfair.com)
