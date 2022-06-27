@@ -21,7 +21,8 @@ Stage Harbor (named after the [lighthouse](https://www.capecodlighthouses.info/s
 ## Docker image creation
 
 In order to create a local image of stage harbor we need to:
-- Install docker 
+
+- Install docker
 - Run the following command
 
 ```bash
@@ -30,7 +31,6 @@ docker image build -t stageharbor .
 ```
 
 > Mac users : Mac is not compatible at the moment to run the headless emulator, we can use a physical device connected to the host instead.
-
 > Windows users : We need to enable the WSL 2 feature in order to enable the emulator, we can enable thar following [this](https://docs.microsoft.com/en-us/windows/wsl/install) steps. Linux rules :metal:
 
 ## Container creation/usage
@@ -66,9 +66,9 @@ If you have any feedback, please reach out to me at smartinez11@wayfair.com
 - Clone a repository/branch that contains the desired code (Or pass it as a volume)
 - Run unit tests based on a namespace / class / test name
 - Configure endpoints and resources to throw results to the desired tools (Datadog, Scribe, etc...)
-- Create scripts to run specific tasks, making them automated processes 
+- Create scripts to run specific tasks, making them automated processes
 - iOS Compatibility
-- Real Device farm (To allow configurations like : internal network access (Compatibility with racepoint and other tools), complete control over physical devices, UI testing using stageharbor or any other custom tool 
+- Real Device farm (To allow configurations like : internal network access (Compatibility with racepoint and other tools), complete control over physical devices, UI testing using stageharbor or any other custom tool
 - Decide if this can be an open source tool :smile:
 
 ## Authors
