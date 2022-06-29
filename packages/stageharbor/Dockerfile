@@ -1,5 +1,9 @@
 FROM ubuntu
 
+LABEL \
+    name="racepoint/stageharbor" \
+    version="0.1.0" 
+
 ARG JDK_VERSION=11
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
@@ -47,5 +51,7 @@ COPY files /mnt/files
 WORKDIR /mnt/files
 
 RUN chmod +x racerx.sh && \
-    chmod +x update-dns.sh
+    chmod +x update-dns.sh && \
+    chmod +x entrypoint.sh
 
+ENTRYPOINT [ "bash", "entrypoint.sh" ]
