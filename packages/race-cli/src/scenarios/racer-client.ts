@@ -303,7 +303,6 @@ export const retryableQueue = async ({
 
   const checkQueue = async () => {
     return new Promise<void>((resolve, reject) => {
-      console.log('Checking queue', numProcessed, numFailed);
       if (numProcessed + numFailed >= numberRuns) {
         resolve();
       } else {
