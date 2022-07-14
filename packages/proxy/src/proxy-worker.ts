@@ -35,7 +35,7 @@ export const handleProxyResponse = async ({
   originalRequest: IncomingMessage | Http2ServerRequest;
   responseToBrowser: ServerResponse | Http2ServerResponse;
 }) => {
-  // console.log(`📥 Response received for ${trimKey(originalRequest?.url)}`);
+  console.log(`📥 Response received for ${trimKey(originalRequest?.url)}`);
 
   await extractBodyBuffer(proxyRes)
     .then((bodyBuffer) =>
