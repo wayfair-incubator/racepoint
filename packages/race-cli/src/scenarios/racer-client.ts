@@ -231,7 +231,7 @@ export const executeWarmingRun = async ({
 
   try {
     await retry(() => fetchResult({jobId}), [], {
-      retriesMax: 1000,
+      retriesMax: 500,
       interval: 1000,
     });
   } catch (e) {
@@ -341,7 +341,6 @@ export const retryableQueue = async ({
         interval: retryInterval,
       });
     } catch {
-      // numFailed = 100;
       logger.error(`Fetch failed after ${MAX_RETRIES} retries!`);
       // Early return
       return resultsArray;

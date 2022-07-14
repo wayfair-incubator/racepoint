@@ -30,9 +30,6 @@ export interface RaceFlowCommand {
   testModule: string;
   deviceType?: 'desktop' | 'mobile';
   chromeFlags?: string[];
-  // extraHeaders?: Record<string, string>;
-  // disableStorageReset?: boolean;
-  // blockedUrlPatterns?: string[];
 }
 
 export interface TestCaseType {
@@ -44,9 +41,6 @@ export class FlowContext {
   testCase: TestCaseType;
   deviceType = 'desktop';
   chromeFlags: string[] = [];
-  // disableStorageReset = false;
-  // extraHeaders: Record<string, string> = {};
-  // blockedUrlPatterns: string[] = [];
 
   constructor(
     requestedJobId: number,
@@ -56,15 +50,10 @@ export class FlowContext {
     this.jobId = requestedJobId;
     this.testCase = testCase;
     this.deviceType = command.deviceType || this.deviceType;
-    // this.disableStorageReset =
-    //   command.disableStorageReset || this.disableStorageReset;
-    // equivalent of java '.addAll()'
     this.chromeFlags.push(
       ...(command.chromeFlags || []),
       ...DEFAULT_CHROME_FLAGS
     );
-    // this.blockedUrlPatterns.push(...(command.blockedUrlPatterns || []));
-    // this.extraHeaders = command.extraHeaders || this.extraHeaders;
   }
 }
 
