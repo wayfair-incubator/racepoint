@@ -1,31 +1,29 @@
-import {ProfileContext, Scenario} from '../types';
-import {LHResultsReporter, ReportingTypes} from '../reporters/index';
+import {FlowContext, Scenario} from '../types';
 import {
-  handleStartRacer,
   collectAndPruneResults,
+  retryableQueue,
+  handleStartUserFlow,
   executeWarmingRun,
   enableOutboundRequests,
   retrieveCacheStatistics,
-  retryableQueue,
 } from './racer-client';
+import {LHResultsReporter, ReportingTypes} from '../reporters/index';
 import {UserFlowResultsWrapper} from '@racepoint/shared';
 import logger from '../logger';
 
-const FORMAT_CSV = 'csv';
+export const FLOW_COMMAND = 'flow';
 const FORMAT_HTML = 'html';
 
-export const PROFILE_COMMAND = 'profile';
-
-export class ProfileScenario extends Scenario<ProfileContext> {
+export class FlowScenario extends Scenario<FlowContext> {
   getCommand(): string {
-    return PROFILE_COMMAND;
+    return FLOW_COMMAND;
   }
 
-  buildContext(userArgs: any): ProfileContext {
-    return new ProfileContext(userArgs);
+  buildContext(userArgs: any): FlowContext {
+    return new FlowContext(userArgs);
   }
 
-  async runScenario(context: ProfileContext): Promise<void> {
+  async runScenario(context: FlowContext): Promise<void> {
     process.on('SIGINT', function () {
       logger.warn('\nGracefully shutting down from SIGINT (Ctrl-C)');
       process.exit(0);
@@ -34,7 +32,7 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     logger.info('Executing warming run...');
     await executeWarmingRun({
       data: context,
-      warmingFunc: handleStartRacer,
+      warmingFunc: handleStartUserFlow,
     });
 
     await enableOutboundRequests(false);
@@ -44,18 +42,12 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     const resultsReporter = new LHResultsReporter({
       outputs: [
         ReportingTypes.Aggregate,
-        ...(context.includeIndividual
-          ? [ReportingTypes.IndividualRunsReporter]
-          : []),
         ...(context.outputFormat.includes(FORMAT_HTML)
           ? [ReportingTypes.LighthouseHtml]
           : []),
-        ...(context.outputFormat.includes(FORMAT_CSV)
-          ? [ReportingTypes.Repository]
-          : []),
       ],
-      repositoryId: context.repositoryId,
-      targetUrl: context.targetUrl,
+      repositoryId: '',
+      targetUrl: context.testFilename,
       deviceType: context.deviceType,
       outputFormat: context.outputFormat,
       outputTarget: context.outputTarget,
@@ -63,14 +55,16 @@ export class ProfileScenario extends Scenario<ProfileContext> {
     });
 
     await resultsReporter.prepare();
-    logger.info(`Beginning Lighthouse runs for ${context.targetUrl}`);
+    logger.info(
+      `Beginning Lighthouse user flows from script ${context.testFilename}`
+    );
 
-    const resultsArray = await retryableQueue({
-      enqueue: () =>
-        handleStartRacer({
+    const resultsArray: UserFlowResultsWrapper[] = await retryableQueue({
+      enqueue: async () =>
+        handleStartUserFlow({
           data: context,
         }),
-      processResult: (jobId: number) =>
+      processResult: async (jobId: number) =>
         collectAndPruneResults({
           jobId,
           retrieveHtml: context.outputFormat.includes(FORMAT_HTML),
@@ -83,7 +77,6 @@ export class ProfileScenario extends Scenario<ProfileContext> {
       await resultsReporter.process(result);
     });
 
-    // Do we want an option to disable this?
     const cacheStats = await retrieveCacheStatistics();
     // Re-enable outbound requests
     await enableOutboundRequests(true);

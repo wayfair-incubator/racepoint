@@ -1,16 +1,23 @@
 import lighthouse from 'lighthouse';
 import {launch} from 'chrome-launcher';
 import {Flags} from 'lighthouse/types/externs';
+import puppeteer from 'puppeteer-core';
 import {LighthouseResultsRepository} from './repository';
 import {UsageLock} from '../usageLock';
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {
+  LighthouseResultsWrapper,
+  UserFlowResultsWrapper,
+} from '@racepoint/shared';
 import {
   RaceProfileCommand,
+  RaceFlowCommand,
+  TestCaseType,
   RaceContext,
+  FlowContext,
   constructChromeOptions,
   constructLighthouseFlags,
 } from './config';
-
+import api from 'lighthouse/lighthouse-core/fraggle-rock/api.js';
 /**
  * Starts a lighthouse run asynchronously, returning a job id immediately.
  *
@@ -24,6 +31,53 @@ export const submitLighthouseRun = async (
   // execute a Lighthouse run. This is an async function and as such the jobId is returned immediately.
   profileWithLighthouse(context);
   return jobId;
+};
+
+/**
+ * Starts a user flow script asynchronously, returning a job id immediately.
+ *
+ * @param command the  RaceProfileCommand dictating the instruction of the profiling to do.
+ */
+export const submitUserFlow = async (
+  command: RaceFlowCommand,
+  testCase: TestCaseType
+): Promise<number> => {
+  const jobId = await LighthouseResultsRepository.getNextId();
+  const context = new FlowContext(jobId, command, testCase);
+  // execute a user flow script This is an async function and as such the jobId is returned immediately.
+  runUserFlow(context);
+  return jobId;
+};
+
+const runUserFlow = async (context: FlowContext) => {
+  const browser = await puppeteer.launch({
+    // headless: false,
+    args: context.chromeFlags,
+    executablePath: '/usr/bin/chromium-browser',
+  });
+
+  try {
+    console.log('Attempting to run test...');
+    const resultFlow = await context.testCase.connect(browser, api);
+    // Closing browser if not closed...
+    await browser.close();
+
+    const resultsFile = (await resultFlow?.generateReport()) || '';
+    const flowResult = (await resultFlow?.createFlowResult()) || {};
+
+    const resultData: UserFlowResultsWrapper = {
+      steps: flowResult?.steps,
+      name: flowResult?.name,
+      report: resultsFile,
+    };
+
+    await LighthouseResultsRepository.write(context.jobId, resultData);
+    await UsageLock.getInstance().release();
+  } catch (e) {
+    console.error('Error trying to run test!');
+    await browser.close();
+    await UsageLock.getInstance().release();
+  }
 };
 
 const profileWithLighthouse = async (context: RaceContext) => {
@@ -40,9 +94,22 @@ const profileWithLighthouse = async (context: RaceContext) => {
     lighthouseFlags,
     context.blockedUrlPatterns
   );
+
+  // Re-format the results object into a shared user flow type
+  // Essentially a flow with a single step
+  const formattedResults: UserFlowResultsWrapper = {
+    steps: [
+      {
+        lhr: results.lhr,
+        name: 'Single Run',
+      },
+    ],
+    report: results.report,
+  };
+
   // don't forget the cleanup
   await chrome.kill();
-  await LighthouseResultsRepository.write(context.jobId, results);
+  await LighthouseResultsRepository.write(context.jobId, formattedResults);
   await UsageLock.getInstance().release();
 };
 

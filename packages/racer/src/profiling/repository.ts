@@ -3,12 +3,12 @@
  *
  */
 
-import {LighthouseResultsWrapper} from '@racepoint/shared';
+import {UserFlowResultsWrapper} from '@racepoint/shared';
 
 export interface RepositoryRecord {
   jobId: number;
   timestamp: Date;
-  results: LighthouseResultsWrapper;
+  results: UserFlowResultsWrapper;
 }
 
 // at first this will be an in-memory queue, but eventually should make use of writing files to tmp or even better, a datastore
@@ -31,7 +31,7 @@ export class LighthouseResultsRepository {
 
   public static write(
     jobId: number,
-    data: LighthouseResultsWrapper
+    data: UserFlowResultsWrapper
   ): Promise<number> {
     this._store.push({
       jobId,

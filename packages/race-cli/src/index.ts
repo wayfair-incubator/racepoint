@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 import commander from 'commander';
+import fs from 'fs';
+import path from 'path';
 import {
   argumentHelper,
   descriptionHelper,
@@ -7,8 +9,10 @@ import {
   parseIntArg,
   parseUrlArg,
   splitChromeArgs,
+  validateFile,
 } from './helpers';
 import {ProfileScenario, PROFILE_COMMAND} from './scenarios/profile';
+import {FlowScenario, FLOW_COMMAND} from './scenarios/flow';
 
 const program = new commander.Command();
 
@@ -101,6 +105,56 @@ program
         ? options.outputFormat.map((format: string) => format.toLowerCase())
         : [],
       outputTarget: options.outputTarget ? options.outputTarget : process.cwd(),
+    });
+  });
+
+program
+  .command(FLOW_COMMAND)
+  .description(descriptionHelper('Perform a number of Lighthouse user flows'))
+  .argument(
+    '<testcase>',
+    argumentHelper('Location of user flow file'),
+    validateFile
+  )
+  .showHelpAfterError()
+  // Keep these alphabetical
+  .option(
+    '--chrome-flags <string>',
+    descriptionHelper(
+      'Chrome flags for the emulated browser. Will be merged with necessary defaults. Should be a comma-delimited list of arguments.'
+    ),
+    splitChromeArgs,
+    []
+  )
+  .option(
+    '-d, --device-type <device>',
+    descriptionHelper('Device type to emulate'),
+    'Mobile'
+  )
+  .option(
+    '-n, --number-runs <number>',
+    descriptionHelper('Number of Lighthouse runs per URL'),
+    parseIntArg,
+    1
+  )
+  .option(
+    '--output-target <string>',
+    descriptionHelper('Location to save results'),
+    'results'
+  )
+  .option(
+    '--output-format [string...]',
+    descriptionHelper('Save results as CSV, HTML, and/or MD')
+  )
+  .usage('./my-test.js')
+  .action((testFilepath: any, options: any) => {
+    new FlowScenario().enter({
+      ...options,
+      testModule: fs.readFileSync(testFilepath, 'utf8'),
+      testFilename: path.basename(testFilepath, '.js'),
+      outputFormat: options.outputFormat
+        ? options.outputFormat.map((format: string) => format.toLowerCase())
+        : [],
     });
   });
 

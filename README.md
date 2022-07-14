@@ -183,6 +183,18 @@ Racepoint accepts the following commands and flags:
 | --repository-id                                              | Name of the repository file (default: "lighthouse-runs")                           |
 | -h, --help                                                   | Display help for command                                                           |
 
+- `flow` - perform a number of Lighthouse user flows from an Javascript test
+  file (Experimental)
+
+| <span style="display: inline-block; width:200px">Flag</span> | Description                                                               |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| --chrome-flags                                               | Additional comma-delimeted list of Chrome flags for the emulated browser. |
+| -d, --device-type                                            | Device type to emulate (default: "mobile")                                |
+| -n, --number-runs                                            | Number of Lighthouse runs per URL (default: 1)                            |
+| --output-target                                              | Location to save results (defaults to current directory)                  |
+| --output-format                                              | Save results as CSV, HTML, or both                                        |
+| -h, --help                                                   | Display help for command                                                  |
+
 ### Debug
 
 To enable full console logging, run your race command with the environmental

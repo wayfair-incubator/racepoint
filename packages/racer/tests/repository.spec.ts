@@ -16,20 +16,25 @@ describe('Empty LighthouseResults Repository', () => {
 
 const samplePayload = {
   report: '<html></html>',
-  lhr: {
-    userAgent: 'WF tester 1.1',
-    lighthouseVersion: '0.1.0',
-    fetchTime: '123',
-    requestedUrl: 'https://www.foo.com',
-    finalUrl: 'https://www.foo.com',
-    runWarnings: [],
-    runtimeError: undefined,
-    audits: {},
-    timing: {
-      entries: [],
-      total: 0,
+  steps: [
+    {
+      name: 'Test',
+      lhr: {
+        userAgent: 'WF tester 1.1',
+        lighthouseVersion: '0.1.0',
+        fetchTime: '123',
+        requestedUrl: 'https://www.foo.com',
+        finalUrl: 'https://www.foo.com',
+        runWarnings: [],
+        runtimeError: undefined,
+        audits: {},
+        timing: {
+          entries: [],
+          total: 0,
+        },
+      },
     },
-  },
+  ],
 };
 
 describe('Lighthouse Results Repository CRUD operations', () => {
@@ -55,7 +60,7 @@ describe('Lighthouse Results Repository CRUD operations', () => {
     expect(retrieved!!.timestamp).to.not.be.undefined;
     expect(retrieved!!.jobId).to.equal(jobId);
     expect(retrieved!!.results.report).to.equal('<html></html>');
-    expect(retrieved!!.results.lhr.requestedUrl).to.equal(
+    expect(retrieved!!.results.steps[0].lhr.requestedUrl).to.equal(
       'https://www.foo.com'
     );
 
