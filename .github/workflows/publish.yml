@@ -26,7 +26,7 @@ jobs:
 
       - name: Extract package version
         id: extract-version
-        uses: Saionaro/extract-package-version@v1.1.1
+        uses: Saionaro/extract-package-version@v1.2.0
 
       - name: Release Latest
         id: release-version
