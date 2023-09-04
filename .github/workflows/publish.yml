@@ -19,7 +19,7 @@ jobs:
           node-version: '16'
 
       - name: Checkout files
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install modules
         run: yarn && yarn run build
